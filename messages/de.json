@@ -450,6 +450,7 @@
     "min_price": "Mindestpreis",
     "max_price": "Maximaler Preis",
     "apply_price": "Preis anwenden",
+    "reset_filters": "Filter zurücksetzen",
     "filter_rating": "Nach Bewertung filtern",
     "showing_results": "Es werden {currentRange} von {totalResults} Ergebnissen angezeigt",
     "default_sort": "Standardsortierung",

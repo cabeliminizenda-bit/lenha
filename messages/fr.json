@@ -450,6 +450,7 @@
     "min_price": "Prix min",
     "max_price": "Prix max",
     "apply_price": "Appliquer",
+    "reset_filters": "Réinitialiser les filtres",
     "filter_rating": "Filtrer par note",
     "showing_results": "Affichage de {currentRange} sur {totalResults} résultats",
     "default_sort": "Tri par défaut",

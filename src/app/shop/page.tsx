@@ -8,6 +8,9 @@ import { getTranslations } from 'next-intl/server';
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
 
+const isUuid = (str: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+
 export async function generateMetadata({
   searchParams,
 }: {
@@ -18,11 +21,17 @@ export async function generateMetadata({
   
   // Extract category
   const categoryParams = params.category;
-  const categories = Array.isArray(categoryParams) ? categoryParams : categoryParams ? [categoryParams] : [];
+  const rawCategories = Array.isArray(categoryParams) ? categoryParams : categoryParams ? [categoryParams] : [];
+  const categories = rawCategories.map(c => decodeURIComponent(c));
   
   if (categories.length === 1) {
+    const rawCat = categories[0];
+    const orCond: any[] = [{ slug: rawCat }];
+    if (isUuid(rawCat)) {
+      orCond.push({ id: rawCat });
+    }
     const category = await prisma.category.findFirst({
-      where: { OR: [{ slug: categories[0] }, { id: categories[0] }] }
+      where: { OR: orCond }
     });
     
     if (category) {
@@ -30,7 +39,7 @@ export async function generateMetadata({
         title: category.metaTitle ? category.metaTitle : `${category.name} | ${storeName}`,
         description: category.metaDescription || `Kaufen Sie ${category.name} günstig online bei ${storeName}.`,
         alternates: {
-          canonical: `/shop?category=${categories[0]}`,
+          canonical: `/shop?category=${category.slug}`,
         },
       };
     }
@@ -55,10 +64,12 @@ export default async function ShopPage({
   
   // Extract query params
   const categoryParams = params.category;
-  const categories = Array.isArray(categoryParams) ? categoryParams : categoryParams ? [categoryParams] : [];
+  const rawCategories = Array.isArray(categoryParams) ? categoryParams : categoryParams ? [categoryParams] : [];
+  const categories = rawCategories.map(c => decodeURIComponent(c));
   
   const brandParams = params.brand;
-  const brandsFilter = Array.isArray(brandParams) ? brandParams : brandParams ? [brandParams] : [];
+  const rawBrands = Array.isArray(brandParams) ? brandParams : brandParams ? [brandParams] : [];
+  const brandsFilter = rawBrands.map(b => decodeURIComponent(b));
   
   const minPrice = params.minPrice ? parseFloat(params.minPrice as string) : undefined;
   const maxPrice = params.maxPrice ? parseFloat(params.maxPrice as string) : undefined;
@@ -71,27 +82,56 @@ export default async function ShopPage({
   const limit = 12;
 
   // Build Prisma where clause
-  const where: any = {};
+  const where: any = {
+    isDeleted: false,
+  };
   
   if (categories.length > 0) {
-    where.categories = { some: { slug: { in: categories } } };
+    const catUuids = categories.filter(isUuid);
+    const catSlugs = categories.filter(s => !isUuid(s));
+    const catConditions: any[] = [];
+    if (catSlugs.length > 0) catConditions.push({ slug: { in: catSlugs } });
+    if (catUuids.length > 0) catConditions.push({ id: { in: catUuids } });
+
+    if (catConditions.length > 0) {
+      where.categories = {
+        some: {
+          OR: catConditions
+        }
+      };
+    }
   }
   
   if (brandsFilter.length > 0) {
-    where.brand = { slug: { in: brandsFilter } };
+    const brandUuids = brandsFilter.filter(isUuid);
+    const brandSlugs = brandsFilter.filter(s => !isUuid(s));
+    const brandConditions: any[] = [];
+    if (brandSlugs.length > 0) {
+      brandConditions.push({ slug: { in: brandSlugs } });
+      brandConditions.push({ name: { in: brandSlugs } });
+    }
+    if (brandUuids.length > 0) {
+      brandConditions.push({ id: { in: brandUuids } });
+    }
+
+    if (brandConditions.length > 0) {
+      where.brand = {
+        OR: brandConditions
+      };
+    }
   }
   
   if (minPrice !== undefined || maxPrice !== undefined) {
     where.price = {};
-    if (minPrice !== undefined) where.price.gte = minPrice;
-    if (maxPrice !== undefined) where.price.lte = maxPrice;
+    if (minPrice !== undefined && !isNaN(minPrice)) where.price.gte = minPrice;
+    if (maxPrice !== undefined && !isNaN(maxPrice)) where.price.lte = maxPrice;
   }
 
   // Fetch all categories for the filter sidebar with product counts
   const allCategories = await prisma.category.findMany({
     include: {
       _count: {
-        select: { products: true }
+        select: { products: { where: { isDeleted: false } } }
       }
     },
     orderBy: { name: 'asc' }
@@ -99,6 +139,7 @@ export default async function ShopPage({
 
   // Get global min/max price for the slider
   const priceAgg = await prisma.product.aggregate({
+    where: { isDeleted: false },
     _min: { price: true },
     _max: { price: true }
   });
@@ -109,7 +150,7 @@ export default async function ShopPage({
   const allBrands = await prisma.brand.findMany({
     include: {
       _count: {
-        select: { products: true }
+        select: { products: { where: { isDeleted: false } } }
       }
     },
     orderBy: { name: 'asc' }
@@ -184,7 +225,8 @@ export default async function ShopPage({
 
   let pageTitle = t('title');
   if (categories.length === 1) {
-    const selectedCategory = allCategories.find(c => c.slug === categories[0] || c.id === categories[0]);
+    const rawCat = categories[0];
+    const selectedCategory = allCategories.find(c => c.slug === rawCat || (isUuid(rawCat) && c.id === rawCat));
     if (selectedCategory) {
       pageTitle = selectedCategory.name;
     }
