@@ -60,6 +60,22 @@ async function generateUniqueSlug(baseSlug: string) {
 /**
  * Test WooCommerce API connection
  */
+export type WcProductImportItemResult = {
+  id: number;
+  name: string;
+  status: 'SUCCESS' | 'ALREADY_EXISTS' | 'FAILED';
+  error?: string;
+  image?: string | null;
+  price?: string | number;
+};
+
+export interface ProcessWcProductsResult {
+  importedCount: number;
+  alreadyExistsCount: number;
+  failedCount: number;
+  items: WcProductImportItemResult[];
+}
+
 export async function testWooCommerceConnection(url: string, consumerKey: string, consumerSecret: string) {
   await requireAdmin();
   const baseUrl = url.replace(/\/$/, '');
@@ -377,271 +393,322 @@ async function processAndSaveWcProducts(
   consumerKey: string, 
   consumerSecret: string,
   allowedCategoryIds?: number[]
-): Promise<number> {
+): Promise<ProcessWcProductsResult> {
   let importedCount = 0;
+  let alreadyExistsCount = 0;
+  let failedCount = 0;
+  const items: WcProductImportItemResult[] = [];
+
   const allowedSet = (allowedCategoryIds && allowedCategoryIds.length > 0) ? new Set(allowedCategoryIds) : null;
 
   for (const wcProduct of products) {
-    const decodedTitle = unescapeHtml(wcProduct.name);
+    const decodedTitle = unescapeHtml(wcProduct.name || '');
+    const rawTitle = wcProduct.name || '';
+    const imgUrl = (wcProduct.images && wcProduct.images[0]?.src) ? wcProduct.images[0].src : null;
+    const priceVal = wcProduct.price || wcProduct.regular_price || '0';
 
-    // Check if product with same title already exists (unescaped or raw)
-    const existingProduct = await prisma.product.findFirst({
-      where: { 
-        OR: [
-          { title: decodedTitle },
-          { title: wcProduct.name }
-        ]
-      }
-    });
-
-    if (existingProduct) {
-      continue; // Skip this product
-    }
-
-    const categoryIds: string[] = [];
-    if (wcProduct.categories && Array.isArray(wcProduct.categories)) {
-      for (const wcCat of wcProduct.categories) {
-        // If an explicit category filter is active, only associate categories that are in the allowed filter
-        if (allowedSet && !allowedSet.has(wcCat.id)) {
-          continue;
-        }
-
-        let category = await prisma.category.findUnique({
-          where: { name: unescapeHtml(wcCat.name) }
-        });
-        if (!category) {
-          category = await prisma.category.create({
-            data: {
-              name: unescapeHtml(wcCat.name),
-              slug: wcCat.slug || slugify(unescapeHtml(wcCat.name)),
-            }
-          });
-        }
-        categoryIds.push(category.id);
-      }
-    }
-
-    // Brands logic
-    let brandId: string | null = null;
-    let brandName: string | null = null;
-    let brandSlug: string | null = null;
-
-    if (wcProduct.brands && Array.isArray(wcProduct.brands) && wcProduct.brands.length > 0) {
-      brandName = wcProduct.brands[0].name;
-      brandSlug = wcProduct.brands[0].slug;
-    } else if (wcProduct.attributes && Array.isArray(wcProduct.attributes)) {
-      const brandAttr = wcProduct.attributes.find((a: any) => 
-        a.name.toLowerCase() === 'brand' || 
-        a.name.toLowerCase() === 'marque' || 
-        a.name.toLowerCase() === 'brands' || 
-        a.name.toLowerCase() === 'marques'
-      );
-      if (brandAttr && brandAttr.options && brandAttr.options.length > 0) {
-        brandName = brandAttr.options[0];
-        brandSlug = brandName ? brandName.toLowerCase().replace(/[^a-z0-9]+/g, '-') : null;
-      }
-    }
-
-    if (brandName && brandSlug) {
-      let brand = await prisma.brand.findUnique({
-        where: { name: unescapeHtml(brandName) }
+    try {
+      // 1. Check if product with same title or slug already exists on destination site
+      const baseSlug = wcProduct.slug || slugify(decodedTitle);
+      const existingProduct = await prisma.product.findFirst({
+        where: { 
+          OR: [
+            { title: decodedTitle },
+            { title: rawTitle },
+            { slug: baseSlug }
+          ]
+        },
+        select: { id: true, title: true }
       });
-      if (!brand) {
-        brand = await prisma.brand.create({
-          data: {
-            name: unescapeHtml(brandName),
-            slug: brandSlug,
+
+      if (existingProduct) {
+        items.push({
+          id: wcProduct.id,
+          name: decodedTitle,
+          status: 'ALREADY_EXISTS',
+          image: imgUrl,
+          price: priceVal
+        });
+        alreadyExistsCount++;
+        continue; // Skip creating duplicate product
+      }
+
+      // 2. Process Categories
+      const categoryIds: string[] = [];
+      if (wcProduct.categories && Array.isArray(wcProduct.categories)) {
+        for (const wcCat of wcProduct.categories) {
+          if (allowedSet && !allowedSet.has(wcCat.id)) {
+            continue;
           }
-        });
-      }
-      brandId = brand.id;
-    }
 
-    const cloudinaryImageUrls: string[] = [];
-    if (wcProduct.images && Array.isArray(wcProduct.images)) {
-      const uploadPromises = wcProduct.images.map(async (wcImg: any) => {
-        if (!wcImg.src) return null;
-        const secureUrl = await uploadImageFromUrlToCloudinary(wcImg.src);
-        if (secureUrl) {
-          await prisma.media.upsert({
-            where: { url: secureUrl },
-            update: {
-              title: wcImg.name || wcImg.title || null,
-              altText: wcImg.alt || null,
-            },
-            create: {
-              url: secureUrl,
-              title: wcImg.name || wcImg.title || null,
-              altText: wcImg.alt || null,
+          let category = await prisma.category.findUnique({
+            where: { name: unescapeHtml(wcCat.name) }
+          });
+          if (!category) {
+            category = await prisma.category.create({
+              data: {
+                name: unescapeHtml(wcCat.name),
+                slug: wcCat.slug || slugify(unescapeHtml(wcCat.name)),
+              }
+            });
+          }
+          categoryIds.push(category.id);
+        }
+      }
+
+      // 3. Process Brands
+      let brandId: string | null = null;
+      let brandName: string | null = null;
+      let brandSlug: string | null = null;
+
+      if (wcProduct.brands && Array.isArray(wcProduct.brands) && wcProduct.brands.length > 0) {
+        brandName = wcProduct.brands[0].name;
+        brandSlug = wcProduct.brands[0].slug;
+      } else if (wcProduct.attributes && Array.isArray(wcProduct.attributes)) {
+        const brandAttr = wcProduct.attributes.find((a: any) => 
+          a.name.toLowerCase() === 'brand' || 
+          a.name.toLowerCase() === 'marque' || 
+          a.name.toLowerCase() === 'brands' || 
+          a.name.toLowerCase() === 'marques'
+        );
+        if (brandAttr && brandAttr.options && brandAttr.options.length > 0) {
+          brandName = brandAttr.options[0];
+          brandSlug = brandName ? brandName.toLowerCase().replace(/[^a-z0-9]+/g, '-') : null;
+        }
+      }
+
+      if (brandName && brandSlug) {
+        let brand = await prisma.brand.findUnique({
+          where: { name: unescapeHtml(brandName) }
+        });
+        if (!brand) {
+          brand = await prisma.brand.create({
+            data: {
+              name: unescapeHtml(brandName),
+              slug: brandSlug,
             }
           });
-          return secureUrl;
         }
-        return null;
+        brandId = brand.id;
+      }
+
+      // 4. Process Images
+      const cloudinaryImageUrls: string[] = [];
+      if (wcProduct.images && Array.isArray(wcProduct.images)) {
+        const uploadPromises = wcProduct.images.map(async (wcImg: any) => {
+          if (!wcImg.src) return null;
+          try {
+            const secureUrl = await uploadImageFromUrlToCloudinary(wcImg.src);
+            if (secureUrl) {
+              await prisma.media.upsert({
+                where: { url: secureUrl },
+                update: {
+                  title: wcImg.name || wcImg.title || null,
+                  altText: wcImg.alt || null,
+                },
+                create: {
+                  url: secureUrl,
+                  title: wcImg.name || wcImg.title || null,
+                  altText: wcImg.alt || null,
+                }
+              });
+              return secureUrl;
+            }
+          } catch (uploadErr) {
+            console.warn(`[WooCommerce Import] Image upload failed for ${wcImg.src}:`, uploadErr);
+          }
+          return null;
+        });
+
+        const results = await Promise.all(uploadPromises);
+        results.forEach((url) => {
+          if (url) cloudinaryImageUrls.push(url as string);
+        });
+      }
+
+      const uniqueSlug = await generateUniqueSlug(baseSlug);
+      const price = parseFloat(wcProduct.price || wcProduct.regular_price || '0');
+      const compareAtPrice = parseFloat(wcProduct.regular_price || '0');
+
+      let stock: number | null = null;
+      if (wcProduct.manage_stock && wcProduct.stock_quantity !== null) {
+        stock = parseInt(wcProduct.stock_quantity, 10);
+      }
+
+      // 5. Tags
+      const tags: string[] = [];
+      if (wcProduct.tags && Array.isArray(wcProduct.tags)) {
+        wcProduct.tags.forEach((t: any) => {
+          if (t && t.name) tags.push(t.name);
+        });
+      }
+
+      // 6. Attributes
+      let parsedAttributes: any[] = [];
+      if (wcProduct.attributes && Array.isArray(wcProduct.attributes)) {
+        parsedAttributes = wcProduct.attributes
+          .filter((attr: any) => attr.variation)
+          .map((attr: any) => ({
+            name: attr.name,
+            options: attr.options
+          }));
+      }
+
+      // 7. Variations
+      let parsedVariations: any[] = [];
+      if (wcProduct.type === 'variable') {
+        try {
+          const varResponse = await fetch(`${apiUrl}/${wcProduct.id}/variations`, {
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64'),
+              'Content-Type': 'application/json'
+            },
+            cache: 'no-store'
+          });
+          if (varResponse.ok) {
+            const wcVariations = await varResponse.json();
+            if (Array.isArray(wcVariations)) {
+              parsedVariations = await Promise.all(wcVariations.map(async (wcVar: any) => {
+                const attrMap: Record<string, string> = {};
+                if (wcVar.attributes && Array.isArray(wcVar.attributes)) {
+                  wcVar.attributes.forEach((a: any) => {
+                    attrMap[a.name] = a.option;
+                  });
+                }
+
+                let varImage = undefined;
+                if (wcVar.image && wcVar.image.src) {
+                  try {
+                    const secureUrl = await uploadImageFromUrlToCloudinary(wcVar.image.src);
+                    if (secureUrl) {
+                      varImage = secureUrl;
+                      await prisma.media.upsert({
+                        where: { url: secureUrl },
+                        update: {
+                          title: wcVar.image.name || wcVar.image.title || null,
+                          altText: wcVar.image.alt || null,
+                        },
+                        create: {
+                          url: secureUrl,
+                          title: wcVar.image.name || wcVar.image.title || null,
+                          altText: wcVar.image.alt || null,
+                        }
+                      });
+                    }
+                  } catch (e) {
+                    console.warn(`[WooCommerce Import] Variation image upload failed for var ${wcVar.id}:`, e);
+                  }
+                }
+
+                return {
+                  id: String(wcVar.id),
+                  attributes: attrMap,
+                  price: parseFloat(wcVar.price || wcVar.regular_price || '0'),
+                  stock: (wcVar.manage_stock && wcVar.stock_quantity !== null) ? parseInt(wcVar.stock_quantity, 10) : null,
+                  image: varImage
+                };
+              }));
+            }
+          }
+        } catch (err) {
+          console.error(`Failed to fetch variations for product ${wcProduct.id}`, err);
+        }
+      }
+
+      // 8. Create Product in Prisma
+      const createdProduct = await prisma.product.create({
+        data: {
+          title: decodedTitle,
+          slug: uniqueSlug,
+          description: wcProduct.description || '',
+          shortDescription: wcProduct.short_description || '',
+          price: price,
+          compareAtPrice: (compareAtPrice > price) ? compareAtPrice : null,
+          images: cloudinaryImageUrls,
+          stock: stock,
+          type: wcProduct.type === 'variable' ? 'VARIABLE' : 'SIMPLE',
+          tags: {
+            connectOrCreate: tags.map((t: string) => ({
+              where: { name: t },
+              create: { name: t, slug: slugify(t) }
+            }))
+          },
+          brandId: brandId,
+          attributes: parsedAttributes.length > 0 ? parsedAttributes : undefined,
+          variations: parsedVariations.length > 0 ? parsedVariations : undefined,
+          categories: {
+            connect: categoryIds.map(id => ({ id }))
+          }
+        }
       });
 
-      const results = await Promise.all(uploadPromises);
-      results.forEach((url) => {
-        if (url) cloudinaryImageUrls.push(url as string);
-      });
-    }
-
-    const baseSlug = wcProduct.slug || wcProduct.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    const uniqueSlug = await generateUniqueSlug(baseSlug);
-
-    const price = parseFloat(wcProduct.price || wcProduct.regular_price || '0');
-    const compareAtPrice = parseFloat(wcProduct.regular_price || '0');
-
-    let stock: number | null = null;
-    if (wcProduct.manage_stock && wcProduct.stock_quantity !== null) {
-      stock = parseInt(wcProduct.stock_quantity, 10);
-    }
-
-    // Tags
-    const tags: string[] = [];
-    if (wcProduct.tags && Array.isArray(wcProduct.tags)) {
-      wcProduct.tags.forEach((t: any) => {
-        if (t && t.name) tags.push(t.name);
-      });
-    }
-
-    // Attributes logic
-    let parsedAttributes: any[] = [];
-    if (wcProduct.attributes && Array.isArray(wcProduct.attributes)) {
-      parsedAttributes = wcProduct.attributes
-        .filter((attr: any) => attr.variation)
-        .map((attr: any) => ({
-          name: attr.name,
-          options: attr.options
-        }));
-    }
-
-    // Variations fetch logic
-    let parsedVariations: any[] = [];
-    if (wcProduct.type === 'variable') {
+      // 9. Import reviews
       try {
-        const varResponse = await fetch(`${apiUrl}/${wcProduct.id}/variations`, {
+        const reviewsResponse = await fetch(`${apiUrl}/reviews?product=${wcProduct.id}`, {
           headers: {
             'Authorization': 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64'),
             'Content-Type': 'application/json'
           },
           cache: 'no-store'
         });
-        if (varResponse.ok) {
-          const wcVariations = await varResponse.json();
-          parsedVariations = await Promise.all(wcVariations.map(async (wcVar: any) => {
-            const attrMap: Record<string, string> = {};
-            if (wcVar.attributes && Array.isArray(wcVar.attributes)) {
-              wcVar.attributes.forEach((a: any) => {
-                attrMap[a.name] = a.option;
+
+        if (reviewsResponse.ok) {
+          const wcReviews = await reviewsResponse.json();
+          if (Array.isArray(wcReviews) && wcReviews.length > 0) {
+            const reviewsToInsert = wcReviews
+              .filter(r => r.status === 'approved')
+              .map(r => ({
+                productId: createdProduct.id,
+                reviewerName: r.reviewer || null,
+                reviewerEmail: r.reviewer_email || null,
+                rating: r.rating || 5,
+                comment: r.review ? r.review.replace(/(<([^>]+)>)/gi, "") : '',
+                isApproved: true,
+                createdAt: new Date(r.date_created)
+              }));
+            
+            if (reviewsToInsert.length > 0) {
+              await prisma.review.createMany({
+                data: reviewsToInsert
               });
             }
-
-            let varImage = undefined;
-            if (wcVar.image && wcVar.image.src) {
-              const secureUrl = await uploadImageFromUrlToCloudinary(wcVar.image.src);
-              if (secureUrl) {
-                varImage = secureUrl;
-                await prisma.media.upsert({
-                  where: { url: secureUrl },
-                  update: {
-                    title: wcVar.image.name || wcVar.image.title || null,
-                    altText: wcVar.image.alt || null,
-                  },
-                  create: {
-                    url: secureUrl,
-                    title: wcVar.image.name || wcVar.image.title || null,
-                    altText: wcVar.image.alt || null,
-                  }
-                });
-              }
-            }
-
-            return {
-              id: String(wcVar.id),
-              attributes: attrMap,
-              price: parseFloat(wcVar.price || wcVar.regular_price || '0'),
-              stock: (wcVar.manage_stock && wcVar.stock_quantity !== null) ? parseInt(wcVar.stock_quantity, 10) : null,
-              image: varImage
-            };
-          }));
-        }
-      } catch (err) {
-        console.error(`Failed to fetch variations for product ${wcProduct.id}`, err);
-      }
-    }
-
-    const createdProduct = await prisma.product.create({
-      data: {
-        title: decodedTitle,
-        slug: uniqueSlug,
-        description: wcProduct.description || '',
-        shortDescription: wcProduct.short_description || '',
-        price: price,
-        compareAtPrice: (compareAtPrice > price) ? compareAtPrice : null,
-        images: cloudinaryImageUrls,
-        stock: stock,
-        type: wcProduct.type === 'variable' ? 'VARIABLE' : 'SIMPLE',
-        tags: {
-          connectOrCreate: tags.map((t: string) => ({
-            where: { name: t },
-            create: { name: t, slug: slugify(t) }
-          }))
-        },
-        brandId: brandId,
-        attributes: parsedAttributes.length > 0 ? parsedAttributes : undefined,
-        variations: parsedVariations.length > 0 ? parsedVariations : undefined,
-        categories: {
-          connect: categoryIds.map(id => ({ id }))
-        }
-      }
-    });
-
-    // Import reviews
-    try {
-      const reviewsResponse = await fetch(`${apiUrl}/reviews?product=${wcProduct.id}`, {
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64'),
-          'Content-Type': 'application/json'
-        },
-        cache: 'no-store'
-      });
-
-      if (reviewsResponse.ok) {
-        const wcReviews = await reviewsResponse.json();
-        if (Array.isArray(wcReviews) && wcReviews.length > 0) {
-          const reviewsToInsert = wcReviews
-            .filter(r => r.status === 'approved')
-            .map(r => ({
-              productId: createdProduct.id,
-              reviewerName: r.reviewer || null,
-              reviewerEmail: r.reviewer_email || null,
-              rating: r.rating || 5,
-              comment: r.review ? r.review.replace(/(<([^>]+)>)/gi, "") : '',
-              isApproved: true,
-              createdAt: new Date(r.date_created)
-            }));
-          
-          if (reviewsToInsert.length > 0) {
-            await prisma.review.createMany({
-              data: reviewsToInsert
-            });
           }
         }
+      } catch (err) {
+        console.error(`Failed to fetch reviews for product ${wcProduct.id}`, err);
       }
-    } catch (err) {
-      console.error(`Failed to fetch reviews for product ${wcProduct.id}`, err);
-    }
 
-    importedCount++;
+      items.push({
+        id: wcProduct.id,
+        name: decodedTitle,
+        status: 'SUCCESS',
+        image: cloudinaryImageUrls[0] || imgUrl,
+        price: price
+      });
+      importedCount++;
+
+    } catch (productError: any) {
+      console.error(`Error importing product ${wcProduct.id} (${decodedTitle}):`, productError);
+      items.push({
+        id: wcProduct.id,
+        name: decodedTitle,
+        status: 'FAILED',
+        error: productError?.message || 'Erreur inattendue lors de l\'enregistrement',
+        image: imgUrl,
+        price: priceVal
+      });
+      failedCount++;
+    }
   }
 
-  return importedCount;
+  return {
+    importedCount,
+    alreadyExistsCount,
+    failedCount,
+    items
+  };
 }
 
-/**
- * Main action to import a specific batch of products from WooCommerce (with optional category filter)
- */
 export async function importWooCommerceProductsBatch(
   url: string, 
   consumerKey: string, 
@@ -690,10 +757,10 @@ export async function importWooCommerceProductsBatch(
     }
     
     if (!Array.isArray(products) || products.length === 0) {
-      return { success: true, count: 0 };
+      return { success: true, count: 0, successCount: 0, alreadyExistsCount: 0, failedCount: 0, results: [] };
     }
 
-    const importedCount = await processAndSaveWcProducts(products, apiUrl, consumerKey, consumerSecret, categoryIds);
+    const batchResult = await processAndSaveWcProducts(products, apiUrl, consumerKey, consumerSecret, categoryIds);
 
     revalidatePath('/admin/products');
     revalidatePath('/');
@@ -702,7 +769,14 @@ export async function importWooCommerceProductsBatch(
     updateTag('products');
     updateTag('categories');
 
-    return { success: true, count: importedCount };
+    return { 
+      success: true, 
+      count: batchResult.importedCount,
+      successCount: batchResult.importedCount,
+      alreadyExistsCount: batchResult.alreadyExistsCount,
+      failedCount: batchResult.failedCount,
+      results: batchResult.items
+    };
 
   } catch (error: any) {
     console.error('Error importing batch from WooCommerce:', error);
@@ -722,7 +796,7 @@ export async function importWooCommerceSelectedProducts(
   await requireAdmin();
 
   if (!productIds || productIds.length === 0) {
-    return { success: true, count: 0 };
+    return { success: true, count: 0, successCount: 0, alreadyExistsCount: 0, failedCount: 0, results: [] };
   }
 
   const baseUrl = url.replace(/\/$/, '');
@@ -730,8 +804,12 @@ export async function importWooCommerceSelectedProducts(
 
   try {
     let totalImported = 0;
-    // Chunk requests by 10 to respect URL and memory constraints
-    const chunkSize = 10;
+    let totalAlreadyExists = 0;
+    let totalFailed = 0;
+    const allResults: WcProductImportItemResult[] = [];
+
+    // Chunk requests by 5 to respect Cloudinary & network timeout limits
+    const chunkSize = 5;
     for (let i = 0; i < productIds.length; i += chunkSize) {
       const slice = productIds.slice(i, i + chunkSize);
       const queryUrl = `${apiUrl}?include=${slice.join(',')}&per_page=${chunkSize}`;
@@ -750,8 +828,11 @@ export async function importWooCommerceSelectedProducts(
 
       const products = await response.json();
       if (Array.isArray(products) && products.length > 0) {
-        const count = await processAndSaveWcProducts(products, apiUrl, consumerKey, consumerSecret);
-        totalImported += count;
+        const batchResult = await processAndSaveWcProducts(products, apiUrl, consumerKey, consumerSecret);
+        totalImported += batchResult.importedCount;
+        totalAlreadyExists += batchResult.alreadyExistsCount;
+        totalFailed += batchResult.failedCount;
+        allResults.push(...batchResult.items);
       }
     }
 
@@ -762,7 +843,14 @@ export async function importWooCommerceSelectedProducts(
     updateTag('products');
     updateTag('categories');
 
-    return { success: true, count: totalImported };
+    return { 
+      success: true, 
+      count: totalImported,
+      successCount: totalImported,
+      alreadyExistsCount: totalAlreadyExists,
+      failedCount: totalFailed,
+      results: allResults
+    };
   } catch (error: any) {
     console.error('Error importing specific products:', error);
     return { success: false, message: error.message || 'Erreur lors de l\'import des produits sélectionnés.' };
