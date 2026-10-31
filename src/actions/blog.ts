@@ -46,7 +46,16 @@ export async function getDistinctBlogAuthors(): Promise<string[]> {
 
 export async function getArticleBySlug(slug: string) {
   if (!slug || typeof slug !== 'string') return null;
-  return await prisma.article.findUnique({
+
+  let isAdmin = false;
+  try {
+    await requireAdmin();
+    isAdmin = true;
+  } catch {
+    isAdmin = false;
+  }
+
+  const article = await prisma.article.findUnique({
     where: { slug },
     include: {
       comments: {
@@ -55,6 +64,12 @@ export async function getArticleBySlug(slug: string) {
       }
     }
   });
+
+  if (!article) return null;
+  // Unpublished drafts must only be accessible to logged-in admins
+  if (!article.isPublished && !isAdmin) return null;
+
+  return article;
 }
 
 export async function getArticleById(id: string) {

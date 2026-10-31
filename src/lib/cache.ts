@@ -1,10 +1,23 @@
 import { unstable_cache } from 'next/cache';
 import prisma from '@/lib/prisma';
 
-// Helper to get raw settings
+// Sensitive secret keys that must NEVER be leaked to public cache or RSC props
+const HIDDEN_SETTING_KEYS = new Set([
+  'STRIPE_SECRET_KEY',
+  'PAYPAL_SECRET',
+  'CRON_SECRET',
+  'SMTP_PASSWORD',
+  'SMTP_PASS',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'SETUP_TOKEN',
+]);
+
+// Helper to get raw settings (excluding sensitive payment and service credentials)
 async function fetchSettings() {
   const settingsDb = await prisma.setting.findMany();
-  return settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+  return settingsDb
+    .filter(s => !HIDDEN_SETTING_KEYS.has(s.key))
+    .reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
 }
 
 // Cached version of settings

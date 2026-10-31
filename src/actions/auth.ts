@@ -21,13 +21,48 @@ export async function loginUser(formData: FormData) {
 
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: signInData, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  if (error) {
+  if (error || !signInData.user) {
     return { error: 'Identifiants incorrects.' };
+  }
+
+  // Once authenticated with verified password/email:
+  // Link prior guest orders if a guest customer record with this email exists in Prisma
+  try {
+    const existingUser = await prisma.user.findUnique({
+      where: { email: signInData.user.email || email }
+    });
+
+    if (!existingUser) {
+      await prisma.user.create({
+        data: {
+          id: signInData.user.id,
+          email: signInData.user.email || email,
+          role: 'CUSTOMER'
+        }
+      });
+    } else if (existingUser.id !== signInData.user.id && existingUser.role !== 'ADMIN') {
+      // Safe transaction after verified credentials: link guest orders to registered account
+      await prisma.$transaction([
+        prisma.order.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
+        prisma.review.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
+        prisma.notification.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
+        prisma.user.delete({ where: { id: existingUser.id } }),
+        prisma.user.create({
+          data: {
+            id: signInData.user.id,
+            email: signInData.user.email || email,
+            role: 'CUSTOMER'
+          }
+        })
+      ]);
+    }
+  } catch (e) {
+    console.error("[Login] Error syncing guest orders on verified login:", e);
   }
 
   revalidatePath('/', 'layout');
@@ -88,21 +123,11 @@ export async function registerUser(formData: FormData) {
             role: 'CUSTOMER'
           }
         });
-      } else if (existingUser.id !== data.user.id) {
-        // Link any prior guest orders/reviews/notifications to the registered Supabase ID
-        await prisma.$transaction([
-          prisma.order.updateMany({ where: { userId: existingUser.id }, data: { userId: data.user.id } }),
-          prisma.review.updateMany({ where: { userId: existingUser.id }, data: { userId: data.user.id } }),
-          prisma.notification.updateMany({ where: { userId: existingUser.id }, data: { userId: data.user.id } }),
-          prisma.user.delete({ where: { id: existingUser.id } }),
-          prisma.user.create({
-            data: {
-              id: data.user.id,
-              email: data.user.email || email,
-              role: existingUser.role || 'CUSTOMER',
-            }
-          })
-        ]);
+      } else {
+        // Un compte existe déjà. Ne JAMAIS supprimer ni écraser lors de l'inscription
+        // pour empêcher tout déni de service admin ou vol de commandes invitées.
+        // La liaison sécurisée s'effectue au login vérifié.
+        console.warn(`[Register] User already exists in DB for ${email}. Deferring linking to verified login.`);
       }
     } catch (e) {
       console.error("Error syncing Prisma user on signup:", e);
@@ -126,17 +151,27 @@ export async function logoutUser() {
 }
 
 export async function setupAdmin(formData: FormData) {
+  const ip = await getClientIp();
+  const rl = await checkRateLimit(`setup_admin_${ip}`, 3, 3600); // 3 attempts per hour
+  if (!rl.success) {
+    return { error: 'Trop de tentatives de configuration. Accès restreint.' };
+  }
+
   const email = String(formData.get('email') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
 
   if (!email || !password) {
-    return { error: 'All fields are required.' };
+    return { error: 'Tous les champs sont requis.' };
   }
 
-  // Check that there is no existing admin
+  if (password.length < 12) {
+    return { error: 'Le mot de passe administrateur doit comporter au moins 12 caractères.' };
+  }
+
+  // Atomically check that there is no existing admin
   const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
   if (adminCount > 0) {
-    return { error: 'An administrator already exists. Setup is locked.' };
+    return { error: 'Un administrateur existe déjà. L\'initialisation est verrouillée.' };
   }
 
   const supabase = await createClient();
@@ -149,10 +184,17 @@ export async function setupAdmin(formData: FormData) {
   });
 
   if (error) {
-    return { error: error.message };
+    console.error('[setupAdmin] Supabase error:', error.message);
+    return { error: 'Erreur lors de la création du compte administrateur.' };
   }
 
   if (data.user) {
+    // Re-verify no other admin was created concurrently
+    const recheckCount = await prisma.user.count({ where: { role: 'ADMIN' } });
+    if (recheckCount > 0) {
+      return { error: 'Un administrateur a déjà été configuré.' };
+    }
+
     await prisma.user.upsert({
       where: { email: data.user.email || email },
       update: { role: 'ADMIN', id: data.user.id },

@@ -51,15 +51,43 @@ export function basicSanitizeHtml(html: string): string {
     /<\s*\/?\s*(script|style|noscript|template|object|embed|applet|form|input|textarea|select|button|meta|link|base|frameset|frame|svg|math)\b[^>]*>/gi,
     ''
   );
-  // 3. Remove inline event handlers (onclick=, onerror=, ...)
-  out = out.replace(/\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '');
-  // 4. Neutralise dangerous URL schemes in href/src/action/formaction/xlink:href
+
+  // 3. Remove inline event handlers with any whitespace or slash separator
+  // Handles: onclick=..., /onerror=..., onfocus = "...", etc.
+  out = out.replace(/(?:[\s/]|&NewLine;)+on[a-z0-9_-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>/]+))?/gi, '');
+
+  // Helper to decode HTML entities and strip whitespace/control chars for protocol checking
+  function normalizeUrl(url: string) {
+    return url
+      .replace(/&#x([0-9a-f]+);?/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+      .replace(/&#([0-9]+);?/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)))
+      .replace(/&[a-z]+;/gi, '')
+      .replace(/[\u0000-\u0020\s\t\r\n\\]+/g, '')
+      .toLowerCase();
+  }
+
+  // 4. Neutralise dangerous URL schemes in attributes (href, src, action, etc.)
   out = out.replace(
-    /\s+(href|src|action|formaction|xlink:href)\s*=\s*("|')?\s*(javascript|vbscript|data)\s*:[^"'>\s]*("|')?/gi,
-    ' $1="#"'
+    /(?:[\s/])(href|src|action|formaction|xlink:href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+    (match, attr, qDouble, qSingle, unquoted) => {
+      const rawVal = qDouble !== undefined ? qDouble : (qSingle !== undefined ? qSingle : unquoted);
+      const normalized = normalizeUrl(rawVal);
+      if (/^(javascript|vbscript|data):/i.test(normalized)) {
+        return ` ${attr}="#"`;
+      }
+      return match;
+    }
   );
+
   // 5. Remove CSS expressions / javascript in style attributes
-  out = out.replace(/\s+style\s*=\s*("[^"]*(expression|javascript:|url\s*\(\s*['"]?\s*javascript)[^"]*"|'[^']*(expression|javascript:)[^']*')/gi, '');
+  out = out.replace(/(?:[\s/])style\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
+    const normalized = normalizeUrl(match);
+    if (normalized.includes('expression') || normalized.includes('javascript:') || normalized.includes('behavior:')) {
+      return '';
+    }
+    return match;
+  });
+
   // 6. Only allow iframes from trusted video providers
   out = out.replace(/<\s*iframe\b[^>]*>[\s\S]*?<\s*\/\s*iframe\s*>/gi, (match) =>
     /src\s*=\s*["']https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com|player\.vimeo\.com)\//i.test(match) ? match : ''

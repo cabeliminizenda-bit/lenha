@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import TrackingMap from '@/components/tracking/TrackingMap';
 import { getTranslations, getLocale } from 'next-intl/server';
 import { computeAutoStatus } from '@/lib/autoTracking';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,23 +16,28 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
   let error = null;
 
   if (trackingNumber) {
-    order = await prisma.order.findUnique({
-      where: { trackingNumber },
-      include: {
-        deliveryPositions: {
-          orderBy: { createdAt: 'asc' }
-        },
-        user: true,
-        orderItems: {
-          include: {
-            product: true
+    const ip = await getClientIp();
+    const rl = await checkRateLimit(`tracking_${ip}`, 20, 60);
+    if (!rl.success) {
+      error = "Trop de requêtes. Veuillez patienter une minute.";
+    } else {
+      order = await prisma.order.findUnique({
+        where: { trackingNumber },
+        include: {
+          deliveryPositions: {
+            orderBy: { createdAt: 'asc' }
+          },
+          orderItems: {
+            include: {
+              product: true
+            }
           }
         }
-      }
-    });
+      });
 
-    if (!order) {
-      error = t('not_found');
+      if (!order) {
+        error = t('not_found');
+      }
     }
   }
 
