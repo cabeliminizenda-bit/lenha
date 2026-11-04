@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { getMediaList, uploadMediaAction, updateMediaAction, deleteMediaAction, deleteMultipleMediaAction } from '@/actions/media';
+import { getMediaList, uploadMediaAction, uploadMultipleMediaAction, updateMediaAction, deleteMediaAction, deleteMultipleMediaAction } from '@/actions/media';
 import { useTranslations } from 'next-intl';
 import Image from "next/image";
 
@@ -41,21 +41,24 @@ export default function MediaPageClient() {
   }, [page, search, mediaType, dateFilter]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
     
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('file', file);
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
     
-    const res = await uploadMediaAction(formData);
+    const res = await uploadMultipleMediaAction(formData);
     if (res.success) {
       setPage(1);
       fetchMedia(1, search, mediaType, dateFilter);
     } else {
-      alert(res.error || t('upload_error'));
+      alert(res.error || (res.errors && res.errors.join('\n')) || t('upload_error'));
     }
     setIsUploading(false);
+    e.target.value = '';
   };
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -147,7 +150,7 @@ export default function MediaPageClient() {
         <div className="ml-auto flex items-center gap-4">
           <label className="border border-[#2271b1] text-[#2271b1] px-4 py-1.5 rounded font-medium hover:bg-[#f6f7f7] transition cursor-pointer flex items-center">
             {isUploading ? t('uploading') : t('add_media_file', { defaultMessage: 'Ajouter un fichier média' })}
-            <input type="file" className="hidden" accept="image/*" onChange={handleUpload} disabled={isUploading} />
+            <input type="file" multiple className="hidden" accept="image/*,video/*,.pdf" onChange={handleUpload} disabled={isUploading} />
           </label>
 
           <div className="relative">

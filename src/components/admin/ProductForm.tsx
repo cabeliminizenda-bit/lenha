@@ -47,6 +47,34 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
   const [existingImages, setExistingImages] = useState<string[]>(parseJSON(initialData?.images));
   const [draggedImageIdx, setDraggedImageIdx] = useState<number | null>(null);
   const [showProductMediaPicker, setShowProductMediaPicker] = useState(false);
+  const [isDirectUploading, setIsDirectUploading] = useState(false);
+
+  const handleDirectGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setIsDirectUploading(true);
+    try {
+      const { uploadMultipleMediaAction } = await import('@/actions/media');
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+      }
+      const res = await uploadMultipleMediaAction(formData);
+      if (res.success && res.urls && res.urls.length > 0) {
+        setExistingImages(prev => [...prev, ...res.urls]);
+      }
+      if (res.errors && res.errors.length > 0) {
+        alert(res.errors.join('\n'));
+      }
+    } catch (err: any) {
+      console.error('Direct gallery upload error:', err);
+      alert("Erreur lors du téléversement");
+    } finally {
+      setIsDirectUploading(false);
+      e.target.value = '';
+    }
+  };
   const isEditing = !!initialData;
 
   const [title, setTitle] = useState(initialData?.title || '');
@@ -521,22 +549,40 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
               ))}
             </div>
           )}
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <button 
               type="button" 
               onClick={() => setShowProductMediaPicker(true)}
-              className="px-4 py-2 border border-orange-500 rounded-md text-sm font-semibold bg-orange-50 text-orange-700 hover:bg-orange-100 h-[42px] transition flex items-center gap-2"
+              className="px-4 py-2 border border-orange-500 rounded-md text-sm font-semibold bg-orange-50 text-orange-700 hover:bg-orange-100 h-[42px] transition flex items-center gap-2 shadow-sm"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              Ajouter une image
+              Choisir dans la médiathèque
             </button>
+
+            <label className="px-4 py-2 border border-gray-300 rounded-md text-sm font-semibold bg-white text-gray-700 hover:bg-gray-50 h-[42px] transition flex items-center gap-2 cursor-pointer shadow-sm">
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+              {isDirectUploading ? 'Téléversement en cours...' : 'Téléverser plusieurs photos'}
+              <input 
+                type="file" 
+                multiple 
+                accept="image/*" 
+                className="hidden" 
+                disabled={isDirectUploading}
+                onChange={handleDirectGalleryUpload} 
+              />
+            </label>
           </div>
 
           {showProductMediaPicker && (
             <MediaPickerModal 
+              multiple={true}
               onClose={() => setShowProductMediaPicker(false)} 
+              onSelectMultiple={(urls) => {
+                setExistingImages(prev => [...prev, ...urls]);
+                setShowProductMediaPicker(false);
+              }}
               onSelect={(url) => {
-                setExistingImages([...existingImages, url]);
+                setExistingImages(prev => [...prev, url]);
                 setShowProductMediaPicker(false);
               }} 
             />

@@ -176,3 +176,78 @@ export async function uploadMediaAction(formData: FormData) {
     return { error: 'Erreur lors de l\'upload' };
   }
 }
+
+export async function uploadMultipleMediaAction(formData: FormData) {
+  await requireAdmin();
+  
+  try {
+    const files = formData.getAll('files') as File[];
+    const singleFile = formData.get('file') as File | null;
+    const allFiles = files && files.length > 0 ? files : (singleFile ? [singleFile] : []);
+
+    if (allFiles.length === 0) return { error: 'Aucun fichier fourni' };
+
+    const ALLOWED_MIME_TYPES = new Set([
+      'image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml',
+      'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime',
+      'application/pdf'
+    ]);
+
+    const results: Array<{ url: string; media: any }> = [];
+    const errors: string[] = [];
+
+    for (const file of allFiles) {
+      if (!ALLOWED_MIME_TYPES.has(file.type)) {
+        errors.push(`${file.name}: Type de fichier non autorisé.`);
+        continue;
+      }
+
+      if (file.size > 10 * 1024 * 1024) {
+        errors.push(`${file.name}: Fichier trop volumineux (> 10 Mo).`);
+        continue;
+      }
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const secureUrl = await new Promise<string>((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            { folder: 'topkaminbrennstoffe/media' },
+            (error, result) => {
+              if (error || !result) reject(error);
+              else resolve(result.secure_url);
+            }
+          ).end(buffer);
+        });
+
+        const media = await prisma.media.create({
+          data: {
+            url: secureUrl,
+            title: file.name,
+          }
+        });
+
+        results.push({ url: secureUrl, media });
+      } catch (err: any) {
+        console.error(`Error uploading ${file.name}:`, err);
+        errors.push(`${file.name}: Échec du téléversement.`);
+      }
+    }
+
+    if (results.length > 0) {
+      revalidatePath('/admin/media');
+    }
+
+    return { 
+      success: results.length > 0, 
+      urls: results.map(r => r.url),
+      items: results,
+      errors: errors.length > 0 ? errors : undefined 
+    };
+  } catch (error: any) {
+    console.error('Error uploading multiple media:', error);
+    return { error: 'Erreur lors du téléversement' };
+  }
+}
+
