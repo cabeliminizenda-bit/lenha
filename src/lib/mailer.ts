@@ -43,13 +43,26 @@ async function getTransporter() {
 }
 
 // General email sender
-export async function sendEmail({ to, subject, html, attachments }: { to: string, subject: string, html: string, attachments?: any[] }) {
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  attachments,
+  replyTo,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: any[];
+  replyTo?: string;
+}) {
   try {
     const { transporter, from } = await getTransporter();
     
     const info = await transporter.sendMail({
       from,
       to,
+      replyTo,
       subject,
       html,
       attachments,
@@ -424,8 +437,15 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
       </div>
     `;
 
+    const customerEmail = customerDetails?.email || b.email || order.user?.email;
+    const customerFullName = `${b.firstName || ''} ${b.lastName || ''}`.trim() || customerDetails?.name;
+    const replyTo = customerEmail
+      ? (customerFullName ? `"${customerFullName}" <${customerEmail}>` : customerEmail)
+      : undefined;
+
     return sendEmail({
       to: adminEmail,
+      replyTo,
       subject: `Neue Bestellung #${orderId}`,
       html
     });
@@ -905,8 +925,13 @@ export async function sendAdminNewChatMessageEmail(guestName: string, guestEmail
       </div>
     `;
 
+    const replyTo = guestEmail
+      ? (guestName ? `"${guestName}" <${guestEmail}>` : guestEmail)
+      : undefined;
+
     return sendEmail({
       to: adminEmail,
+      replyTo,
       subject: `[Support-Chat] Neue Nachricht von ${escapeHtml(guestName) || "Besucher"}`,
       html
     });

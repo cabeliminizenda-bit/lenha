@@ -1,6 +1,9 @@
 import { getSettings } from '@/actions/settings';
 import CheckoutClient from './CheckoutClient';
 import prisma from '@/lib/prisma';
+import { Suspense } from 'react';
+
+export const dynamic = 'force-dynamic';
 
 export default async function CheckoutPage() {
   const settings = await getSettings();
@@ -18,5 +21,9 @@ export default async function CheckoutPage() {
     include: { methods: { where: { isActive: true } } }
   });
 
-  return <CheckoutClient settings={paymentSettings} zones={zones} />;
+  return (
+    <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-16 text-center">Laden...</div>}>
+      <CheckoutClient settings={paymentSettings} zones={zones} />
+    </Suspense>
+  );
 }

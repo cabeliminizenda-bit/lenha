@@ -263,7 +263,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     // Helper to determine the best active fallback payment method
     const getFallbackPayment = () => {
       if (settingsMap.ENABLE_BANK_TRANSFER !== 'false') return 'BANK_TRANSFER';
-      if (settingsMap.ENABLE_STRIPE !== 'false' && settingsMap.STRIPE_SECRET_KEY) return 'STRIPE';
+      if (settingsMap.ENABLE_STRIPE !== 'false' && settingsMap.STRIPE_SECRET_KEY && settingsMap.STRIPE_SECRET_KEY.startsWith('sk_')) return 'STRIPE';
       if (settingsMap.ENABLE_PAYPAL !== 'false' && settingsMap.PAYPAL_CLIENT_ID && settingsMap.PAYPAL_SECRET) return 'PAYPAL';
       return null;
     };
@@ -272,7 +272,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     // If a gateway is missing credentials, do NOT create a ghost order in DB!
     if (paymentMethod === 'STRIPE') {
       const stripeSecretKey = settingsMap['STRIPE_SECRET_KEY'];
-      if (!stripeSecretKey) {
+      if (!stripeSecretKey || !stripeSecretKey.startsWith('sk_')) {
         // Trigger live supervision alert (email + in-app)
         const { sendAdminAlertEmail } = await import('@/lib/mailer');
         const { createNotification } = await import('@/lib/notifications');
@@ -356,7 +356,8 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     // ===== PAYMENT METHOD HANDLING =====
     if (paymentMethod === 'STRIPE') {
       const stripeSecretKey = settingsMap['STRIPE_SECRET_KEY'];
-      const { default: Stripe } = await import('stripe');
+      try {
+        const { default: Stripe } = await import('stripe');
       const stripe = new Stripe(stripeSecretKey);
       const currency = storeCurrencyCode.toLowerCase();
 
@@ -404,7 +405,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         ...(discounts ? { discounts } : {}),
         mode: 'payment',
         success_url: `${baseUrl}/checkout/success?orderId=${order.id}`,
-        cancel_url: `${baseUrl}/checkout`,
+        cancel_url: `${baseUrl}/checkout?error=stripe_cancelled&method=STRIPE`,
         client_reference_id: order.id,
         customer_email: user.email,
       });
@@ -415,6 +416,14 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       });
 
       return { success: true, orderId: order.id, redirectUrl: session.url };
+      } catch (stripeErr: any) {
+        console.error("Stripe payment error:", stripeErr);
+        return {
+          error: "payment_unavailable",
+          unavailableMethod: 'STRIPE',
+          fallbackPaymentMethod: getFallbackPayment(),
+        };
+      }
     } 
     else if (paymentMethod === 'PAYPAL') {
       const paypalClientId = settingsMap['PAYPAL_CLIENT_ID'];
@@ -432,7 +441,11 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       
       const tokenData = await tokenRes.json();
       if (!tokenData.access_token) {
-        return { error: "PayPal authentication error. Check the keys in Admin." };
+        return {
+          error: "payment_unavailable",
+          unavailableMethod: 'PAYPAL',
+          fallbackPaymentMethod: getFallbackPayment(),
+        };
       }
 
       const orderRes = await fetch('https://api-m.paypal.com/v2/checkout/orders', {
@@ -452,7 +465,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
           }],
           application_context: {
             return_url: `${baseUrl}/api/paypal/capture?orderId=${order.id}`,
-            cancel_url: `${baseUrl}/checkout`
+            cancel_url: `${baseUrl}/checkout?error=paypal_cancelled&method=PAYPAL`
           }
         })
       });
@@ -463,7 +476,11 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       if (approveLink) {
         return { success: true, orderId: order.id, redirectUrl: approveLink.href };
       } else {
-        return { error: "Unable to create PayPal payment session." };
+        return {
+          error: "payment_unavailable",
+          unavailableMethod: 'PAYPAL',
+          fallbackPaymentMethod: getFallbackPayment(),
+        };
       }
     } 
     else {

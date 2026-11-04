@@ -133,7 +133,12 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
     setMessages([...messages, tempMsg]);
     setNewMessage('');
     
-    const savedMsg = await sendMessage(sessionId, ChatSender.CUSTOMER, tempMsg.content);
+    let savedMsg: any = tempMsg;
+    try {
+      savedMsg = await sendMessage(sessionId, guestId, tempMsg.content);
+    } catch (e) {
+      console.error('Send message failed', e);
+    }
     setMessages(prev => prev.map(m => m.id === tempMsg.id ? savedMsg : m));
   };
 
@@ -168,7 +173,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-orange-400">
                 {storeIcon ? (
-                  <Image width={800} height={800} src={storeIcon} alt="Store Icon" className="w-full h-full object-cover" />
+                  <img src={storeIcon} alt={storeName || "Store"} className="w-full h-full object-contain" />
                 ) : (
                   <span className="text-orange-700 font-bold text-xl">{storeName.charAt(0)}</span>
                 )}

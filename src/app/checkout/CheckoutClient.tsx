@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCartStore } from '@/store/cartStore';
 import Link from 'next/link';
 import { processCheckout, validateCoupon } from '@/actions/checkout';
@@ -27,6 +27,7 @@ interface CheckoutClientProps {
 
 export default function CheckoutClient({ settings, zones }: CheckoutClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { items: cart, getTotalPrice, clearCart, coupon, setCoupon } = useCartStore();
   
   const [selectedCountry, setSelectedCountry] = useState(zones.length > 0 ? zones[0].name : '');
@@ -101,6 +102,28 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     fallbackMethod: string;
   } | null>(null);
 
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    const paymentStatus = searchParams.get('payment_status');
+    const methodParam = searchParams.get('method');
+
+    if (errorParam || paymentStatus === 'cancel' || paymentStatus === 'failed') {
+      const unavailable = (methodParam?.toUpperCase() === 'STRIPE' || errorParam?.toLowerCase().includes('stripe'))
+        ? 'STRIPE'
+        : (methodParam?.toUpperCase() === 'PAYPAL' || errorParam?.toLowerCase().includes('paypal'))
+        ? 'PAYPAL'
+        : (paymentMethod || 'STRIPE');
+
+      const fallback = enableBankTransfer ? 'BANK_TRANSFER' : '';
+      if (fallback) {
+        setFallbackModal({
+          unavailableMethod: unavailable,
+          fallbackMethod: fallback,
+        });
+      }
+    }
+  }, [searchParams, enableBankTransfer, paymentMethod]);
+
   const getPaymentMethodName = (method: string) => {
     if (method === 'BANK_TRANSFER') return t('direct_bank_transfer');
     if (method === 'STRIPE') return t('credit_card_stripe');
@@ -127,13 +150,16 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     const res = await processCheckout(formData, cart, finalTotal, paymentMethod as any);
     
     if (res.error) {
-      if (res.error === 'payment_unavailable' && res.fallbackPaymentMethod) {
-        setFallbackModal({
-          unavailableMethod: res.unavailableMethod || paymentMethod,
-          fallbackMethod: res.fallbackPaymentMethod,
-        });
-        setIsProcessing(false);
-        return;
+      if (res.error === 'payment_unavailable' || paymentMethod === 'STRIPE' || paymentMethod === 'PAYPAL') {
+        const fallback = res.fallbackPaymentMethod || (enableBankTransfer ? 'BANK_TRANSFER' : '');
+        if (fallback) {
+          setFallbackModal({
+            unavailableMethod: res.unavailableMethod || paymentMethod,
+            fallbackMethod: fallback,
+          });
+          setIsProcessing(false);
+          return;
+        }
       }
       alert(res.error);
       setIsProcessing(false);

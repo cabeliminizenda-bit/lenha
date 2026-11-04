@@ -1,8 +1,9 @@
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { createClient } from '@/utils/supabase/server';
-import AutoLogout from '@/components/AutoLogout';
 import SettingsSidebar from '@/components/admin/SettingsSidebar';
+
+export const dynamic = 'force-dynamic';
 
 export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
   // 1. Check if an admin exists in the database
@@ -27,8 +28,6 @@ export default async function SettingsLayout({ children }: { children: React.Rea
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <AutoLogout redirectUrl="/admin/login" timeoutMs={15 * 60 * 1000} />
-      
       {/* Settings Sidebar */}
       <SettingsSidebar />
 

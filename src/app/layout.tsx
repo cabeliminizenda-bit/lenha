@@ -274,8 +274,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {children}
                 <DeferredWidgets 
                   chatEnabled={settingsMap.CHAT_ENABLED !== 'false'} 
-                  chatStoreName={settingsMap.CHAT_STORE_NAME || 'Support'} 
-                  chatStoreIcon={settingsMap.CHAT_STORE_ICON || ''} 
+                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'Gaming BM'} 
+                  chatStoreIcon={settingsMap.CHAT_STORE_ICON || settingsMap.HEADER_LOGO_IMAGE || settingsMap.FAVICON_IMAGE || '/logo.png'} 
                 />
               </StoreLayout>
             </CurrencyProvider>

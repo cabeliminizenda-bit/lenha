@@ -41,6 +41,18 @@ export async function getOrCreateSession(guestId: string, guestName?: string, gu
         status: 'OPEN',
       },
     });
+
+    try {
+      const { createNotification } = await import('@/lib/notifications');
+      await createNotification({
+        isAdmin: true,
+        type: 'CHAT',
+        message: JSON.stringify({ key: 'new_chat_from', name: session.guestName || 'Visiteur' }),
+        link: '/admin/chat',
+      });
+    } catch (e) {
+      console.error('Chat session notif error', e);
+    }
   }
 
   return session;
@@ -210,4 +222,3 @@ export async function closeSession(sessionId: string) {
   });
   revalidatePath('/admin/chat');
 }
-

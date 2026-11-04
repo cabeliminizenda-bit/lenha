@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     if (!clientIdSetting?.value || !secretSetting?.value) {
       console.error('[PayPal Capture] PayPal credentials not found in Settings');
       return NextResponse.redirect(
-        new URL('/checkout?error=paypal_not_configured', request.url)
+        new URL('/checkout?error=paypal_not_configured&method=PAYPAL', request.url)
       );
     }
 
@@ -86,7 +86,7 @@ export async function GET(request: Request) {
     if (!tokenData.access_token) {
       console.error('[PayPal Capture] Failed to get access token');
       return NextResponse.redirect(
-        new URL('/checkout?error=paypal_auth_failed', request.url)
+        new URL('/checkout?error=paypal_auth_failed&method=PAYPAL', request.url)
       );
     }
 
@@ -125,7 +125,7 @@ export async function GET(request: Request) {
         expectedAmount,
       });
       return NextResponse.redirect(
-        new URL('/checkout?error=paypal_order_mismatch', request.url)
+        new URL('/checkout?error=paypal_order_mismatch&method=PAYPAL', request.url)
       );
     }
 
@@ -176,7 +176,7 @@ export async function GET(request: Request) {
         JSON.stringify(captureData)
       );
       return NextResponse.redirect(
-        new URL('/checkout?error=paypal_capture_failed', request.url)
+        new URL('/checkout?error=paypal_capture_failed&method=PAYPAL', request.url)
       );
     }
   } catch (error: any) {

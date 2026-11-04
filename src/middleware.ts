@@ -17,8 +17,11 @@ if (redisUrl && redisToken) {
 }
 
 export async function middleware(request: NextRequest) {
-  // 1. Rate Limiting Check (Protection anti-DDoS / Brute force)
-  if (ratelimit) {
+  const isPrefetch = request.headers.get('purpose') === 'prefetch' || request.headers.get('x-middleware-prefetch') === '1';
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+
+  // 1. Rate Limiting Check (Protection anti-DDoS / Brute force sur routes publiques)
+  if (ratelimit && !isAdminRoute && !isPrefetch) {
     // Get IP address from headers (Vercel sets x-forwarded-for)
     const forwardedFor = request.headers.get('x-forwarded-for');
     const ip = forwardedFor ? forwardedFor.split(',')[0].trim() : (request as any).ip ?? '127.0.0.1';
@@ -27,6 +30,22 @@ export async function middleware(request: NextRequest) {
     const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_${ip}`);
     
     if (!success) {
+      const isRSC = request.headers.get('rsc') === '1' || request.nextUrl.searchParams.has('_rsc');
+      if (isRSC || request.headers.get('accept')?.includes('application/json')) {
+        return NextResponse.json(
+          { error: 'Too Many Requests', retryAfter: Math.ceil((reset - Date.now()) / 1000) },
+          {
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': reset.toString(),
+              'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
+            }
+          }
+        );
+      }
+
       return new NextResponse(
         `<!DOCTYPE html><html><head><title>429 Too Many Requests</title><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="font-family: system-ui; text-align: center; padding: 2rem; background: #f9fafb;"><h1 style="color: #ef4444;">Access temporarily blocked</h1><p>You have sent too many requests in a short time.</p><p>For security reasons, please wait a few seconds before trying again.</p></body></html>`,
         { 
