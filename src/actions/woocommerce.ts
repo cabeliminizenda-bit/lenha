@@ -1173,3 +1173,154 @@ export async function importWordPressArticles(
     return { success: false, message: error.message || 'Erreur lors de l\'import des articles.' };
   }
 }
+
+/**
+ * Import WooCommerce Shipping Zones, Served Locations & Shipping Methods
+ */
+export async function importWooCommerceShipping(
+  url: string,
+  consumerKey: string,
+  consumerSecret: string
+) {
+  await requireAdmin();
+  const baseUrl = url.replace(/\/$/, '');
+  const authHeader = 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+
+  try {
+    const zonesUrl = `${baseUrl}/wp-json/wc/v3/shipping/zones`;
+    const response = await fetch(zonesUrl, {
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur API WooCommerce Shipping Zones: ${response.status} ${response.statusText}`);
+    }
+
+    const zones = await response.json();
+    let importedZonesCount = 0;
+    let importedMethodsCount = 0;
+    const importedSummary: any[] = [];
+
+    // Array of all zone objects to process, including zone 0 (Rest of the World)
+    const zonesToProcess = Array.isArray(zones) ? [...zones] : [];
+    zonesToProcess.push({ id: 0, name: 'Outras Zonas (Resto do Mundo)' });
+
+    for (const wcZone of zonesToProcess) {
+      // 1. Fetch locations for the zone (if id > 0)
+      let locationsSummary = '';
+      if (wcZone.id > 0) {
+        try {
+          const locRes = await fetch(`${baseUrl}/wp-json/wc/v3/shipping/zones/${wcZone.id}/locations`, {
+            headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+            cache: 'no-store'
+          });
+          if (locRes.ok) {
+            const locData = await locRes.json();
+            if (Array.isArray(locData) && locData.length > 0) {
+              const codes = locData.map((l: any) => l.code).filter(Boolean);
+              if (codes.length > 0) {
+                locationsSummary = ` (${codes.join(', ')})`;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn(`Could not fetch locations for zone ${wcZone.id}`, e);
+        }
+      }
+
+      // 2. Fetch shipping methods for this zone
+      const methodsUrl = `${baseUrl}/wp-json/wc/v3/shipping/zones/${wcZone.id}/methods`;
+      const methodsRes = await fetch(methodsUrl, {
+        headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+        cache: 'no-store'
+      });
+
+      if (!methodsRes.ok) {
+        continue;
+      }
+
+      const methods = await methodsRes.json();
+      if (!Array.isArray(methods) || methods.length === 0) {
+        // If it's zone 0 and has no methods, skip it
+        if (wcZone.id === 0) continue;
+      }
+
+      const zoneName = (wcZone.name || `Zona ${wcZone.id}`).trim();
+
+      // Upsert the zone in Prisma
+      const dbZone = await prisma.shippingZone.upsert({
+        where: { name: zoneName },
+        update: { isActive: true },
+        create: { name: zoneName, isActive: true }
+      });
+      importedZonesCount++;
+
+      const zoneMethodsSummary: string[] = [];
+
+      for (const m of (methods || [])) {
+        const title = m.settings?.title?.value || m.title || m.method_title || 'Taxa Fixa';
+        let rate = 0;
+        if (m.settings?.cost?.value) {
+          const parsed = parseFloat(String(m.settings.cost.value).replace(/[^0-9.]/g, ''));
+          if (!isNaN(parsed)) rate = parsed;
+        }
+
+        let minOrderAmount: number | null = null;
+        if (m.settings?.min_amount?.value) {
+          const parsedMin = parseFloat(String(m.settings.min_amount.value).replace(/[^0-9.]/g, ''));
+          if (!isNaN(parsedMin)) minOrderAmount = parsedMin;
+        }
+
+        // Upsert or create shipping method
+        const existing = await prisma.shippingMethod.findFirst({
+          where: { zoneId: dbZone.id, type: title }
+        });
+
+        if (existing) {
+          await prisma.shippingMethod.update({
+            where: { id: existing.id },
+            data: {
+              rate,
+              minOrderAmount,
+              isActive: m.enabled !== false
+            }
+          });
+        } else {
+          await prisma.shippingMethod.create({
+            data: {
+              zoneId: dbZone.id,
+              type: title,
+              rate,
+              minOrderAmount,
+              isActive: m.enabled !== false
+            }
+          });
+        }
+        importedMethodsCount++;
+        zoneMethodsSummary.push(`${title}: ${rate}€`);
+      }
+
+      importedSummary.push({
+        zone: zoneName,
+        locations: locationsSummary,
+        methods: zoneMethodsSummary
+      });
+    }
+
+    revalidatePath('/admin/shipping');
+    revalidatePath('/checkout');
+    return {
+      success: true,
+      zonesCount: importedZonesCount,
+      methodsCount: importedMethodsCount,
+      summary: importedSummary
+    };
+  } catch (error: any) {
+    console.error('Error importing WooCommerce shipping:', error);
+    return { success: false, message: error.message || 'Erreur lors de l\'import des zones et méthodes de livraison.' };
+  }
+}
