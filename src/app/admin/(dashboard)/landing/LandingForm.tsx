@@ -11,7 +11,7 @@ import LatestBlogsEditor from '@/components/admin/settings/LatestBlogsEditor';
 import FullWidthBannerEditor from '@/components/admin/settings/FullWidthBannerEditor';
 import Cookies from 'js-cookie';
 
-export type SectionType = 'Hero' | 'BestDeals' | 'BestSeller' | 'LatestBlogs' | 'Newsletter' | 'PromoBanners' | 'ProductGrid' | 'FullWidthBanner';
+export type SectionType = 'Hero' | 'BestDeals' | 'BestSeller' | 'LatestBlogs' | 'Newsletter' | 'PromoBanners' | 'ProductGrid' | 'FullWidthBanner' | 'FeaturedProductTabs' | 'ShippingSimulator' | 'HeatingGuideBlogs';
 
 export interface SectionConfig {
   id: string;
@@ -23,11 +23,10 @@ export interface SectionConfig {
 
 const DEFAULT_SECTIONS: SectionConfig[] = [
   { id: 'sec_1', type: 'Hero', name: 'Main Header (Hero)', enabled: true, settings: {} },
-  { id: 'sec_2', type: 'BestDeals', name: "Today's Best Deals", enabled: true, settings: { title: "Today's Best Deals", countdown: '2026-12-31T23:59:59', filterType: 'ON_SALE', categoryId: '' } },
-  { id: 'sec_3', type: 'ProductGrid', name: 'New section (ProductGrid)', enabled: true, settings: { title: "Featured Products", filterType: 'LATEST', categoryId: '' } },
-  { id: 'sec_4', type: 'BestSeller', name: 'Best Sellers', enabled: true, settings: { title: "Best Seller", filterType: 'POPULAR', categoryId: '' } },
-  { id: 'sec_5', type: 'LatestBlogs', name: 'Latest Blog Articles', enabled: true, settings: { title: "Latest Blogs" } },
-  { id: 'sec_6', type: 'Newsletter', name: 'Newsletter Subscription', enabled: true, settings: {} }
+  { id: 'sec_featured', type: 'FeaturedProductTabs', name: 'Produtos em Destaque', enabled: true, settings: { title: "Produtos em Destaque" } },
+  { id: 'sec_shipping', type: 'ShippingSimulator', name: 'Simulador de Envio de Paletes', enabled: true, settings: {} },
+  { id: 'sec_blogs', type: 'HeatingGuideBlogs', name: 'Dicas & Artigos - Guia de Aquecimento', enabled: true, settings: { title: "Dicas & Artigos" } },
+  { id: 'sec_newsletter', type: 'Newsletter', name: 'Newsletter Subscription', enabled: true, settings: {} }
 ];
 
 export default function LandingForm({ initialSettings, categories }: { initialSettings: Record<string, string>, categories: any[] }) {
