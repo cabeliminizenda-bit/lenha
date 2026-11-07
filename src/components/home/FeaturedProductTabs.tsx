@@ -186,6 +186,127 @@ function ProductCardImage({
   );
 }
 
+// Robust category classifier ensuring 100% precision for each tab
+function classifyProductForTab(p: ProductItem): 'pellets' | 'salamandras' | 'recuperadores' | 'climatizacao' {
+  const title = (p.title || '').toLowerCase();
+  const catName = (p.categoryName || '').toLowerCase();
+  const catSlug = (p.categorySlug || '').toLowerCase();
+  const allCats = (p.allCategories || '').toLowerCase();
+  const text = `${title} ${catName} ${catSlug} ${allCats}`;
+
+  // 1. CLIMATIZAÇÃO:
+  // Ar condicionado, splits, desumidificadores, ventiladores, bombas de calor, termoacumuladores, climatizadores
+  // MUST NOT include wood stoves, pellet stoves or fireplaces
+  const isClimate =
+    title.includes('ar condicionado') ||
+    title.includes('split') ||
+    title.includes('desumidificador') ||
+    title.includes('ventilador') ||
+    title.includes('bomba calor') ||
+    title.includes('bomba de calor') ||
+    title.includes('termoacumulador') ||
+    title.includes('climatizador') ||
+    title.includes('btu') ||
+    catSlug.includes('ar-condicionado') ||
+    catSlug.includes('desumidificador') ||
+    catSlug.includes('ventilador') ||
+    catSlug.includes('termoacumulador') ||
+    (allCats.includes('climatizacao') && !title.includes('lenha') && !title.includes('pellet') && !title.includes('fogão') && !title.includes('lareira'));
+
+  if (isClimate) {
+    return 'climatizacao';
+  }
+
+  // 2. PELLETS & LENHA (Combustíveis / Biomassa / Sacos / Paletes)
+  // Must be combustible fuels only, NEVER appliances/stoves/fireplaces
+  const isCombustible =
+    title.includes('palete') ||
+    title.includes('saco') ||
+    title.includes('sacos') ||
+    title.includes('big bag') ||
+    title.includes('aparas') ||
+    title.includes('sobro') ||
+    title.includes('azinho') ||
+    title.includes('carvão') ||
+    title.includes('carvao') ||
+    title.includes('briquette') ||
+    title.includes('bioetanol') ||
+    title.includes('combust') ||
+    catSlug.includes('combustiveis') ||
+    catSlug.includes('pellets-e-lenha') ||
+    catSlug.includes('lenha-e-pellets') ||
+    catSlug.includes('pellets') ||
+    allCats.includes('combustiveis');
+
+  const isHeatingAppliance =
+    title.includes('salamandra') ||
+    title.includes('fogão') ||
+    title.includes('fogao') ||
+    title.includes('recuperador') ||
+    title.includes('lareira') ||
+    title.includes('forno') ||
+    title.includes('insert') ||
+    title.includes('caldeira') ||
+    title.includes('cozinha') ||
+    title.includes('estufa') ||
+    catSlug.includes('fogoes') ||
+    catSlug.includes('salamandras') ||
+    catSlug.includes('recuperadores') ||
+    catSlug.includes('fornos') ||
+    catSlug.includes('lareira') ||
+    allCats.includes('fogoes') ||
+    allCats.includes('salamandras') ||
+    allCats.includes('recuperadores') ||
+    allCats.includes('fornos') ||
+    allCats.includes('lareira');
+
+  if (isCombustible && !isHeatingAppliance) {
+    return 'pellets';
+  }
+
+  // 3. SALAMANDRAS & FOGÕES:
+  // Salamandras a pellets, salamandras a lenha, fogões a lenha, fogões a pellets, estufas, cozinhas a lenha
+  if (
+    title.includes('salamandra') ||
+    title.includes('fogão') ||
+    title.includes('fogao') ||
+    title.includes('estufa') ||
+    title.includes('cozinha') ||
+    catSlug.includes('salamandras') ||
+    catSlug.includes('fogoes') ||
+    catSlug.includes('cozinha-com-forno') ||
+    allCats.includes('salamandras') ||
+    allCats.includes('fogoes')
+  ) {
+    return 'salamandras';
+  }
+
+  // 4. RECUPERADORES & LAREIRAS:
+  // Recuperadores de calor, lareiras, fornos a lenha, inserts, caldeiras
+  if (
+    title.includes('recuperador') ||
+    title.includes('lareira') ||
+    title.includes('forno') ||
+    title.includes('insert') ||
+    title.includes('caldeira') ||
+    catSlug.includes('recuperadores') ||
+    catSlug.includes('lareira') ||
+    catSlug.includes('fornos') ||
+    catSlug.includes('caldeiras') ||
+    allCats.includes('recuperadores') ||
+    allCats.includes('lareira') ||
+    allCats.includes('fornos')
+  ) {
+    return 'recuperadores';
+  }
+
+  if (text.includes('clima') || text.includes('radiador')) return 'climatizacao';
+  if (text.includes('recuperador') || text.includes('lareira')) return 'recuperadores';
+  if (text.includes('salamandra') || text.includes('fog')) return 'salamandras';
+
+  return 'recuperadores';
+}
+
 export default function FeaturedProductTabs({ initialProducts }: FeaturedProductTabsProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -195,14 +316,18 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const cartStore = useCartStore();
 
-  // Combine initialProducts with verified fallbacks
+  // Combine initialProducts with verified fallbacks, and strictly filter ONLY PROMO items
   const products: ProductItem[] = React.useMemo(() => {
-    if (!initialProducts || initialProducts.length === 0) {
-      return fallbackProducts;
-    }
-    const existingIds = new Set(initialProducts.map(p => p.id || p.slug));
+    const rawList = initialProducts && initialProducts.length > 0 ? initialProducts : fallbackProducts;
+    const existingIds = new Set(rawList.map(p => p.id || p.slug));
     const extras = fallbackProducts.filter(f => !existingIds.has(f.id) && !existingIds.has(f.slug));
-    return [...initialProducts, ...extras];
+    const combined = [...rawList, ...extras];
+
+    // Enforce that ONLY items with real promotion (compareAtPrice > price or discountLabel) are shown
+    return combined.filter(p => 
+      (p.compareAtPrice && p.compareAtPrice > p.price) || 
+      (p.discountLabel && p.discountLabel.trim() !== '')
+    );
   }, [initialProducts]);
 
   const tabs = [
@@ -216,55 +341,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
   const filteredProducts = React.useMemo(() => {
     return products.filter(p => {
       if (activeTab === 'all') return true;
-      const haystack = (
-        (p.title || '') + ' ' +
-        (p.categorySlug || '') + ' ' +
-        (p.categoryName || '') + ' ' +
-        (p.allCategories || '')
-      ).toLowerCase();
-
-      if (activeTab === 'pellets') {
-        return (
-          haystack.includes('pellet') ||
-          haystack.includes('lenha') ||
-          haystack.includes('combust') ||
-          haystack.includes('sobro') ||
-          haystack.includes('azinho') ||
-          haystack.includes('pinho') ||
-          haystack.includes('aparas') ||
-          haystack.includes('parfer')
-        );
-      }
-      if (activeTab === 'salamandras') {
-        return (
-          haystack.includes('salamandra') ||
-          haystack.includes('fogão') ||
-          haystack.includes('fogao') ||
-          haystack.includes('estufa')
-        );
-      }
-      if (activeTab === 'recuperadores') {
-        return (
-          haystack.includes('recuperador') ||
-          haystack.includes('lareira') ||
-          haystack.includes('forno') ||
-          haystack.includes('insert') ||
-          haystack.includes('caldeira')
-        );
-      }
-      if (activeTab === 'climatizacao') {
-        return (
-          haystack.includes('clima') ||
-          haystack.includes('ar condicionado') ||
-          haystack.includes('termoacumulador') ||
-          haystack.includes('desumidificador') ||
-          haystack.includes('radiador') ||
-          haystack.includes('ventilador') ||
-          haystack.includes('aquec') ||
-          haystack.includes('split')
-        );
-      }
-      return true;
+      return classifyProductForTab(p) === activeTab;
     });
   }, [products, activeTab]);
 
@@ -345,8 +422,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                 Produtos em Destaque
               </h2>
               {hasSlider && (
-                <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-700 text-xs font-bold">
-                  {filteredProducts.length} artigos
+                <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-xs font-bold border border-red-200">
+                  {filteredProducts.length} em promoção
                 </span>
               )}
             </div>

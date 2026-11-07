@@ -17,6 +17,7 @@ export default async function Home() {
 
   // Fetch thermal products from Prisma
   let formattedProducts: any[] = [];
+  let promoProducts: any[] = [];
   let simulatorProducts = {
     pallets: [] as any[],
     fireplaces: [] as any[],
@@ -42,7 +43,7 @@ export default async function Home() {
       orderBy: { createdAt: 'desc' }
     });
 
-    formattedProducts = allDbProds.slice(0, 150).map(p => ({
+    formattedProducts = allDbProds.map(p => ({
       id: p.id,
       title: p.title,
       slug: p.slug,
@@ -54,6 +55,11 @@ export default async function Home() {
       categoryName: p.categories[0]?.name || '',
       allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
+
+    promoProducts = formattedProducts.filter(p => 
+      (p.compareAtPrice && p.compareAtPrice > p.price) || 
+      (p.discountLabel && p.discountLabel.trim() !== '')
+    );
 
     const classify = (p: any) => {
       const t = p.title.toLowerCase();
@@ -172,7 +178,7 @@ export default async function Home() {
       case 'FeaturedProductTabs':
       case 'BestDeals':
       case 'ProductGrid':
-        return <FeaturedProductTabs key={section.id} initialProducts={formattedProducts} />;
+        return <FeaturedProductTabs key={section.id} initialProducts={promoProducts} />;
       case 'ShippingSimulator':
       case 'BestSeller':
         return <ShippingSimulator key={section.id} productsData={simulatorProducts} />;
