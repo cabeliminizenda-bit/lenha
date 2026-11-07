@@ -7,6 +7,23 @@ import { useCartStore } from '@/store/cartStore';
 import HeroPreviewEditButton from '@/components/admin/HeroPreviewEditButton';
 
 export interface ThermalHeroConfig {
+  // Showcase Card Controls
+  showShowcase?: boolean | string;
+  showShowcaseImage?: boolean | string;
+  showcaseBadge?: string;
+  showcaseImage?: string;
+  showcaseImageFit?: 'contain' | 'cover';
+  showcaseBgImage?: string;
+  showcaseTitle?: string;
+  showcaseSubtitle?: string;
+  showcaseBadgeTech?: string;
+  showcaseBadgeTech2?: string;
+  showcasePrice?: string | number;
+  showcaseComparePrice?: string | number;
+  showcaseSavings?: string;
+  showcaseBtnText?: string;
+
+  // Hero Left Controls
   campaignBadge?: string;
   titlePrefix?: string;
   titleGradient?: string;
@@ -16,22 +33,15 @@ export interface ThermalHeroConfig {
   cta2Text?: string;
   cta2Link?: string;
   bgImageUrl?: string;
+
+  // Trust Badges
+  showTrustBadges?: boolean | string;
   badge1Title?: string;
   badge1Subtitle?: string;
   badge2Title?: string;
   badge2Subtitle?: string;
   badge3Title?: string;
   badge3Subtitle?: string;
-  showcaseBadge?: string;
-  showcaseImage?: string;
-  showcaseTitle?: string;
-  showcaseSubtitle?: string;
-  showcaseBadgeTech?: string;
-  showcaseBadgeTech2?: string;
-  showcasePrice?: string | number;
-  showcaseComparePrice?: string | number;
-  showcaseSavings?: string;
-  showcaseBtnText?: string;
 }
 
 interface ThermalHeroProps {
@@ -44,6 +54,12 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   const [added, setAdded] = useState(false);
   const cartStore = useCartStore();
 
+  // Visibility toggles
+  const isShowcaseVisible = config?.showShowcase !== false && config?.showShowcase !== 'false';
+  const isShowcaseImageVisible = config?.showShowcaseImage !== false && config?.showShowcaseImage !== 'false';
+  const isTrustBadgesVisible = config?.showTrustBadges !== false && config?.showTrustBadges !== 'false';
+
+  // Hero Left Content
   const campaignBadge = config?.campaignBadge ?? 'Campanha de Inverno 2026 • Stock Garantido em Armazém';
   const titlePrefix = config?.titlePrefix ?? 'Promoção de Inverno!';
   const titleGradient = config?.titleGradient ?? 'FOGÃO A PELLETS & LENHA';
@@ -54,6 +70,7 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   const cta2Link = config?.cta2Link ?? '#simulador-envio';
   const bgImageUrl = config?.bgImageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1600';
 
+  // Trust Badges
   const badge1Title = config?.badge1Title ?? 'ENplus A1';
   const badge1Subtitle = config?.badge1Subtitle ?? 'Pellets Certificados';
   const badge2Title = config?.badge2Title ?? '48 a 72h';
@@ -61,8 +78,11 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   const badge3Title = config?.badge3Title ?? '100% Seguro';
   const badge3Subtitle = config?.badge3Subtitle ?? 'MB WAY & Multibanco';
 
+  // Showcase Content
   const showcaseBadge = config?.showcaseBadge ?? 'POUPANÇA -25%';
-  const showcaseImage = config?.showcaseImage || 'https://images.unsplash.com/photo-1545259741-2ea3ebf61fa3?w=800';
+  const showcaseImage = config?.showcaseImage || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800';
+  const showcaseImageFit = config?.showcaseImageFit === 'cover' ? 'cover' : 'contain';
+  const showcaseBgImage = config?.showcaseBgImage || '';
   const showcaseTitle = config?.showcaseTitle ?? 'Fogão / Salamandra Eco 11kW';
   const showcaseSubtitle = config?.showcaseSubtitle ?? 'Combustão limpa • Pellets & Lenha • EcoDesign 2026';
   const showcaseBadgeTech = config?.showcaseBadgeTech ?? '🔥 Alto Rendimento 92%';
@@ -77,7 +97,9 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
       id: 'hero-fogao-salamandra-11kw',
       productId: 'hero-fogao-salamandra-11kw',
       title: showcaseTitle,
-      price: typeof showcasePrice === 'number' ? showcasePrice : parseFloat(showcasePrice.toString().replace(/[^0-9.,]/g, '').replace(',', '.')) || 1417.50,
+      price: typeof showcasePrice === 'number' 
+        ? showcasePrice 
+        : parseFloat(showcasePrice.toString().replace(/[^0-9.,]/g, '').replace(',', '.')) || 1417.50,
       image: showcaseImage,
       quantity: 1
     });
@@ -107,7 +129,6 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/15 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl" />
-        {/* Background stove image with dark overlay */}
         {bgImageUrl && (
           <div 
             className="absolute inset-0 bg-cover bg-center opacity-15 mix-blend-luminosity"
@@ -118,10 +139,10 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        <div className={`grid grid-cols-1 ${isShowcaseVisible ? 'lg:grid-cols-12 gap-10 lg:gap-8 items-center' : 'max-w-4xl'}`}>
           
           {/* Left Column: Headlines & Call to Actions */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className={`${isShowcaseVisible ? 'lg:col-span-7' : 'w-full'} space-y-6`}>
             {campaignBadge && (
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-red-950/60 border border-red-600/40 rounded-full text-xs font-semibold text-red-400 backdrop-blur-md shadow-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping inline-block" />
@@ -174,122 +195,138 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
             </div>
 
             {/* Mini Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800/90 text-xs text-stone-400 max-w-lg">
-              <div className="space-y-0.5">
-                <span className="block text-white font-bold text-sm tracking-wide">{badge1Title}</span>
-                <span className="text-[11px] text-stone-400">{badge1Subtitle}</span>
+            {isTrustBadgesVisible && (
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800/90 text-xs text-stone-400 max-w-lg">
+                <div className="space-y-0.5">
+                  <span className="block text-white font-bold text-sm tracking-wide">{badge1Title}</span>
+                  <span className="text-[11px] text-stone-400">{badge1Subtitle}</span>
+                </div>
+                <div className="space-y-0.5 border-l border-stone-800 pl-4">
+                  <span className="block text-white font-bold text-sm tracking-wide">{badge2Title}</span>
+                  <span className="text-[11px] text-stone-400">{badge2Subtitle}</span>
+                </div>
+                <div className="space-y-0.5 border-l border-stone-800 pl-4">
+                  <span className="block text-white font-bold text-sm tracking-wide">{badge3Title}</span>
+                  <span className="text-[11px] text-stone-400">{badge3Subtitle}</span>
+                </div>
               </div>
-              <div className="space-y-0.5 border-l border-stone-800 pl-4">
-                <span className="block text-white font-bold text-sm tracking-wide">{badge2Title}</span>
-                <span className="text-[11px] text-stone-400">{badge2Subtitle}</span>
-              </div>
-              <div className="space-y-0.5 border-l border-stone-800 pl-4">
-                <span className="block text-white font-bold text-sm tracking-wide">{badge3Title}</span>
-                <span className="text-[11px] text-stone-400">{badge3Subtitle}</span>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Right Column: Visual Showcase Card */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative bg-gradient-to-b from-stone-800/95 via-stone-850/95 to-stone-900/95 border border-stone-700/60 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
-              
-              {/* Savings Badge */}
-              {showcaseBadge && (
-                <div className="absolute -top-3 -right-2 px-3.5 py-1 bg-red-600 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-red-600/40 border border-red-500">
-                  {showcaseBadge}
-                </div>
-              )}
-
-              {/* Showcase Image / Visual */}
-              <div className="aspect-4/3 rounded-2xl bg-stone-950/80 border border-stone-800 relative overflow-hidden group/img flex items-center justify-center p-4">
-                {showcaseImage && (
-                  <Image
-                    src={showcaseImage}
-                    alt={showcaseTitle}
-                    fill
-                    className="object-cover object-center group-hover/img:scale-105 transition-transform duration-700 opacity-85"
-                    sizes="(max-width: 768px) 100vw, 500px"
-                    priority
-                  />
+          {isShowcaseVisible && (
+            <div className="lg:col-span-5 relative">
+              <div className="relative bg-gradient-to-b from-stone-800/95 via-stone-850/95 to-stone-900/95 border border-stone-700/60 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
+                
+                {/* Savings Badge */}
+                {showcaseBadge && (
+                  <div className="absolute -top-3 -right-2 px-3.5 py-1 bg-red-600 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-red-600/40 border border-red-500 z-20">
+                    {showcaseBadge}
+                  </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
 
-                <div className="absolute bottom-3 left-4 right-4 z-10 flex items-center justify-between">
-                  {showcaseBadgeTech && (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-900/90 rounded-md text-[11px] font-semibold text-amber-300 border border-stone-700/60">
-                      {showcaseBadgeTech}
-                    </span>
-                  )}
-                  {showcaseBadgeTech2 && (
-                    <span className="text-[11px] font-medium text-stone-300 bg-black/60 px-2 py-0.5 rounded">
-                      {showcaseBadgeTech2}
-                    </span>
-                  )}
-                </div>
-              </div>
+                {/* Showcase Image / Visual Container */}
+                {isShowcaseImageVisible && (
+                  <div className="aspect-4/3 rounded-2xl bg-stone-950/80 border border-stone-800 relative overflow-hidden group/img flex items-center justify-center p-4">
+                    {/* Optional Showcase Background Image */}
+                    {showcaseBgImage && (
+                      <div 
+                        className="absolute inset-0 bg-cover bg-center opacity-30 z-0"
+                        style={{ backgroundImage: `url('${showcaseBgImage}')` }}
+                      />
+                    )}
 
-              {/* Product Info */}
-              <div className="mt-4 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h3 className="text-white font-bold text-base sm:text-lg leading-tight">
-                      {showcaseTitle}
-                    </h3>
-                    {showcaseSubtitle && (
-                      <p className="text-xs text-stone-400 mt-0.5">
-                        {showcaseSubtitle}
-                      </p>
+                    {/* Product Image */}
+                    {showcaseImage && (
+                      <Image
+                        src={showcaseImage}
+                        alt={showcaseTitle}
+                        fill
+                        className={`${showcaseImageFit === 'cover' ? 'object-cover' : 'object-contain p-2'} object-center group-hover/img:scale-105 transition-transform duration-700 z-10`}
+                        sizes="(max-width: 768px) 100vw, 500px"
+                        priority
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent z-10 pointer-events-none" />
+
+                    {/* Tech Badges on image */}
+                    <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between">
+                      {showcaseBadgeTech && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-900/90 rounded-md text-[11px] font-semibold text-amber-300 border border-stone-700/60 shadow-sm">
+                          {showcaseBadgeTech}
+                        </span>
+                      )}
+                      {showcaseBadgeTech2 && (
+                        <span className="text-[11px] font-medium text-stone-300 bg-black/70 px-2 py-0.5 rounded shadow-sm">
+                          {showcaseBadgeTech2}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Product Info */}
+                <div className={`${isShowcaseImageVisible ? 'mt-4' : 'mt-1'} space-y-2`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="text-white font-bold text-base sm:text-lg leading-tight">
+                        {showcaseTitle}
+                      </h3>
+                      {showcaseSubtitle && (
+                        <p className="text-xs text-stone-400 mt-0.5">
+                          {showcaseSubtitle}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-baseline gap-3 pt-1">
+                    {showcasePrice && (
+                      <span className="text-red-400 font-extrabold text-2xl sm:text-3xl">
+                        {typeof showcasePrice === 'number' ? `${showcasePrice.toFixed(2)} €` : showcasePrice}
+                      </span>
+                    )}
+                    {showcaseComparePrice && (
+                      <span className="text-stone-500 line-through text-sm">
+                        {typeof showcaseComparePrice === 'number' ? `${showcaseComparePrice.toFixed(2)} €` : showcaseComparePrice}
+                      </span>
+                    )}
+                    {showcaseSavings && (
+                      <span className="text-[11px] font-bold text-emerald-400 ml-auto bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
+                        {showcaseSavings}
+                      </span>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-baseline gap-3 pt-1">
-                  {showcasePrice && (
-                    <span className="text-red-400 font-extrabold text-2xl sm:text-3xl">
-                      {typeof showcasePrice === 'number' ? `${showcasePrice.toFixed(2)} €` : showcasePrice}
-                    </span>
+                {/* Action Button */}
+                <button 
+                  onClick={handleAddToCart}
+                  className={`w-full mt-4 py-3.5 px-4 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 ${
+                    added 
+                      ? 'bg-emerald-600 text-white' 
+                      : 'bg-red-600 hover:bg-red-700 active:scale-95 text-white shadow-red-600/30'
+                  }`}
+                >
+                  {added ? (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Adicionado ao Carrinho!</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                      <span>{showcaseBtnText}</span>
+                    </>
                   )}
-                  {showcaseComparePrice && (
-                    <span className="text-stone-500 line-through text-sm">
-                      {typeof showcaseComparePrice === 'number' ? `${showcaseComparePrice.toFixed(2)} €` : showcaseComparePrice}
-                    </span>
-                  )}
-                  {showcaseSavings && (
-                    <span className="text-[11px] font-bold text-emerald-400 ml-auto bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
-                      {showcaseSavings}
-                    </span>
-                  )}
-                </div>
+                </button>
               </div>
-
-              {/* Action Button */}
-              <button 
-                onClick={handleAddToCart}
-                className={`w-full mt-4 py-3.5 px-4 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 ${
-                  added 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-red-600 hover:bg-red-700 active:scale-95 text-white shadow-red-600/30'
-                }`}
-              >
-                {added ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Adicionado ao Carrinho!</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
-                    <span>{showcaseBtnText}</span>
-                  </>
-                )}
-              </button>
             </div>
-          </div>
+          )}
 
         </div>
       </div>
