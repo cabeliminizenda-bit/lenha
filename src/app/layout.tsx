@@ -21,7 +21,7 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settingsDb = await prisma.setting.findMany({
@@ -274,7 +274,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 {children}
                 <DeferredWidgets 
                   chatEnabled={settingsMap.CHAT_ENABLED !== 'false'} 
-                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'Gaming BM'} 
+                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'Lenha & Carvao Silva Dias'} 
                   chatStoreIcon={settingsMap.CHAT_STORE_ICON || settingsMap.HEADER_LOGO_IMAGE || settingsMap.FAVICON_IMAGE || '/logo.png'} 
                 />
               </StoreLayout>

@@ -8,7 +8,7 @@ const isUuid = (str: string) =>
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
   const rawSlug = resolvedParams.slug;
   const decodedSlug = decodeURIComponent(rawSlug);
 

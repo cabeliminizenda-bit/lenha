@@ -925,13 +925,13 @@ export async function testSmtpConnection(targetEmail: string) {
     const { sendEmail } = await import('@/lib/mailer');
     const result = await sendEmail({
       to: targetEmail,
-      subject: 'Test de configuration SMTP - Gaming BM',
+      subject: 'Test de configuration SMTP - Lenha & Carvao Silva Dias',
       html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333;">
           <h2 style="color: #ea580c;">Test de transmission SMTP réussi !</h2>
-          <p>Ce message confirme que votre serveur SMTP et l'envoi d'emails transactionnels pour <strong>Gaming BM</strong> fonctionnent parfaitement.</p>
+          <p>Ce message confirme que votre serveur SMTP et l'envoi d'emails transactionnels pour <strong>Lenha & Carvao Silva Dias</strong> fonctionnent parfaitement.</p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-          <small style="color: #777;">Envoyé depuis l'administration Gaming BM à ${new Date().toLocaleString('fr-FR')}</small>
+          <small style="color: #777;">Envoyé depuis l'administration Lenha & Carvao Silva Dias à ${new Date().toLocaleString('fr-FR')}</small>
         </div>
       `
     });

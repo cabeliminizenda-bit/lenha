@@ -40,7 +40,7 @@ type FooterProps = {
 
 export default function Footer({ 
   supportPhone = '+08 9229 8228', 
-  supportEmail = 'info@gamingbm.com',
+  supportEmail = 'cabeliminizenda@gmail.com',
   footerBgColor = '#278a54',
   footerTextColor = '#ffffff',
   footerHeadingColor = '#ffffff',

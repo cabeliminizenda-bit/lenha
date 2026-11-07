@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const { data: page } = await getPageBySlug(resolvedParams.slug);
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
   
   if (!page || !page.isPublished) {
     return {

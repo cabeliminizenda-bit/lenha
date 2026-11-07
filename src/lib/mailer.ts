@@ -38,8 +38,8 @@ async function getTransporter() {
     },
   });
 
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
-  return { transporter, from: settings.SMTP_FROM || `"${storeName}" <${settings.SMTP_USER || 'info@gamingbm.com'}>`, logo: settings.HEADER_LOGO_IMAGE };
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
+  return { transporter, from: settings.SMTP_FROM || `"${storeName}" <${settings.SMTP_USER || 'cabeliminizenda@gmail.com'}>`, logo: settings.HEADER_LOGO_IMAGE };
 }
 
 // General email sender
@@ -113,9 +113,9 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
     const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
     const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
     const storeEmailMatch = from.match(/<(.+)>/);
-    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@gamingbm.com";
+    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "cabeliminizenda@gmail.com";
     
     // Payment Method mapping
     let paymentMethodStr = order.paymentMethod;
@@ -313,7 +313,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
     const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
     const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
     
     // Payment Method mapping
     let paymentMethodStr = order.paymentMethod;
@@ -498,9 +498,9 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
     const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
     const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
     const storeEmailMatch = from?.match(/<(.+)>/);
-    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "info@gamingbm.com";
+    const storeEmail = storeEmailMatch ? storeEmailMatch[1] : "cabeliminizenda@gmail.com";
     
     // Payment Method mapping
     let paymentMethodStr = order.paymentMethod;
@@ -648,7 +648,7 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
     // USER TODO: Add your coupon code here! For example: "Use code COMEBACK10 for 10% off!"
     const couponMessage = ""; 
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
     let itemsHtml = '';
     if (Array.isArray(cart.cartData) && cart.cartData.length > 0) {
@@ -762,7 +762,7 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
     
     const logoHtml = logo ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="Logo" style="max-height: 50px;"></div>` : "";
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
     let itemsHtml = '';
     if (order.orderItems && order.orderItems.length > 0) {
@@ -848,7 +848,7 @@ export async function sendLowStockAlertEmail(productTitle: string, variationName
 
     const productName = variationName ? `${productTitle} (${variationName})` : productTitle;
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
@@ -893,7 +893,7 @@ export async function sendAdminNewChatMessageEmail(guestName: string, guestEmail
     
     const logoHtml = logo ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="Logo" style="max-height: 40px;"></div>` : "";
 
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
@@ -947,7 +947,7 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
     
     const logoHtml = logo ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="Logo" style="max-height: 40px;"></div>` : "";
     
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
@@ -1010,7 +1010,7 @@ export async function sendAdminAlertEmail({
       where: { key: { in: ['CONTACT_RECEIVER_EMAIL', 'SMTP_USER'] } }
     });
     const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-    const recipient = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['SMTP_USER'] || 'info@gamingbm.com';
+    const recipient = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['SMTP_USER'] || 'cabeliminizenda@gmail.com';
 
     let detailsHtml = '';
     if (details && Object.keys(details).length > 0) {

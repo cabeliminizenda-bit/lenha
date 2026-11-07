@@ -2,7 +2,7 @@ import { getSettings } from '@/actions/settings';
 import ShippingInfoForm from '@/components/admin/settings/ShippingInfoForm';
 
 export const metadata = {
-  title: 'Product shipping info Settings | Gaming BM Admin',
+  title: 'Product shipping info Settings | Lenha & Carvao Silva Dias Admin',
 };
 
 export default async function ShippingInfoSettingsPage() {

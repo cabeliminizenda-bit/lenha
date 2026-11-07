@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   const product = await getCachedProductBySlug(slug);
   
-  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Gaming BM";
+  const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
   if (!product) {
     return {

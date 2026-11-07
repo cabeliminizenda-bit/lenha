@@ -27,7 +27,7 @@ async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string 
 
     return new Promise<string>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { folder: 'gamingbm/woocommerce-import' },
+        { folder: 'lenha/woocommerce-import' },
         (error, result) => {
           if (error || !result) {
             console.error("Cloudinary upload error:", error);
