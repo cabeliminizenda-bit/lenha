@@ -235,6 +235,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
       image: currentItem.image,
       quantity: 1
     });
+    cartStore.setIsOpen(true);
 
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);

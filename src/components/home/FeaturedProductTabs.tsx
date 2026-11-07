@@ -324,8 +324,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
     const combined = [...rawList, ...extras];
 
     // Enforce that ONLY items with real promotion (compareAtPrice > price or discountLabel) are shown
-    return combined.filter(p => 
-      (p.compareAtPrice && p.compareAtPrice > p.price) || 
+    return combined.filter(p =>
+      (p.compareAtPrice && p.compareAtPrice > p.price) ||
       (p.discountLabel && p.discountLabel.trim() !== '')
     );
   }, [initialProducts]);
@@ -398,6 +398,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
       image: product.images[0] || '',
       quantity: 1
     });
+    cartStore.setIsOpen(true);
 
     setToastMessage(`✓ ${product.title} adicionado ao carrinho!`);
     setTimeout(() => {
@@ -410,7 +411,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
   return (
     <section id="catalogo" className="py-14 bg-stone-100/70 border-t border-stone-200 relative">
       <div className="max-w-7xl mx-auto px-4">
-        
+
         {/* Header & Filter Tabs */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
           <div>
@@ -438,11 +439,10 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   <button
                     key={tab.id}
                     onClick={() => handleTabChange(tab.id)}
-                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                      isActive
+                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${isActive
                         ? 'bg-stone-900 text-white shadow-sm'
                         : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
-                    }`}
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -458,11 +458,10 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   onClick={() => scroll('left')}
                   disabled={!canScrollLeft}
                   aria-label="Artigos anteriores"
-                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
-                    canScrollLeft
+                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${canScrollLeft
                       ? 'bg-white border-stone-300 text-stone-800 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm'
                       : 'bg-stone-100 border-stone-200 text-stone-300 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
@@ -474,11 +473,10 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   onClick={() => scroll('right')}
                   disabled={!canScrollRight}
                   aria-label="Próximos artigos"
-                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
-                    canScrollRight
+                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${canScrollRight
                       ? 'bg-white border-stone-300 text-stone-800 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm'
                       : 'bg-stone-100 border-stone-200 text-stone-300 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
@@ -491,7 +489,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
 
         {/* Carousel / Slider Container */}
         <div className="relative group/carousel">
-          
+
           {/* Floating Left Arrow on Desktop */}
           {hasSlider && canScrollLeft && (
             <button
@@ -533,7 +531,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                 <div>
                   {/* Image & Badges Container */}
                   <div className="relative rounded-xl bg-stone-50 border border-stone-100 aspect-square flex items-center justify-center mb-4 overflow-hidden">
-                    
+
                     {/* Top Badges */}
                     <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between pointer-events-none">
                       {prod.discountLabel ? (
@@ -615,9 +613,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   type="button"
                   onClick={() => scroll('left')}
                   disabled={!canScrollLeft}
-                  className={`w-8 h-8 rounded-lg border flex items-center justify-center ${
-                    canScrollLeft ? 'bg-white text-stone-900 border-stone-300' : 'bg-stone-100 text-stone-300 border-stone-200'
-                  }`}
+                  className={`w-8 h-8 rounded-lg border flex items-center justify-center ${canScrollLeft ? 'bg-white text-stone-900 border-stone-300' : 'bg-stone-100 text-stone-300 border-stone-200'
+                    }`}
                 >
                   ‹
                 </button>
@@ -625,9 +622,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   type="button"
                   onClick={() => scroll('right')}
                   disabled={!canScrollRight}
-                  className={`w-8 h-8 rounded-lg border flex items-center justify-center ${
-                    canScrollRight ? 'bg-white text-stone-900 border-stone-300' : 'bg-stone-100 text-stone-300 border-stone-200'
-                  }`}
+                  className={`w-8 h-8 rounded-lg border flex items-center justify-center ${canScrollRight ? 'bg-white text-stone-900 border-stone-300' : 'bg-stone-100 text-stone-300 border-stone-200'
+                    }`}
                 >
                   ›
                 </button>

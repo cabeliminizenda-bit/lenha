@@ -56,8 +56,8 @@ export default async function Home() {
       allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
 
-    promoProducts = formattedProducts.filter(p => 
-      (p.compareAtPrice && p.compareAtPrice > p.price) || 
+    promoProducts = formattedProducts.filter(p =>
+      (p.compareAtPrice && p.compareAtPrice > p.price) ||
       (p.discountLabel && p.discountLabel.trim() !== '')
     );
 

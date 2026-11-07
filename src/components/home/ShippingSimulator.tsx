@@ -749,6 +749,9 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
       quantity: quantity
     });
 
+    // Close drawer so it doesn't block direct checkout
+    cartStore.setIsOpen(false);
+
     // 2. Set custom calibrated shipping in Cart Store
     cartStore.setCustomShipping({
       methodId: calculation.methodId,
@@ -780,7 +783,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* Left Column: Equipment Category, Searchable Combobox & Destination */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className={`${activeProduct ? 'lg:col-span-7' : 'lg:col-span-12 max-w-2xl mx-auto'} space-y-6 transition-all duration-300`}>
 
             <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 border border-red-500/40 text-white font-extrabold text-[11px] uppercase tracking-wider mb-2 shadow-sm">
@@ -1326,33 +1329,33 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
 
           </div>
 
-          {/* Right Column: Dynamic Calibrated Price & Direct Checkout */}
-          <div className="lg:col-span-5 bg-stone-800/90 rounded-2xl p-6 border border-stone-700 shadow-xl flex flex-col justify-between">
-            <div className="space-y-4">
+          {/* Right Column: Dynamic Calibrated Price & Direct Checkout (Only shown after product is selected) */}
+          {activeProduct && (
+            <div className="lg:col-span-5 bg-stone-800/90 rounded-2xl p-6 border border-stone-700 shadow-xl flex flex-col justify-between animate-fadeIn transition-all duration-300">
+              <div className="space-y-4">
 
-              <div className="flex items-start justify-between border-b border-stone-700 pb-3">
-                <div>
-                  <span className="text-xs text-stone-400 block font-semibold">Destino Selecionado</span>
-                  <h4 className="font-extrabold text-white text-base mt-0.5">{currentDestination.name}</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-stone-700/80 text-stone-300 border border-stone-600">
-                      {currentDestination.region}
-                    </span>
+                <div className="flex items-start justify-between border-b border-stone-700 pb-3">
+                  <div>
+                    <span className="text-xs text-stone-400 block font-semibold">Destino Selecionado</span>
+                    <h4 className="font-extrabold text-white text-base mt-0.5">{currentDestination.name}</h4>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-stone-700/80 text-stone-300 border border-stone-600">
+                        {currentDestination.region}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <span className="text-2xl">
-                  {currentDestination.country === 'PT' ? '🇵🇹' : currentDestination.country === 'ES' ? '🇪🇸' : currentDestination.country === 'FR' ? '🇫🇷' : '🏝️'}
-                </span>
-              </div>
-
-              {/* Price Display */}
-              <div className="bg-stone-900/90 rounded-xl p-4 border border-stone-700/80 flex items-center justify-between">
-                <div>
-                  <span className="text-[11px] text-stone-400 block uppercase font-bold tracking-wider">
-                    Custo de Envio Calibrado
+                  <span className="text-2xl">
+                    {currentDestination.country === 'PT' ? '🇵🇹' : currentDestination.country === 'ES' ? '🇪🇸' : currentDestination.country === 'FR' ? '🇫🇷' : '🏝️'}
                   </span>
-                  {activeProduct ? (
-                    calculation.isFree ? (
+                </div>
+
+                {/* Price Display */}
+                <div className="bg-stone-900/90 rounded-xl p-4 border border-stone-700/80 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-stone-400 block uppercase font-bold tracking-wider">
+                      Custo de Envio Calibrado
+                    </span>
+                    {calculation.isFree ? (
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-2xl sm:text-3xl font-black text-emerald-400">GRÁTIS</span>
                         <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
@@ -1368,90 +1371,69 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                           {calculation.badge}
                         </span>
                       </div>
-                    )
-                  ) : (
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xl sm:text-2xl font-bold text-stone-300">Aguardando Artigo</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
-                        Etapa 2
-                      </span>
-                    </div>
-                  )}
+                    )}
+                  </div>
+
+                  <div className="w-12 h-12 rounded-xl bg-stone-800 flex items-center justify-center text-2xl shrink-0">
+                    {calculation.isFree ? '🎁' : shippingSpeed === 'express' ? '⚡' : '🚛'}
+                  </div>
                 </div>
 
-                <div className="w-12 h-12 rounded-xl bg-stone-800 flex items-center justify-center text-2xl shrink-0">
-                  {!activeProduct ? '📦' : calculation.isFree ? '🎁' : shippingSpeed === 'express' ? '⚡' : '🚛'}
+                {/* Rule Explanation Banner */}
+                <div className="p-3.5 rounded-xl bg-stone-900/60 border border-stone-700 text-xs text-stone-300 leading-relaxed space-y-1">
+                  <span className="font-bold text-white block">Condições de Envio:</span>
+                  <p>{calculation.explanation}</p>
                 </div>
+
+                {/* Delivery Details */}
+                <div className="space-y-2 text-xs border-t border-stone-700/60 pt-3">
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-stone-400">Modalidade:</span>
+                    <span className="text-white font-bold">
+                      {shippingSpeed === 'express' ? '⚡ Expresso Prioritário' : '🚛 Standard com Plataforma'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-stone-400">Prazo Estimado:</span>
+                    <span className="text-white font-bold">
+                      {shippingSpeed === 'express' ? currentDestination.timeframeExpress : currentDestination.timeframe}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-stone-400">Descarga com Hayon:</span>
+                    <span className="text-emerald-400 font-bold">Incluída à Porta</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-stone-400">Aviso Prévio por Telefone:</span>
+                    <span className="text-white font-bold">Sim, prévio ao envio</span>
+                  </div>
+                </div>
+
               </div>
 
-              {/* Rule Explanation Banner */}
-              <div className="p-3.5 rounded-xl bg-stone-900/60 border border-stone-700 text-xs text-stone-300 leading-relaxed space-y-1">
-                <span className="font-bold text-white block">Condições de Envio:</span>
-                <p>
-                  {activeProduct
-                    ? calculation.explanation
-                    : 'Selecione o artigo na Etapa 2 para calcular o frete exato e os prazos de entrega.'}
+              {/* Direct Order Button leading directly to Checkout */}
+              <div className="mt-6 pt-2">
+                <button
+                  type="button"
+                  onClick={handleOrderAndCheckout}
+                  className="w-full py-3.5 px-4 rounded-xl font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 active:scale-[0.99] text-white shadow-red-600/30"
+                >
+                  <span className="whitespace-nowrap truncate max-w-[240px] sm:max-w-[280px]">
+                    Encomendar {conciseProductTitle}
+                  </span>
+                  <span className="shrink-0 text-base font-bold">&rarr;</span>
+                </button>
+                <p className="text-[11px] text-stone-400 text-center mt-2.5">
+                  Redirecionamento imediato para o Checkout com taxa de{' '}
+                  <span className="text-emerald-400 font-semibold">
+                    {calculation.rate === 0 ? '0,00 € (Grátis)' : `${calculation.rate.toFixed(2)} €`}
+                  </span>{' '}
+                  aplicada
                 </p>
               </div>
 
-              {/* Delivery Details */}
-              <div className="space-y-2 text-xs border-t border-stone-700/60 pt-3">
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-stone-400">Modalidade:</span>
-                  <span className="text-white font-bold">
-                    {shippingSpeed === 'express' ? '⚡ Expresso Prioritário' : '🚛 Standard com Plataforma'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-stone-400">Prazo Estimado:</span>
-                  <span className="text-white font-bold">
-                    {shippingSpeed === 'express' ? currentDestination.timeframeExpress : currentDestination.timeframe}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-stone-400">Descarga com Hayon:</span>
-                  <span className="text-emerald-400 font-bold">Incluída à Porta</span>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-stone-400">Aviso Prévio por Telefone:</span>
-                  <span className="text-white font-bold">Sim, prévio ao envio</span>
-                </div>
-              </div>
-
             </div>
-
-            {/* Direct Order Button leading directly to Checkout */}
-            <div className="mt-6 pt-2">
-              <button
-                type="button"
-                onClick={handleOrderAndCheckout}
-                className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
-                  activeProduct
-                    ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 active:scale-[0.99] text-white shadow-red-600/30'
-                    : 'bg-stone-700 hover:bg-stone-600 text-stone-200'
-                }`}
-              >
-                <span className="whitespace-nowrap truncate max-w-[240px] sm:max-w-[280px]">
-                  {activeProduct ? `Encomendar ${conciseProductTitle}` : 'Selecione um Artigo no Passo 2'}
-                </span>
-                <span className="shrink-0 text-base font-bold">&rarr;</span>
-              </button>
-              <p className="text-[11px] text-stone-400 text-center mt-2.5">
-                {activeProduct ? (
-                  <>
-                    Redirecionamento imediato para o Checkout com taxa de{' '}
-                    <span className="text-emerald-400 font-semibold">
-                      {calculation.rate === 0 ? '0,00 € (Grátis)' : `${calculation.rate.toFixed(2)} €`}
-                    </span>{' '}
-                    aplicada
-                  </>
-                ) : (
-                  'Selecione um artigo na Etapa 2 para avançar diretamente para o Checkout'
-                )}
-              </p>
-            </div>
-
-          </div>
+          )}
 
         </div>
 

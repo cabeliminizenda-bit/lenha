@@ -70,7 +70,7 @@ export const useCartStore = create<CartStore>()(
           addItemLogic({ ...fsItem, forcedByItemId: item.id });
         });
 
-        set({ items: newItems });
+        set({ items: newItems, isOpen: true });
       },
       removeItem: (id) =>
         set((state) => ({ 
