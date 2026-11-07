@@ -7,6 +7,10 @@ import { useCartStore } from '@/store/cartStore';
 import HeroPreviewEditButton from '@/components/admin/HeroPreviewEditButton';
 
 export interface ThermalHeroConfig {
+  // Global & Background
+  bgImageUrl?: string;
+  bgOverlayOpacity?: string | number;
+
   // Showcase Card Controls
   showShowcase?: boolean | string;
   showShowcaseImage?: boolean | string;
@@ -32,7 +36,6 @@ export interface ThermalHeroConfig {
   cta1Link?: string;
   cta2Text?: string;
   cta2Link?: string;
-  bgImageUrl?: string;
 
   // Trust Badges
   showTrustBadges?: boolean | string;
@@ -59,6 +62,14 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   const isShowcaseImageVisible = config?.showShowcaseImage !== false && config?.showShowcaseImage !== 'false';
   const isTrustBadgesVisible = config?.showTrustBadges !== false && config?.showTrustBadges !== 'false';
 
+  // Background settings
+  const bgImageUrl = config?.bgImageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1600';
+  const rawBgOpacity = config?.bgOverlayOpacity !== undefined && config?.bgOverlayOpacity !== '' 
+    ? parseFloat(config.bgOverlayOpacity.toString()) 
+    : 0.60;
+  // Normalized opacity between 0.1 and 1.0
+  const bgOpacity = isNaN(rawBgOpacity) ? 0.60 : Math.min(Math.max(rawBgOpacity, 0.1), 1.0);
+
   // Hero Left Content
   const campaignBadge = config?.campaignBadge ?? 'Campanha de Inverno 2026 • Stock Garantido em Armazém';
   const titlePrefix = config?.titlePrefix ?? 'Promoção de Inverno!';
@@ -68,7 +79,6 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   const cta1Link = config?.cta1Link ?? '/shop';
   const cta2Text = config?.cta2Text ?? 'Calcular Envio de Palete';
   const cta2Link = config?.cta2Link ?? '#simulador-envio';
-  const bgImageUrl = config?.bgImageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1600';
 
   // Trust Badges
   const badge1Title = config?.badge1Title ?? 'ENplus A1';
@@ -119,23 +129,32 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   };
 
   return (
-    <section className="relative bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 text-white overflow-hidden py-14 lg:py-20 border-b border-stone-800 group">
+    <section className="relative bg-stone-950 text-white overflow-hidden py-14 lg:py-20 border-b border-stone-800 group">
       {/* Admin preview edit button */}
       {isPreview && sectionId && (
         <HeroPreviewEditButton sectionId={sectionId} blockNum={0} />
       )}
 
-      {/* Background Ambient Lighting & Texture */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl" />
+      {/* Main Hero Background Image & Lighting */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        {/* Glow ambient effects */}
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
+
+        {/* User Background Image with controllable opacity */}
         {bgImageUrl && (
           <div 
-            className="absolute inset-0 bg-cover bg-center opacity-15 mix-blend-luminosity"
-            style={{ backgroundImage: `url('${bgImageUrl}')` }}
+            className="absolute inset-0 bg-cover bg-center transition-all duration-500 ease-out"
+            style={{ 
+              backgroundImage: `url('${bgImageUrl}')`,
+              opacity: bgOpacity
+            }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/90 to-stone-900/80" />
+
+        {/* Gradient overlay for high text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-stone-950/95 via-stone-950/75 to-stone-950/40 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-stone-950/40 pointer-events-none" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -144,13 +163,13 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
           {/* Left Column: Headlines & Call to Actions */}
           <div className={`${isShowcaseVisible ? 'lg:col-span-7' : 'w-full'} space-y-6`}>
             {campaignBadge && (
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-red-950/60 border border-red-600/40 rounded-full text-xs font-semibold text-red-400 backdrop-blur-md shadow-sm">
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-red-950/70 border border-red-600/40 rounded-full text-xs font-semibold text-red-400 backdrop-blur-md shadow-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping inline-block" />
                 <span>{campaignBadge}</span>
               </div>
             )}
             
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white drop-shadow-md">
               {titlePrefix && <>{titlePrefix}<br /></>}
               {titleGradient && (
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 to-amber-300">
@@ -160,7 +179,7 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
             </h1>
 
             {description && (
-              <p className="text-stone-300 text-sm sm:text-base max-w-xl leading-relaxed">
+              <p className="text-stone-200 text-sm sm:text-base max-w-xl leading-relaxed drop-shadow-sm">
                 {description}
               </p>
             )}
@@ -183,7 +202,7 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
                 <a 
                   href={cta2Link}
                   onClick={handleCta2Click}
-                  className="px-6 py-3.5 bg-stone-800/90 hover:bg-stone-700/90 active:scale-95 text-stone-200 border border-stone-700 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                  className="px-6 py-3.5 bg-stone-900/90 hover:bg-stone-800/90 active:scale-95 text-stone-200 border border-stone-700 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 shadow-sm cursor-pointer backdrop-blur-sm"
                 >
                   <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -196,7 +215,7 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
 
             {/* Mini Trust Badges */}
             {isTrustBadgesVisible && (
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800/90 text-xs text-stone-400 max-w-lg">
+              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800 text-xs text-stone-300 max-w-lg">
                 <div className="space-y-0.5">
                   <span className="block text-white font-bold text-sm tracking-wide">{badge1Title}</span>
                   <span className="text-[11px] text-stone-400">{badge1Subtitle}</span>
@@ -216,7 +235,7 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
           {/* Right Column: Visual Showcase Card */}
           {isShowcaseVisible && (
             <div className="lg:col-span-5 relative">
-              <div className="relative bg-gradient-to-b from-stone-800/95 via-stone-850/95 to-stone-900/95 border border-stone-700/60 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
+              <div className="relative bg-gradient-to-b from-stone-900/95 via-stone-850/95 to-stone-950/95 border border-stone-700/70 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
                 
                 {/* Savings Badge */}
                 {showcaseBadge && (
@@ -227,12 +246,15 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
 
                 {/* Showcase Image / Visual Container */}
                 {isShowcaseImageVisible && (
-                  <div className="aspect-4/3 rounded-2xl bg-stone-950/80 border border-stone-800 relative overflow-hidden group/img flex items-center justify-center p-4">
+                  <div className="aspect-4/3 rounded-2xl bg-stone-950/90 border border-stone-800 relative overflow-hidden group/img flex items-center justify-center p-3">
                     {/* Optional Showcase Background Image */}
                     {showcaseBgImage && (
                       <div 
-                        className="absolute inset-0 bg-cover bg-center opacity-30 z-0"
-                        style={{ backgroundImage: `url('${showcaseBgImage}')` }}
+                        className="absolute inset-0 bg-cover bg-center z-0 transition-opacity"
+                        style={{ 
+                          backgroundImage: `url('${showcaseBgImage}')`,
+                          opacity: 0.85
+                        }}
                       />
                     )}
 
