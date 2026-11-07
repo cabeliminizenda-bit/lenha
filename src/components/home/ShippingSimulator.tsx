@@ -208,6 +208,7 @@ interface DestinationZone {
   region: string;
   country: 'PT' | 'ES' | 'FR' | 'ISLANDS';
   timeframe: string;
+  timeframeExpress: string;
   isLocalNorth: boolean; // Braga, Porto, Viana
   zonePrismaName: string;
 }
@@ -220,6 +221,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Zona Norte Proximidade',
     country: 'PT',
     timeframe: '24 a 48 horas úteis',
+    timeframeExpress: '24 horas úteis (Entrega Prioritária)',
     isLocalNorth: true,
     zonePrismaName: 'Portugal Continental'
   },
@@ -229,6 +231,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Zona Norte Litoral',
     country: 'PT',
     timeframe: '24 a 48 horas úteis',
+    timeframeExpress: '24 a 48 horas úteis (Expresso)',
     isLocalNorth: true,
     zonePrismaName: 'Portugal Continental'
   },
@@ -238,6 +241,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Zona Norte',
     country: 'PT',
     timeframe: '24 a 48 horas úteis',
+    timeframeExpress: '24 a 48 horas úteis (Expresso)',
     isLocalNorth: true,
     zonePrismaName: 'Portugal Continental'
   },
@@ -247,6 +251,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Região Centro Litoral',
     country: 'PT',
     timeframe: '48 a 72 horas úteis',
+    timeframeExpress: '24 a 48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -256,6 +261,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Região Metropolitana de Lisboa',
     country: 'PT',
     timeframe: '48 a 72 horas úteis',
+    timeframeExpress: '24 a 48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -265,6 +271,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Trás-os-Montes & Douro',
     country: 'PT',
     timeframe: '48 a 72 horas úteis',
+    timeframeExpress: '24 a 48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -274,6 +281,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Região Centro Interior & Beiras',
     country: 'PT',
     timeframe: '48 a 72 horas úteis',
+    timeframeExpress: '24 a 48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -283,6 +291,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Região Alentejo',
     country: 'PT',
     timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -292,6 +301,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Região Sul / Algarve',
     country: 'PT',
     timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -303,6 +313,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Ilhas (Transporte Marítimo)',
     country: 'ISLANDS',
     timeframe: '5 a 10 dias úteis (saída semanal)',
+    timeframeExpress: '48 a 72 horas úteis (Aéreo Prioritário)',
     isLocalNorth: false,
     zonePrismaName: 'Ilhas (Açores e Madeira)'
   },
@@ -314,6 +325,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'Espanha (Logística Ibérica)',
     country: 'ES',
     timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso Ibérico)',
     isLocalNorth: false,
     zonePrismaName: 'Espanha Peninsular'
   },
@@ -325,6 +337,7 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'França (Transporte Internacional)',
     country: 'FR',
     timeframe: '5 a 7 dias úteis',
+    timeframeExpress: '48 a 72 horas úteis (Expresso Internacional)',
     isLocalNorth: false,
     zonePrismaName: 'França'
   }
@@ -356,7 +369,9 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
   const cartStore = useCartStore();
 
   const [activeCategory, setActiveCategory] = useState<EquipmentCategory>('pallets');
+  const [destinationScope, setDestinationScope] = useState<'nacional' | 'internacional'>('nacional');
   const [destinationKey, setDestinationKey] = useState<string>('braga');
+  const [shippingSpeed, setShippingSpeed] = useState<'standard' | 'express'>('standard');
   const [postalCode, setPostalCode] = useState<string>('');
   const [palletQty, setPalletQty] = useState<number>(1);
   const [acQty, setAcQty] = useState<number>(1);
@@ -407,7 +422,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
   const isLocalNorth = currentDestination.isLocalNorth;
   const isPortugalContinental = currentDestination.country === 'PT';
 
-  // Real-time calculation strictly following business rules & international extensions
+  // Real-time calculation strictly following business rules, international extensions & express option
   const calculation = useMemo(() => {
     const prodPrice = activeProduct?.price || 0;
 
@@ -416,11 +431,28 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
     const METHOD_15_ID = '1422c9b3-378a-4b52-b70a-53cf1f2bf0bd';   // Envio 15€
     const METHOD_16_ID = '0e0461cc-df55-468a-9e5a-a8d5d101ec89';   // Envio 16€
     const METHOD_18_ID = '9632573c-952e-4ee6-a115-4a56f55d5b48';   // Envio 18€
+    const METHOD_EXPRESS_PT_ID = 'b32ab1c7-a946-4487-a935-08d8ac391618'; // Expresso PT 24h
+    const METHOD_EXPRESS_ES_ID = '05320fbb-78e3-46bd-8c59-3881967d9a31'; // Expresso ES 48h
+    const METHOD_EXPRESS_FR_ID = 'af223a10-66c1-46bc-9563-32fcbc43da53'; // Expresso FR
+    const METHOD_EXPRESS_ISLANDS_ID = 'a68680f8-6fd4-448e-a740-6676cdf01906'; // Expresso Ilhas
+
+    const isExpress = shippingSpeed === 'express';
 
     // 1. INTERNATIONAL DESTINATIONS (Espanha, França, Ilhas)
     if (!isPortugalContinental) {
       if (currentDestination.country === 'ES') {
         if (activeCategory === 'pallets') {
+          if (isExpress) {
+            const rateES = palletQty >= 5 ? 25.00 * palletQty : (35.00 * palletQty) + 20.00;
+            return {
+              rate: rateES,
+              methodId: METHOD_EXPRESS_ES_ID,
+              methodLabel: 'Envio Expresso Ibérico 48h (Paletes)',
+              isFree: false,
+              explanation: `Expedição expresso 48h para Espanha Peninsular: ${rateES.toFixed(2)} € com camião plataforma.`,
+              badge: 'Expresso Ibérico 48h'
+            };
+          }
           const isFreeES = palletQty >= 5;
           const rateES = isFreeES ? 0 : palletQty >= 3 ? 35.00 * palletQty : 45.00 * palletQty;
           return {
@@ -435,6 +467,17 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           };
         }
         if (activeCategory === 'fireplaces') {
+          if (isExpress) {
+            const rateES = prodPrice >= 700 ? 20.00 : 45.00;
+            return {
+              rate: rateES,
+              methodId: METHOD_EXPRESS_ES_ID,
+              methodLabel: 'Envio Expresso Ibérico 48h (Equipamento Térmico)',
+              isFree: false,
+              explanation: `Envio expresso 48h para equipamento térmico em Espanha Peninsular: ${rateES.toFixed(2)} €.`,
+              badge: 'Expresso Ibérico 48h'
+            };
+          }
           const isFreeES = prodPrice >= 700;
           return {
             rate: isFreeES ? 0 : 35.00,
@@ -448,6 +491,17 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           };
         }
         // Climate ES
+        if (isExpress) {
+          const rateES = acQty >= 2 ? 15.00 : 35.00;
+          return {
+            rate: rateES,
+            methodId: METHOD_EXPRESS_ES_ID,
+            methodLabel: 'Envio Expresso Ibérico 48h (Climatizador)',
+            isFree: false,
+            explanation: `Envio expresso 48h para climatizadores em Espanha Peninsular: ${rateES.toFixed(2)} €.`,
+            badge: 'Expresso Ibérico 48h'
+          };
+        }
         const isFreeES = acQty >= 2;
         return {
           rate: isFreeES ? 0 : 25.00,
@@ -462,18 +516,32 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
       }
 
       if (currentDestination.country === 'FR') {
-        const rateFR = activeCategory === 'pallets' ? 75.00 * palletQty : activeCategory === 'fireplaces' ? 45.00 : 35.00;
+        const baseRate = activeCategory === 'pallets' ? 75.00 * palletQty : activeCategory === 'fireplaces' ? 45.00 : 35.00;
+        const rateFR = isExpress ? baseRate + 20.00 : baseRate;
         return {
           rate: rateFR,
-          methodId: 'af223a10-66c1-46bc-9563-32fcbc43da53',
-          methodLabel: 'Envio Internacional França (Camião com Plataforma)',
+          methodId: isExpress ? METHOD_EXPRESS_FR_ID : 'af223a10-66c1-46bc-9563-32fcbc43da53',
+          methodLabel: isExpress ? 'Envio Expresso França (Prioritário)' : 'Envio Internacional França (Camião com Plataforma)',
           isFree: false,
-          explanation: `Transporte internacional direto para França com camião plataforma: ${rateFR.toFixed(2)} €.`,
-          badge: 'Internacional França'
+          explanation: isExpress
+            ? `Transporte expresso internacional direto para França (48h a 72h): ${rateFR.toFixed(2)} €.`
+            : `Transporte internacional regular direto para França com plataforma: ${rateFR.toFixed(2)} €.`,
+          badge: isExpress ? 'Expresso França' : 'Internacional França'
         };
       }
 
       // Ilhas (Açores & Madeira)
+      if (isExpress) {
+        const rateIlhasExp = activeCategory === 'climate' ? 35.00 : 85.00;
+        return {
+          rate: rateIlhasExp,
+          methodId: METHOD_EXPRESS_ISLANDS_ID,
+          methodLabel: 'Envio Aéreo Expresso Açores & Madeira',
+          isFree: false,
+          explanation: `Envio aéreo expresso prioritário para os arquipélagos: ${rateIlhasExp.toFixed(2)} €.`,
+          badge: 'Aéreo Expresso'
+        };
+      }
       const rateIlhas = activeCategory === 'climate' ? 25.00 : 75.00;
       return {
         rate: rateIlhas,
@@ -485,10 +553,44 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
       };
     }
 
-    // 2. PORTUGAL CONTINENTAL (Exact User Rules)
+    // 2. PORTUGAL CONTINENTAL
 
     // A) PALETTES
     if (activeCategory === 'pallets') {
+      if (isExpress) {
+        if (palletQty >= 3) {
+          return {
+            rate: 19.00,
+            methodId: METHOD_EXPRESS_PT_ID,
+            methodLabel: 'Envio Expresso Prioritário (3+ Paletes)',
+            isFree: false,
+            explanation: 'Envio expresso prioritário 24h para 3 ou mais paletes com transporte dedicado e plataforma.',
+            badge: 'Prioritário 24h/48h'
+          };
+        }
+        if (palletQty === 2) {
+          const rateExp = isLocalNorth ? 15.00 : 25.00;
+          return {
+            rate: rateExp,
+            methodId: METHOD_EXPRESS_PT_ID,
+            methodLabel: 'Envio Expresso de 2 Paletes (24h)',
+            isFree: false,
+            explanation: `Envio expresso prioritário 24h com camião plataforma para 2 paletes: ${rateExp.toFixed(2)} € no total.`,
+            badge: 'Expresso 24h'
+          };
+        }
+        const costExp = destinationKey === 'braga' ? 10.00 : isLocalNorth ? 18.00 : 25.00;
+        return {
+          rate: costExp,
+          methodId: METHOD_EXPRESS_PT_ID,
+          methodLabel: 'Envio Expresso 24h com Camião Plataforma',
+          isFree: false,
+          explanation: `Envio expresso prioritário 24h para 1 palete com agendamento direto e plataforma elevatória: ${costExp.toFixed(2)} €.`,
+          badge: 'Expresso 24h'
+        };
+      }
+
+      // Standard Pallets
       if (palletQty >= 3) {
         return {
           rate: 0,
@@ -520,7 +622,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           };
         }
       }
-      // 1 palette: max 15€
+      // 1 palette standard: max 15€
       const cost = destinationKey === 'braga' ? 0 : isLocalNorth ? 10.00 : 15.00;
       return {
         rate: cost,
@@ -536,6 +638,17 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
 
     // B) CHEMINÉES / LAREIRAS / RECUPERADORES / SALAMANDRAS / FOGÕES
     if (activeCategory === 'fireplaces') {
+      if (isExpress) {
+        const rateExp = prodPrice >= 500 ? 18.00 : 28.00;
+        return {
+          rate: rateExp,
+          methodId: METHOD_EXPRESS_PT_ID,
+          methodLabel: 'Envio Expresso 24h de Equipamento Térmico',
+          isFree: false,
+          explanation: `Envio expresso prioritário 24h/48h para equipamento térmico: taxa de ${rateExp.toFixed(2)} € com agendamento dedicado.`,
+          badge: 'Expresso 24h'
+        };
+      }
       if (prodPrice >= 500) {
         return {
           rate: 0,
@@ -559,6 +672,17 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
 
     // C) CLIMATISEURS / CLIMATIZAÇÃO
     if (activeCategory === 'climate') {
+      if (isExpress) {
+        const rateExp = acQty >= 2 || prodPrice > 300 ? 15.00 : 25.00;
+        return {
+          rate: rateExp,
+          methodId: METHOD_EXPRESS_PT_ID,
+          methodLabel: 'Envio Expresso 24h de Climatizador',
+          isFree: false,
+          explanation: `Envio expresso prioritário 24h para climatização: taxa de ${rateExp.toFixed(2)} €.`,
+          badge: 'Expresso 24h'
+        };
+      }
       if (acQty >= 2) {
         return {
           rate: 0,
@@ -598,7 +722,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
       explanation: 'Envio com camião plataforma elevatória.',
       badge: 'Envio Padrão'
     };
-  }, [activeCategory, destinationKey, isLocalNorth, isPortugalContinental, palletQty, acQty, activeProduct, currentDestination]);
+  }, [activeCategory, destinationKey, isLocalNorth, isPortugalContinental, palletQty, acQty, activeProduct, currentDestination, shippingSpeed]);
 
   // Handle direct order & checkout redirect
   const handleOrderAndCheckout = () => {
@@ -630,10 +754,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
     router.push('/checkout');
   };
 
-  const truncatedProductTitle = useMemo(() => {
-    if (!activeProduct) return 'Produto';
-    const t = activeProduct.title;
-    return t.length > 26 ? t.slice(0, 26) + '...' : t;
+  const conciseProductTitle = useMemo(() => {
+    if (!activeProduct) return 'Artigo';
+    const t = activeProduct.title.trim();
+    return t.length > 18 ? t.slice(0, 18).trim() + '...' : t;
   }, [activeProduct]);
 
   return (
@@ -737,26 +861,56 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                 <div className="relative flex items-center">
                   <input
                     type="text"
-                    value={searchQuery || (activeProduct ? `${formatProductShortTitle(activeProduct.title, activeProduct.brand, activeProduct.sku)} — ${activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}` : '')}
+                    value={searchQuery !== '' ? searchQuery : (activeProduct ? `${formatProductShortTitle(activeProduct.title, activeProduct.brand, activeProduct.sku)} — ${activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}` : '')}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
                       setIsDropdownOpen(true);
                     }}
-                    onFocus={() => {
+                    onFocus={(e) => {
                       setIsDropdownOpen(true);
+                      e.target.select();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        setIsDropdownOpen(false);
+                      } else if (e.key === 'Enter') {
+                        if (filteredProducts.length > 0) {
+                          setSelectedProductId(filteredProducts[0].id);
+                          setSearchQuery('');
+                          setIsDropdownOpen(false);
+                        }
+                      }
                     }}
                     placeholder="Pesquisar por nome, marca, modelo ou SKU..."
-                    className="w-full px-4 py-3 pr-10 bg-stone-900 border border-stone-600 rounded-xl text-xs sm:text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 truncate"
+                    className="w-full px-4 py-3 pr-16 bg-stone-900 border border-stone-600 rounded-xl text-xs sm:text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 truncate"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white transition-colors cursor-pointer p-1"
-                  >
-                    <svg className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+
+                  {/* Right Action Buttons: Clear (x) and Chevron */}
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery('');
+                        }}
+                        title="Limpar pesquisa"
+                        className="text-stone-400 hover:text-white p-1 rounded-md transition-colors"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="text-stone-400 hover:text-white transition-colors cursor-pointer p-1"
+                    >
+                      <svg className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Floating Options Dropdown (Never breaks or stretches the column) */}
@@ -861,68 +1015,154 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               )}
             </div>
 
-            {/* 3. Destination Zone Selector (Portugal Continental + Internacional) */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-1">
-              
-              {/* Postal Code input */}
-              <div className="sm:col-span-5">
-                <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block mb-1.5">
-                  Código Postal (PT)
+            {/* 3. Destination Scope & Zone Selector (Nacional / Internacional) */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block">
+                  3. Destino de Entrega
                 </label>
-                <input
-                  type="text"
-                  placeholder="Ex: 4700-001"
-                  maxLength={8}
-                  value={postalCode}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setPostalCode(val);
-                    const detected = detectDistrictFromPostalCode(val);
-                    if (detected) setDestinationKey(detected);
-                  }}
-                  className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
-                />
+                <div className="inline-flex rounded-lg p-0.5 bg-stone-900 border border-stone-700">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinationScope('nacional');
+                      if (destinationKey === 'espanha' || destinationKey === 'franca') {
+                        setDestinationKey('braga');
+                      }
+                    }}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                      destinationScope === 'nacional'
+                        ? 'bg-red-600 text-white shadow'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    🇵🇹 Nacional
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinationScope('internacional');
+                      if (destinationKey !== 'espanha' && destinationKey !== 'franca') {
+                        setDestinationKey('espanha');
+                      }
+                    }}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                      destinationScope === 'internacional'
+                        ? 'bg-red-600 text-white shadow'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    🌍 Internacional
+                  </button>
+                </div>
               </div>
 
-              {/* Destination dropdown */}
-              <div className="sm:col-span-7">
-                <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block mb-1.5">
-                  Destino de Entrega (Nacional / Internacional)
-                </label>
-                <select
-                  value={destinationKey}
-                  onChange={(e) => setDestinationKey(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
-                >
-                  <optgroup label="🇵🇹 Portugal Continental">
-                    <option value="braga">Braga (Sede & Entrega Direta)</option>
-                    <option value="porto">Porto & Grande Porto</option>
-                    <option value="viana">Viana do Castelo & Alto Minho</option>
-                    <option value="aveiro_coimbra">Aveiro, Coimbra & Leiria</option>
-                    <option value="lisboa_valetejo">Lisboa, Setúbal & Vale do Tejo</option>
-                    <option value="vilareal_braganca">Vila Real & Bragança (Trás-os-Montes)</option>
-                    <option value="viseu_guarda">Viseu, Guarda & Castelo Branco</option>
-                    <option value="alentejo">Évora, Beja & Portalegre (Alentejo)</option>
-                    <option value="faro">Faro & Algarve</option>
-                  </optgroup>
-                  <optgroup label="🏝️ Regiões Autónomas">
-                    <option value="ilhas">Açores & Madeira (Marítimo)</option>
-                  </optgroup>
-                  <optgroup label="🌍 Internacional">
-                    <option value="espanha">Espanha Peninsular (Logística Ibérica)</option>
-                    <option value="franca">França (Hexagone)</option>
-                  </optgroup>
-                </select>
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                {destinationScope === 'nacional' ? (
+                  <>
+                    {/* Postal Code input for PT */}
+                    <div className="sm:col-span-4">
+                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                        Código Postal (PT)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ex: 4700-001"
+                        maxLength={8}
+                        value={postalCode}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setPostalCode(val);
+                          const detected = detectDistrictFromPostalCode(val);
+                          if (detected) setDestinationKey(detected);
+                        }}
+                        className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
+                      />
+                    </div>
 
+                    {/* Portuguese Regions dropdown */}
+                    <div className="sm:col-span-8">
+                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                        Zona de Entrega Nacional
+                      </label>
+                      <select
+                        value={destinationKey}
+                        onChange={(e) => setDestinationKey(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
+                      >
+                        <option value="braga">Braga (Sede & Entrega Direta)</option>
+                        <option value="porto">Porto & Grande Porto</option>
+                        <option value="viana">Viana do Castelo & Alto Minho</option>
+                        <option value="aveiro_coimbra">Aveiro, Coimbra & Leiria</option>
+                        <option value="lisboa_valetejo">Lisboa, Setúbal & Vale do Tejo</option>
+                        <option value="vilareal_braganca">Vila Real & Bragança (Trás-os-Montes)</option>
+                        <option value="viseu_guarda">Viseu, Guarda & Castelo Branco</option>
+                        <option value="alentejo">Évora, Beja & Portalegre (Alentejo)</option>
+                        <option value="faro">Faro & Algarve</option>
+                        <option value="ilhas">Açores & Madeira (Regiões Autónomas)</option>
+                      </select>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* International Served Countries dropdown */}
+                    <div className="sm:col-span-12">
+                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                        País de Destino Internacional
+                      </label>
+                      <select
+                        value={destinationKey}
+                        onChange={(e) => setDestinationKey(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
+                      >
+                        <option value="espanha">🇪🇸 Espanha Peninsular (Galiza, Madrid, Andaluzia - Logística Ibérica)</option>
+                        <option value="franca">🇫🇷 França (Hexagone - Transporte Especializado)</option>
+                      </select>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
-            {/* 4. Quantity Selector */}
+            {/* 4. Modalidade de Envio (Standard vs Expresso) */}
+            <div>
+              <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block mb-1.5">
+                4. Modalidade de Envio
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShippingSpeed('standard')}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                    shippingSpeed === 'standard'
+                      ? 'bg-stone-800 border-red-500 text-white ring-1 ring-red-500 shadow-md'
+                      : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <span>🚛</span>
+                  <span>Standard (48h-72h)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShippingSpeed('express')}
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                    shippingSpeed === 'express'
+                      ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500 shadow-md shadow-amber-500/20'
+                      : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <span>⚡</span>
+                  <span>Expresso (24h-48h)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 5. Quantity Selector */}
             {activeCategory === 'pallets' && (
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">
-                    Quantidade de Paletes
+                    5. Quantidade de Paletes
                   </label>
                   <span className="text-[11px] text-amber-400 font-semibold">
                     ⭐ Portes 100% Grátis a partir de 3 paletes
@@ -951,7 +1191,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">
-                    Quantidade de Climatizadores
+                    5. Quantidade de Climatizadores
                   </label>
                   <span className="text-[11px] text-amber-400 font-semibold">
                     ⭐ Portes 100% Grátis a partir de 2 aparelhos
@@ -1023,7 +1263,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                 </div>
 
                 <div className="w-12 h-12 rounded-xl bg-stone-800 flex items-center justify-center text-2xl shrink-0">
-                  {calculation.isFree ? '🎁' : '🚛'}
+                  {calculation.isFree ? '🎁' : shippingSpeed === 'express' ? '⚡' : '🚛'}
                 </div>
               </div>
 
@@ -1036,8 +1276,16 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               {/* Delivery Details */}
               <div className="space-y-2 text-xs border-t border-stone-700/60 pt-3">
                 <div className="flex items-center justify-between py-1">
+                  <span className="text-stone-400">Modalidade:</span>
+                  <span className="text-white font-bold">
+                    {shippingSpeed === 'express' ? '⚡ Expresso Prioritário' : '🚛 Standard com Plataforma'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-1">
                   <span className="text-stone-400">Prazo Estimado:</span>
-                  <span className="text-white font-bold">{currentDestination.timeframe}</span>
+                  <span className="text-white font-bold">
+                    {shippingSpeed === 'express' ? currentDestination.timeframeExpress : currentDestination.timeframe}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
                   <span className="text-stone-400">Descarga com Hayon:</span>
@@ -1056,14 +1304,13 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               <button
                 type="button"
                 onClick={handleOrderAndCheckout}
-                className="w-full py-4 bg-red-600 hover:bg-red-700 active:scale-98 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 px-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 active:scale-[0.99] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Encomendar {truncatedProductTitle}</span>
-                <span className="text-base font-bold">&rarr;</span>
+                <span className="whitespace-nowrap truncate max-w-[240px] sm:max-w-[280px]">
+                  Encomendar {conciseProductTitle}
+                </span>
+                <span className="shrink-0 text-base font-bold">&rarr;</span>
               </button>
-              <span className="text-[11px] text-stone-400 text-center block mt-2">
-                Redirecionamento imediato para o Checkout com taxa de {calculation.isFree ? '0,00 €' : `${calculation.rate.toFixed(2)} €`} aplicada
-              </span>
             </div>
 
           </div>
