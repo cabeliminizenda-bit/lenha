@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/store/cartStore';
@@ -47,14 +47,31 @@ export interface ThermalHeroConfig {
   badge3Subtitle?: string;
 }
 
+export interface HeroShowcaseProduct {
+  id: string;
+  title: string;
+  subtitle?: string;
+  price: number;
+  compareAtPrice?: number | null;
+  image: string;
+  badge?: string;
+  badgeTech?: string;
+  badgeTech2?: string;
+  categoryName?: string;
+}
+
 interface ThermalHeroProps {
   config?: ThermalHeroConfig;
+  showcaseProducts?: HeroShowcaseProduct[];
   isPreview?: boolean;
   sectionId?: string;
 }
 
-export default function ThermalHero({ config, isPreview, sectionId }: ThermalHeroProps) {
+export default function ThermalHero({ config, showcaseProducts, isPreview, sectionId }: ThermalHeroProps) {
   const [added, setAdded] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const cartStore = useCartStore();
 
   // Visibility toggles
@@ -88,34 +105,139 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
   const badge3Title = config?.badge3Title ?? '100% Seguro';
   const badge3Subtitle = config?.badge3Subtitle ?? 'MB WAY & Multibanco';
 
-  // Showcase Content
-  const showcaseBadge = config?.showcaseBadge ?? 'POUPANÇA -25%';
-  const showcaseImage = config?.showcaseImage || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800';
+  // Default Top Sellers for rotation
+  const defaultShowcaseProducts: HeroShowcaseProduct[] = useMemo(() => [
+    {
+      id: 'hero-fogao-salamandra-11kw',
+      title: config?.showcaseTitle || 'Fogão / Salamandra Eco 11kW',
+      subtitle: config?.showcaseSubtitle || 'Combustão limpa • Pellets & Lenha • EcoDesign 2026',
+      price: typeof config?.showcasePrice === 'number'
+        ? config.showcasePrice
+        : (config?.showcasePrice ? parseFloat(config.showcasePrice.toString().replace(/[^0-9.,]/g, '').replace(',', '.')) : 1417.50) || 1417.50,
+      compareAtPrice: typeof config?.showcaseComparePrice === 'number'
+        ? config.showcaseComparePrice
+        : (config?.showcaseComparePrice ? parseFloat(config.showcaseComparePrice.toString().replace(/[^0-9.,]/g, '').replace(',', '.')) : 1890.00) || 1890.00,
+      image: config?.showcaseImage || 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800',
+      badge: config?.showcaseBadge || 'POUPANÇA -25%',
+      badgeTech: config?.showcaseBadgeTech || '🔥 Alto Rendimento 92%',
+      badgeTech2: config?.showcaseBadgeTech2 || 'Até 110 m²'
+    },
+    {
+      id: '1adf6ece-6164-4377-8045-667089cf42e3',
+      title: 'Palete de Pellets ENplus A1 (70 Sacos de 15kg)',
+      subtitle: '1050kg • Elevado poder calorífico • 100% Madeira Natural',
+      price: 369.90,
+      compareAtPrice: 420.00,
+      image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069048/lenha/woocommerce-import/nhemnuopqbcehe1hoozw.jpg',
+      badge: 'TOP VENDAS -12%',
+      badgeTech: '⭐ Certificado ENplus A1',
+      badgeTech2: '70 Sacos • 1050 kg'
+    },
+    {
+      id: '475369b3-c985-499a-8016-91f2e536502f',
+      title: 'Salamandra a Pellets 9kW com Controlo Wi-Fi',
+      subtitle: 'Ventilação forçada • Controlo por App • Programação Diária',
+      price: 1090.00,
+      compareAtPrice: 1350.00,
+      image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069904/lenha/woocommerce-import/rgvkzaiphxkaibnnicek.jpg',
+      badge: 'POUPANÇA 260 €',
+      badgeTech: '🔥 Rendimento 91%',
+      badgeTech2: 'Até 95 m²'
+    },
+    {
+      id: 'd9d64f7c-ed4c-42ec-b4a1-79e9791b357c',
+      title: 'Recuperador de Calor a Lenha 14kW Ventilado',
+      subtitle: 'Ferro fundido maciço • Vidro cerâmico • Ventilação turbo',
+      price: 975.00,
+      compareAtPrice: 1190.00,
+      image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069321/lenha/woocommerce-import/xw2f6rymeahauygmv5lk.jpg',
+      badge: 'POUPANÇA -18%',
+      badgeTech: '🔥 Potência 14kW',
+      badgeTech2: 'Até 140 m²'
+    },
+    {
+      id: 'dbcf4a1b-3548-4797-bd0d-4293a1b3d036',
+      title: 'Ar Condicionado Split Inverter 12.000 BTU R32 Wi-Fi',
+      subtitle: 'Wi-Fi integrado • Silencioso 19dB • Função Aquecimento & Frio',
+      price: 529.00,
+      compareAtPrice: 649.00,
+      image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794070891/lenha/woocommerce-import/ip28kt7renygynww33k4.jpg',
+      badge: 'CLASSE A+++',
+      badgeTech: '❄️ Inverter R32 Wi-Fi',
+      badgeTech2: '12.000 BTU'
+    },
+    {
+      id: '8cd0eb50-2bdf-416e-9b8b-4624404253a2',
+      title: 'Palete de Lenha de Sobro +- 500 Kg',
+      subtitle: 'Seca em estufa (< 18% humidade) • Pronta a queimar',
+      price: 199.00,
+      compareAtPrice: 240.00,
+      image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069072/lenha/woocommerce-import/uew0ltmcqaulf0z9cgyi.jpg',
+      badge: 'STOCK LIMITADO',
+      badgeTech: '🪵 Lenha de Sobro Seca',
+      badgeTech2: '500 kg'
+    }
+  ], [config]);
+
+  const showcaseList = useMemo(() => {
+    if (showcaseProducts && showcaseProducts.length > 0) {
+      return showcaseProducts;
+    }
+    return defaultShowcaseProducts;
+  }, [showcaseProducts, defaultShowcaseProducts]);
+
+  const currentItem = showcaseList[currentIndex] || showcaseList[0] || defaultShowcaseProducts[0];
+
+  const handleNext = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % showcaseList.length);
+      setIsAnimating(false);
+    }, 180);
+  };
+
+  const handlePrev = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + showcaseList.length) % showcaseList.length);
+      setIsAnimating(false);
+    }, 180);
+  };
+
+  // Auto-rotate every 5.5s unless hovered
+  useEffect(() => {
+    if (showcaseList.length <= 1 || isHovered) return;
+    const interval = setInterval(() => {
+      handleNext();
+    }, 5500);
+    return () => clearInterval(interval);
+  }, [showcaseList.length, isHovered, currentIndex]);
+
   const showcaseImageFit = config?.showcaseImageFit === 'cover' ? 'cover' : 'contain';
   const showcaseBgImage = config?.showcaseBgImage || '';
-  const showcaseTitle = config?.showcaseTitle ?? 'Fogão / Salamandra Eco 11kW';
-  const showcaseSubtitle = config?.showcaseSubtitle ?? 'Combustão limpa • Pellets & Lenha • EcoDesign 2026';
-  const showcaseBadgeTech = config?.showcaseBadgeTech ?? '🔥 Alto Rendimento 92%';
-  const showcaseBadgeTech2 = config?.showcaseBadgeTech2 ?? 'Até 110 m²';
-  const showcasePrice = config?.showcasePrice ?? '1.417,50 €';
-  const showcaseComparePrice = config?.showcaseComparePrice ?? '1.890,00 €';
-  const showcaseSavings = config?.showcaseSavings ?? 'Poupe 472,50 €';
   const showcaseBtnText = config?.showcaseBtnText ?? 'Adicionar ao Carrinho';
 
+  const savingsText = useMemo(() => {
+    if (currentItem.compareAtPrice && currentItem.compareAtPrice > currentItem.price) {
+      const diff = currentItem.compareAtPrice - currentItem.price;
+      return `Poupe ${diff.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}`;
+    }
+    return null;
+  }, [currentItem]);
+
   const handleAddToCart = () => {
+    if (!currentItem) return;
     cartStore.addItem({
-      id: 'hero-fogao-salamandra-11kw',
-      productId: 'hero-fogao-salamandra-11kw',
-      title: showcaseTitle,
-      price: typeof showcasePrice === 'number' 
-        ? showcasePrice 
-        : parseFloat(showcasePrice.toString().replace(/[^0-9.,]/g, '').replace(',', '.')) || 1417.50,
-      image: showcaseImage,
+      id: currentItem.id,
+      productId: currentItem.id,
+      title: currentItem.title,
+      price: currentItem.price,
+      image: currentItem.image,
       quantity: 1
     });
 
     setAdded(true);
-    setTimeout(() => setAdded(false), 3000);
+    setTimeout(() => setAdded(false), 2500);
   };
 
   const handleCta2Click = (e: React.MouseEvent) => {
@@ -237,17 +359,54 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
             )}
           </div>
 
-          {/* Right Column: Visual Showcase Card */}
+          {/* Right Column: Visual Showcase Card with Automatic Rotation */}
           {isShowcaseVisible && (
-            <div className="lg:col-span-5 relative">
-              <div className="relative bg-gradient-to-b from-stone-900/95 via-stone-850/95 to-stone-950/95 border border-stone-700/70 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
+            <div 
+              className="lg:col-span-5 relative"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <div className="relative bg-gradient-to-b from-stone-900/95 via-stone-850/95 to-stone-950/95 border border-stone-700/70 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
                 
-                {/* Savings Badge */}
-                {showcaseBadge && (
-                  <div className="absolute -top-3 -right-2 px-3.5 py-1 bg-red-600 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-red-600/40 border border-red-500 z-20">
-                    {showcaseBadge}
+                {/* Card Top Bar: Badge + Navigation Controls */}
+                <div className="flex items-center justify-between mb-3.5">
+                  <div className="flex items-center gap-2">
+                    {currentItem.badge && (
+                      <span className="px-3 py-1 bg-red-600 text-white font-black text-[11px] uppercase tracking-wider rounded-full shadow-lg shadow-red-600/40 border border-red-500">
+                        {currentItem.badge}
+                      </span>
+                    )}
+                    <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider bg-stone-800/80 px-2 py-0.5 rounded border border-stone-700/60">
+                      Mais Vendidos • {currentIndex + 1}/{showcaseList.length}
+                    </span>
                   </div>
-                )}
+
+                  {/* Manual Controls */}
+                  {showcaseList.length > 1 && (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handlePrev}
+                        title="Artigo anterior"
+                        className="w-7 h-7 rounded-full bg-stone-800 hover:bg-red-600 border border-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        title="Próximo artigo"
+                        className="w-7 h-7 rounded-full bg-stone-800 hover:bg-red-600 border border-stone-700 text-stone-300 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </div>
 
                 {/* Showcase Image / Visual Container */}
                 {isShowcaseImageVisible && (
@@ -263,76 +422,102 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
                       />
                     )}
 
-                    {/* Product Image */}
-                    {showcaseImage && (
-                      <Image
-                        src={showcaseImage}
-                        alt={showcaseTitle}
-                        fill
-                        className={`${showcaseImageFit === 'cover' ? 'object-cover' : 'object-contain p-2'} object-center group-hover/img:scale-105 transition-transform duration-700 z-10`}
-                        sizes="(max-width: 768px) 100vw, 500px"
-                        priority
-                      />
-                    )}
+                    {/* Product Image with smooth transition */}
+                    <div className={`relative w-full h-full transition-all duration-300 ${isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+                      {currentItem.image ? (
+                        <Image
+                          src={currentItem.image}
+                          alt={currentItem.title}
+                          fill
+                          unoptimized={currentItem.image.startsWith('http')}
+                          className={`${showcaseImageFit === 'cover' ? 'object-cover' : 'object-contain p-2'} object-center group-hover/img:scale-105 transition-transform duration-700 z-10`}
+                          sizes="(max-width: 768px) 100vw, 500px"
+                          priority
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-4xl">
+                          🔥
+                        </div>
+                      )}
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent z-10 pointer-events-none" />
 
                     {/* Tech Badges on image */}
-                    <div className="absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between">
-                      {showcaseBadgeTech && (
+                    <div className={`absolute bottom-3 left-4 right-4 z-20 flex items-center justify-between transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+                      {currentItem.badgeTech && (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-900/90 rounded-md text-[11px] font-semibold text-amber-300 border border-stone-700/60 shadow-sm">
-                          {showcaseBadgeTech}
+                          {currentItem.badgeTech}
                         </span>
                       )}
-                      {showcaseBadgeTech2 && (
+                      {currentItem.badgeTech2 && (
                         <span className="text-[11px] font-medium text-stone-300 bg-black/70 px-2 py-0.5 rounded shadow-sm">
-                          {showcaseBadgeTech2}
+                          {currentItem.badgeTech2}
                         </span>
                       )}
                     </div>
                   </div>
                 )}
 
-                {/* Product Info */}
-                <div className={`${isShowcaseImageVisible ? 'mt-4' : 'mt-1'} space-y-2`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h3 className="text-white font-bold text-base sm:text-lg leading-tight">
-                        {showcaseTitle}
-                      </h3>
-                      {showcaseSubtitle && (
-                        <p className="text-xs text-stone-400 mt-0.5">
-                          {showcaseSubtitle}
-                        </p>
-                      )}
-                    </div>
+                {/* Product Info with transition */}
+                <div className={`mt-4 space-y-2 transition-opacity duration-300 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+                  <div>
+                    <h3 className="text-white font-bold text-base sm:text-lg leading-tight line-clamp-1">
+                      {currentItem.title}
+                    </h3>
+                    {currentItem.subtitle && (
+                      <p className="text-xs text-stone-400 mt-0.5 line-clamp-1">
+                        {currentItem.subtitle}
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex items-baseline gap-3 pt-1">
-                    {showcasePrice && (
-                      <span className="text-red-400 font-extrabold text-2xl sm:text-3xl">
-                        {typeof showcasePrice === 'number' ? `${showcasePrice.toFixed(2)} €` : showcasePrice}
-                      </span>
-                    )}
-                    {showcaseComparePrice && (
+                    <span className="text-red-400 font-extrabold text-2xl sm:text-3xl">
+                      {currentItem.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                    </span>
+                    {currentItem.compareAtPrice && currentItem.compareAtPrice > currentItem.price && (
                       <span className="text-stone-500 line-through text-sm">
-                        {typeof showcaseComparePrice === 'number' ? `${showcaseComparePrice.toFixed(2)} €` : showcaseComparePrice}
+                        {currentItem.compareAtPrice.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
                       </span>
                     )}
-                    {showcaseSavings && (
+                    {savingsText && (
                       <span className="text-[11px] font-bold text-emerald-400 ml-auto bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded">
-                        {showcaseSavings}
+                        {savingsText}
                       </span>
                     )}
                   </div>
                 </div>
 
+                {/* Interactive Dots Pagination */}
+                {showcaseList.length > 1 && (
+                  <div className="flex items-center justify-center gap-1.5 pt-3">
+                    {showcaseList.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setIsAnimating(true);
+                          setTimeout(() => {
+                            setCurrentIndex(idx);
+                            setIsAnimating(false);
+                          }, 150);
+                        }}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                          idx === currentIndex ? 'w-6 bg-red-500' : 'w-1.5 bg-stone-700 hover:bg-stone-500'
+                        }`}
+                        title={`Ir para produto ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+
                 {/* Action Button */}
                 <button 
                   onClick={handleAddToCart}
-                  className={`w-full mt-4 py-3.5 px-4 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 ${
+                  className={`w-full mt-3.5 py-3.5 px-4 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                     added 
                       ? 'bg-emerald-600 text-white' 
-                      : 'bg-red-600 hover:bg-red-700 active:scale-95 text-white shadow-red-600/30'
+                      : 'bg-red-600 hover:bg-red-700 active:scale-98 text-white shadow-red-600/30'
                   }`}
                 >
                   {added ? (

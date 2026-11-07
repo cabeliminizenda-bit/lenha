@@ -34,6 +34,7 @@ export default async function Home() {
         compareAtPrice: true,
         images: true,
         discountLabel: true,
+        isBestSeller: true,
         gtin: true,
         brand: { select: { name: true } },
         categories: { select: { name: true, slug: true } }
@@ -132,6 +133,29 @@ export default async function Home() {
     console.error('Failed to parse HOMEPAGE_LAYOUT', e);
   }
 
+  // Extract best selling products for Hero Showcase Card rotation
+  const heroShowcaseProducts = formattedProducts
+    .filter(p => p.images && p.images.length > 0)
+    .slice(0, 8)
+    .map(p => {
+      const savings = p.compareAtPrice && p.compareAtPrice > p.price ? p.compareAtPrice - p.price : 0;
+      const discountPct = p.compareAtPrice && p.compareAtPrice > p.price
+        ? Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)
+        : null;
+      return {
+        id: p.id,
+        title: p.title,
+        subtitle: p.categoryName ? `${p.categoryName} • Alta Eficiência EcoDesign` : 'Qualidade Garantida Silva Dias',
+        price: p.price,
+        compareAtPrice: p.compareAtPrice,
+        image: p.images[0],
+        badge: discountPct ? `POUPANÇA -${discountPct}%` : 'TOP VENDAS',
+        badgeTech: p.categoryName ? `🔥 ${p.categoryName}` : '🔥 Alto Rendimento',
+        badgeTech2: savings > 0 ? `Poupe ${savings.toFixed(2).replace('.', ',')} €` : 'Stock Garantido',
+        categoryName: p.categoryName || ''
+      };
+    });
+
   // Filter only enabled sections
   const activeSections = layout.filter(s => s.enabled);
 
@@ -140,7 +164,7 @@ export default async function Home() {
       case 'Hero':
         return (
           <div key={section.id}>
-            <ThermalHero config={section.settings} />
+            <ThermalHero config={section.settings} showcaseProducts={heroShowcaseProducts} />
             <TrustBar />
             <CategoryExplorer />
           </div>
