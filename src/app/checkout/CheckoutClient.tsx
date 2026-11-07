@@ -340,7 +340,9 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
               className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded focus:ring-orange-500 focus:border-orange-500"
             >
               {zones.map((zone) => (
-                <option key={zone.name} value={zone.name}>{tCountries(zone.name) || zone.name}</option>
+                <option key={zone.name} value={zone.name}>
+                  {tCountries.has(zone.name as any) ? tCountries(zone.name as any) : zone.name}
+                </option>
               ))}
               {zones.length === 0 && <option value="">{t('no_shipping_zones')}</option>}
             </select>

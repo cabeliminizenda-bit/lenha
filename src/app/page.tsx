@@ -34,6 +34,8 @@ export default async function Home() {
         compareAtPrice: true,
         images: true,
         discountLabel: true,
+        gtin: true,
+        brand: { select: { name: true } },
         categories: { select: { name: true, slug: true } }
       },
       orderBy: { createdAt: 'desc' }
@@ -104,7 +106,9 @@ export default async function Home() {
         slug: p.slug,
         price: p.price,
         image: p.images?.[0] || '',
-        categoryName: p.categories?.[0]?.name || ''
+        categoryName: p.categories?.[0]?.name || '',
+        brand: p.brand?.name || undefined,
+        sku: p.gtin || undefined
       });
     }
   } catch (e) {
