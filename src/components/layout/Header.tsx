@@ -60,8 +60,7 @@ export default function Header({
   mobileLogoHeight = '64',
   menuLinks = [],
   topBarLinks = [
-    { label: 'Store Locator', icon: 'location', url: '/store-locator' },
-    { label: 'Order Tracking', icon: 'truck', url: '/order-tracking' }
+    { label: 'Rastrear Encomenda', icon: 'truck', url: '/order-tracking' }
   ],
   loginText,
   myAccountText,
@@ -249,16 +248,24 @@ export default function Header({
         <div className="flex items-center space-x-6 text-xs">
           {topBarLinks && topBarLinks.length > 0 && (
             <div className="hidden lg:flex items-center space-x-5">
-              {topBarLinks.map((link, idx) => (
-                <Link 
-                  key={idx} 
-                  href={link.url} 
-                  className="flex items-center hover:opacity-75 transition font-medium"
-                >
-                  {renderIcon(link.icon)}
-                  <span>{link.label}</span>
-                </Link>
-              ))}
+              {topBarLinks
+                .filter(link => !link.label.toLowerCase().includes('store') && !link.url.includes('store-locator'))
+                .map(link => {
+                  if (link.label.toLowerCase().includes('order') || link.label.toLowerCase().includes('track') || link.url.includes('order-tracking')) {
+                    return { ...link, label: 'Rastrear Encomenda' };
+                  }
+                  return link;
+                })
+                .map((link, idx) => (
+                  <Link 
+                    key={idx} 
+                    href={link.url} 
+                    className="flex items-center hover:opacity-75 transition font-medium"
+                  >
+                    {renderIcon(link.icon)}
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
             </div>
           )}
         </div>
@@ -487,7 +494,7 @@ export default function Header({
               <svg className="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-              <span>ALL CATEGORIES</span>
+              <span>CATEGORIAS</span>
               <svg className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${isBottomCategoryOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
               </svg>
@@ -495,13 +502,13 @@ export default function Header({
 
             {/* Dropdown Menu */}
             {isBottomCategoryOpen && (
-              <div className="absolute top-full left-0 w-72 bg-white border border-stone-200 shadow-2xl rounded-b-xl z-50 py-2 divide-y divide-stone-100 normal-case font-medium">
+              <div className="absolute top-full left-0 w-72 bg-white border border-stone-200 shadow-2xl rounded-b-xl z-50 py-2 divide-y divide-stone-100 normal-case font-medium max-h-[75vh] overflow-y-auto">
                 {categories && categories.length > 0 ? (
                   categories.map((cat) => (
                     <Link 
                       key={cat.id} 
                       href={`/product-category/${cat.slug || cat.id}`}
-                      className={`flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 transition ${!cat.parentId ? 'font-bold text-stone-900 text-xs' : 'text-stone-600 pl-8 text-xs'}`}
+                      className={`flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 transition ${!cat.parentId ? 'font-bold text-stone-900 text-xs bg-stone-50/60' : 'text-stone-600 pl-8 text-xs'}`}
                       onClick={() => setIsBottomCategoryOpen(false)}
                     >
                       <span>{cat.name}</span>
@@ -510,15 +517,16 @@ export default function Header({
                   ))
                 ) : (
                   [
-                    { name: 'Pellets & Lenha', slug: 'pellets-e-lenha', icon: '🪵' },
-                    { name: 'Salamandras a Pellets', slug: 'salamandras', icon: '🔥' },
-                    { name: 'Salamandras a Lenha', slug: 'salamandras-a-lenha', icon: '🔥' },
+                    { name: 'Aquecimento', slug: 'aquecimento', icon: '🔥' },
+                    { name: 'Fogões a Lenha', slug: 'fogoes-a-lenha', icon: '🍳' },
+                    { name: 'Lareiras a Lenha', slug: 'lareira-a-lenha', icon: '🪵' },
+                    { name: 'Ar Condicionado', slug: 'ar-condicionado', icon: '❄️' },
+                    { name: 'Climatização', slug: 'climatizacao', icon: '💨' },
+                    { name: 'Desumidificadores', slug: 'desumidificador', icon: '💧' },
+                    { name: 'Pellets & Lenha', slug: 'combustiveis', icon: '🌲' },
+                    { name: 'Fornos a Lenha', slug: 'fornos-a-lenha', icon: '🍕' },
                     { name: 'Recuperadores de Calor', slug: 'recuperadores-de-calor', icon: '🏠' },
-                    { name: 'Fogões a Lenha', slug: 'fogoes', icon: '🍳' },
-                    { name: 'Climatização / Ar Condicionado', slug: 'climatizacao', icon: '❄️' },
-                    { name: 'Termoacumuladores', slug: 'termoacumuladores', icon: '💧' },
-                    { name: 'Caldeiras a Biomassa', slug: 'caldeiras', icon: '⚙️' },
-                    { name: 'Acessórios & Manutenção', slug: 'acessorios', icon: '🛠️' },
+                    { name: 'Salamandras a Pellets', slug: 'salamandras-a-pellets', icon: '⚡' },
                   ].map((cat, idx) => (
                     <Link
                       key={idx}

@@ -36,8 +36,7 @@ export default function NavigationForm({ initialSettings }: { initialSettings: R
   const [topBarLinks, setTopBarLinks] = useState<{label: string, icon: string, url: string}[]>(() => {
     try {
       return initialSettings.TOP_BAR_LINKS ? JSON.parse(initialSettings.TOP_BAR_LINKS) : [
-        { label: 'Store Locator', icon: 'location', url: '/store-locator' },
-        { label: 'Order Tracking', icon: 'truck', url: '/order-tracking' }
+        { label: 'Rastrear Encomenda', icon: 'truck', url: '/order-tracking' }
       ];
     } catch {
       return [];

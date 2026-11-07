@@ -123,8 +123,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } catch (e) {}
 
   const defaultTopBarLinks = [
-    { label: 'Store Locator', icon: 'location', url: '/store-locator' },
-    { label: 'Order Tracking', icon: 'truck', url: '/order-tracking' },
+    { label: 'Rastrear Encomenda', icon: 'truck', url: '/order-tracking' },
   ];
   let topBarLinks = defaultTopBarLinks;
   try {
@@ -132,6 +131,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       topBarLinks = JSON.parse(settingsMap.TOP_BAR_LINKS);
     }
   } catch (e) {}
+
+  // Remove Store location and ensure Order Tracking is in Portuguese
+  topBarLinks = (topBarLinks || [])
+    .filter((link: any) => !link.label?.toLowerCase().includes('store') && !link.url?.includes('store-locator'))
+    .map((link: any) => {
+      if (link.label?.toLowerCase().includes('order') || link.label?.toLowerCase().includes('track') || link.url?.includes('order-tracking')) {
+        return { ...link, label: 'Rastrear Encomenda' };
+      }
+      return link;
+    });
 
   const { newCount: newProductsCount, hotCount: hotProductsCount, saleCount: saleProductsCount } = await getCachedProductCounts();
 
