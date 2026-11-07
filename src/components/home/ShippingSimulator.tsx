@@ -179,19 +179,19 @@ function formatProductShortTitle(title: string, brand?: string, sku?: string): s
   const tail = words.slice(-2).join(' ');
 
   // Look for technical specs in title like 14kW, 1500W, M-300, 1050kg, etc.
-  const spec = words.find(w => 
-    /\d+kw/i.test(w) || 
-    /\d+w\b/i.test(w) || 
-    /\d+kg/i.test(w) || 
-    /\d+btu/i.test(w) || 
-    /^[A-Z]{1,3}-\d+/i.test(w) || 
+  const spec = words.find(w =>
+    /\d+kw/i.test(w) ||
+    /\d+w\b/i.test(w) ||
+    /\d+kg/i.test(w) ||
+    /\d+btu/i.test(w) ||
+    /^[A-Z]{1,3}-\d+/i.test(w) ||
     /r32/i.test(w)
   );
 
   const middleItems = [brand, sku, spec].filter(Boolean) as string[];
-  const uniqueMiddle = middleItems.filter((val, idx, arr) => 
+  const uniqueMiddle = middleItems.filter((val, idx, arr) =>
     arr.indexOf(val) === idx &&
-    !head.toLowerCase().includes(val.toLowerCase()) && 
+    !head.toLowerCase().includes(val.toLowerCase()) &&
     !tail.toLowerCase().includes(val.toLowerCase())
   ).join(' ');
 
@@ -763,16 +763,16 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
   return (
     <section id="simulador-envios" className="py-16 max-w-7xl mx-auto px-4">
       <div className="bg-gradient-to-br from-stone-900 via-stone-850 to-stone-900 rounded-3xl p-6 sm:p-10 md:p-12 text-white relative overflow-hidden shadow-2xl border border-stone-700/80">
-        
+
         {/* Glow ambient background accents */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Left Column: Equipment Category, Searchable Combobox & Destination */}
           <div className="lg:col-span-7 space-y-6">
-            
+
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 font-extrabold text-[11px] uppercase tracking-wider mb-2">
                 <span>🚛</span>
@@ -799,11 +799,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     setSelectedProductId('');
                     setSearchQuery('');
                   }}
-                  className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
-                    activeCategory === 'pallets'
+                  className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'pallets'
                       ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
                       : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span className="text-lg">🪵</span>
                   <span>Paletes & Lenha</span>
@@ -816,11 +815,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     setSelectedProductId('');
                     setSearchQuery('');
                   }}
-                  className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
-                    activeCategory === 'fireplaces'
+                  className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'fireplaces'
                       ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
                       : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span className="text-lg">🔥</span>
                   <span>Cheminées & Fogões</span>
@@ -833,11 +831,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     setSelectedProductId('');
                     setSearchQuery('');
                   }}
-                  className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${
-                    activeCategory === 'climate'
+                  className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'climate'
                       ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
                       : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span className="text-lg">❄️</span>
                   <span>Climatizadores</span>
@@ -933,9 +930,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                               setSearchQuery('');
                               setIsDropdownOpen(false);
                             }}
-                            className={`w-full text-left p-3 flex items-center justify-between gap-3 hover:bg-stone-800 transition-colors cursor-pointer ${
-                              isSelected ? 'bg-stone-800/90 border-l-4 border-red-500' : ''
-                            }`}
+                            className={`w-full text-left p-3 flex items-center justify-between gap-3 hover:bg-stone-800 transition-colors cursor-pointer ${isSelected ? 'bg-stone-800/90 border-l-4 border-red-500' : ''
+                              }`}
                           >
                             <div className="flex items-center gap-2.5 min-w-0">
                               <div className="w-9 h-9 rounded-lg bg-stone-800 shrink-0 relative overflow-hidden flex items-center justify-center">
@@ -1030,11 +1026,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         setDestinationKey('braga');
                       }
                     }}
-                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                      destinationScope === 'nacional'
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'nacional'
                         ? 'bg-red-600 text-white shadow'
                         : 'text-stone-400 hover:text-white'
-                    }`}
+                      }`}
                   >
                     🇵🇹 Nacional
                   </button>
@@ -1046,11 +1041,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         setDestinationKey('espanha');
                       }
                     }}
-                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                      destinationScope === 'internacional'
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'internacional'
                         ? 'bg-red-600 text-white shadow'
                         : 'text-stone-400 hover:text-white'
-                    }`}
+                      }`}
                   >
                     🌍 Internacional
                   </button>
@@ -1133,11 +1127,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                 <button
                   type="button"
                   onClick={() => setShippingSpeed('standard')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    shippingSpeed === 'standard'
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'standard'
                       ? 'bg-stone-800 border-red-500 text-white ring-1 ring-red-500 shadow-md'
                       : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span>🚛</span>
                   <span>Standard (48h-72h)</span>
@@ -1145,11 +1138,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                 <button
                   type="button"
                   onClick={() => setShippingSpeed('express')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    shippingSpeed === 'express'
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'express'
                       ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500 shadow-md shadow-amber-500/20'
                       : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
-                  }`}
+                    }`}
                 >
                   <span>⚡</span>
                   <span>Expresso (24h-48h)</span>
@@ -1174,11 +1166,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                       key={qty}
                       type="button"
                       onClick={() => setPalletQty(qty)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
-                        palletQty === qty
+                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${palletQty === qty
                           ? 'bg-red-600 border-red-500 text-white shadow-md'
                           : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
-                      }`}
+                        }`}
                     >
                       {qty === 4 ? '4+ Paletes' : `${qty} Palete${qty > 1 ? 's' : ''}`}
                     </button>
@@ -1203,11 +1194,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                       key={qty}
                       type="button"
                       onClick={() => setAcQty(qty)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${
-                        acQty === qty
+                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${acQty === qty
                           ? 'bg-red-600 border-red-500 text-white shadow-md'
                           : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
-                      }`}
+                        }`}
                     >
                       {qty === 3 ? '3+ Aparelhos' : `${qty} Climatizador${qty > 1 ? 'es' : ''}`}
                     </button>
@@ -1221,7 +1211,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           {/* Right Column: Dynamic Calibrated Price & Direct Checkout */}
           <div className="lg:col-span-5 bg-stone-800/90 rounded-2xl p-6 border border-stone-700 shadow-xl flex flex-col justify-between">
             <div className="space-y-4">
-              
+
               <div className="flex items-start justify-between border-b border-stone-700 pb-3">
                 <div>
                   <span className="text-xs text-stone-400 block font-semibold">Destino Selecionado</span>

@@ -163,9 +163,14 @@ export default function ThermalHero({ config, isPreview, sectionId }: ThermalHer
           {/* Left Column: Headlines & Call to Actions */}
           <div className={`${isShowcaseVisible ? 'lg:col-span-7' : 'w-full'} space-y-6`}>
             {campaignBadge && (
-              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-red-950/70 border border-red-600/40 rounded-full text-xs font-semibold text-red-400 backdrop-blur-md shadow-sm">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping inline-block" />
-                <span>{campaignBadge}</span>
+              <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-red-950/70 border border-red-600/40 rounded-full text-xs backdrop-blur-md shadow-sm">
+                <span className="relative flex h-2.5 w-2.5 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+                </span>
+                <span className="text-white font-bold tracking-wide animate-pulse">
+                  {campaignBadge}
+                </span>
               </div>
             )}
             
