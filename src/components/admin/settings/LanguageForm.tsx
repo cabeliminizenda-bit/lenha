@@ -55,10 +55,11 @@ export default function LanguageForm({ initialSettings }: { initialSettings: Rec
               onChange={(e) => setActiveLanguage(e.target.value)}
               className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
+              <option value="pt">Português (Portuguese)</option>
+              <option value="fr">Français (French)</option>
               <option value="en">English</option>
-              <option value="fr">French (Français)</option>
-              <option value="es">Spanish (Español)</option>
-              <option value="de">German (Deutsch)</option>
+              <option value="es">Español (Spanish)</option>
+              <option value="de">Deutsch (German)</option>
             </select>
           </div>
         </div>

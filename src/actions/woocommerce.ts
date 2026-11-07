@@ -856,3 +856,320 @@ export async function importWooCommerceSelectedProducts(
     return { success: false, message: error.message || 'Erreur lors de l\'import des produits sélectionnés.' };
   }
 }
+
+/**
+ * Import WooCommerce Orders
+ */
+export async function importWooCommerceOrders(
+  url: string,
+  consumerKey: string,
+  consumerSecret: string
+) {
+  await requireAdmin();
+  const baseUrl = url.replace(/\/$/, '');
+  const apiUrl = `${baseUrl}/wp-json/wc/v3/orders`;
+
+  try {
+    let totalImported = 0;
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore && page <= 50) {
+      const response = await fetch(`${apiUrl}?per_page=50&page=${page}`, {
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64'),
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API WooCommerce Orders: ${response.status} ${response.statusText}`);
+      }
+
+      const orders = await response.json();
+      if (!Array.isArray(orders) || orders.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      for (const wcOrder of orders) {
+        const customerEmail = wcOrder.billing?.email || `customer-${wcOrder.customer_id || wcOrder.id}@lenhaecarvaosilvadias.com`;
+        
+        let user = await prisma.user.findUnique({
+          where: { email: customerEmail }
+        });
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email: customerEmail,
+              role: 'CUSTOMER',
+              createdAt: new Date(wcOrder.date_created_gmt || wcOrder.date_created || Date.now())
+            }
+          });
+        }
+
+        let status: 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED' = 'PENDING';
+        switch (wcOrder.status) {
+          case 'completed':
+            status = 'DELIVERED';
+            break;
+          case 'processing':
+            status = 'PROCESSING';
+            break;
+          case 'on-hold':
+          case 'pending':
+            status = 'PENDING';
+            break;
+          case 'cancelled':
+          case 'refunded':
+          case 'failed':
+            status = 'CANCELLED';
+            break;
+          default:
+            status = 'PROCESSING';
+        }
+
+        let paymentMethod: 'STRIPE' | 'PAYPAL' | 'BANK_TRANSFER' = 'STRIPE';
+        if (wcOrder.payment_method === 'bacs' || wcOrder.payment_method === 'bank_transfer') {
+          paymentMethod = 'BANK_TRANSFER';
+        } else if (wcOrder.payment_method === 'paypal') {
+          paymentMethod = 'PAYPAL';
+        }
+
+        const orderRef = `WC-${wcOrder.id}`;
+        const existingOrder = await prisma.order.findUnique({
+          where: { trackingNumber: orderRef }
+        });
+
+        if (existingOrder) {
+          continue;
+        }
+
+        const destinationAddress = [
+          wcOrder.shipping?.address_1 || wcOrder.billing?.address_1,
+          wcOrder.shipping?.postcode || wcOrder.billing?.postcode,
+          wcOrder.shipping?.city || wcOrder.billing?.city,
+          wcOrder.shipping?.country || wcOrder.billing?.country
+        ].filter(Boolean).join(', ');
+
+        const createdOrder = await prisma.order.create({
+          data: {
+            userId: user.id,
+            status,
+            paymentMethod,
+            total: parseFloat(wcOrder.total) || 0,
+            trackingNumber: orderRef,
+            destinationAddress: destinationAddress || null,
+            destinationCountry: wcOrder.shipping?.country || wcOrder.billing?.country || 'PT',
+            createdAt: new Date(wcOrder.date_created_gmt || wcOrder.date_created || Date.now()),
+            updatedAt: new Date(wcOrder.date_modified_gmt || wcOrder.date_modified || Date.now())
+          }
+        });
+
+        if (wcOrder.line_items && Array.isArray(wcOrder.line_items)) {
+          for (const item of wcOrder.line_items) {
+            let product = await prisma.product.findFirst({
+              where: {
+                OR: [
+                  { title: unescapeHtml(item.name) },
+                  { title: item.name }
+                ]
+              }
+            });
+
+            if (!product) {
+              product = await prisma.product.create({
+                data: {
+                  title: unescapeHtml(item.name),
+                  slug: slugify(unescapeHtml(item.name)) + `-${item.id}`,
+                  price: parseFloat(item.price) || 0,
+                  stock: 0,
+                  description: item.name
+                }
+              });
+            }
+
+            await prisma.orderItem.create({
+              data: {
+                orderId: createdOrder.id,
+                productId: product.id,
+                quantity: item.quantity || 1,
+                price: parseFloat(item.price) || 0,
+                attributes: item.meta_data ? item.meta_data : undefined
+              }
+            });
+          }
+        }
+
+        totalImported++;
+      }
+
+      page++;
+    }
+
+    revalidatePath('/admin/orders');
+    return { success: true, count: totalImported };
+  } catch (error: any) {
+    console.error('Error importing WooCommerce orders:', error);
+    return { success: false, message: error.message || 'Erreur lors de l\'import des commandes.' };
+  }
+}
+
+/**
+ * Import WordPress Pages
+ */
+export async function importWordPressPages(
+  url: string,
+  consumerKey: string,
+  consumerSecret: string
+) {
+  await requireAdmin();
+  const baseUrl = url.replace(/\/$/, '');
+  const apiUrl = `${baseUrl}/wp-json/wp/v2/pages`;
+
+  try {
+    let totalImported = 0;
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore && page <= 10) {
+      const response = await fetch(`${apiUrl}?per_page=100&page=${page}`, {
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64'),
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API WordPress Pages: ${response.status} ${response.statusText}`);
+      }
+
+      const pages = await response.json();
+      if (!Array.isArray(pages) || pages.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      for (const wpPage of pages) {
+        const title = unescapeHtml(wpPage.title?.rendered || '');
+        const slug = wpPage.slug || slugify(title);
+        const content = wpPage.content?.rendered || '';
+
+        await prisma.page.upsert({
+          where: { slug },
+          update: {
+            title,
+            desktopContent: content,
+            mobileContent: content,
+            isPublished: wpPage.status === 'publish',
+            metaTitle: title,
+            metaDescription: unescapeHtml(wpPage.excerpt?.rendered || '').slice(0, 160)
+          },
+          create: {
+            title,
+            slug,
+            desktopContent: content,
+            mobileContent: content,
+            isPublished: wpPage.status === 'publish',
+            metaTitle: title,
+            metaDescription: unescapeHtml(wpPage.excerpt?.rendered || '').slice(0, 160)
+          }
+        });
+        totalImported++;
+      }
+      page++;
+    }
+
+    revalidatePath('/admin/pages');
+    return { success: true, count: totalImported };
+  } catch (error: any) {
+    console.error('Error importing WordPress pages:', error);
+    return { success: false, message: error.message || 'Erreur lors de l\'import des pages.' };
+  }
+}
+
+/**
+ * Import WordPress Posts / Blog Articles
+ */
+export async function importWordPressArticles(
+  url: string,
+  consumerKey: string,
+  consumerSecret: string
+) {
+  await requireAdmin();
+  const baseUrl = url.replace(/\/$/, '');
+  const apiUrl = `${baseUrl}/wp-json/wp/v2/posts?_embed=true`;
+
+  try {
+    let totalImported = 0;
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore && page <= 10) {
+      const response = await fetch(`${apiUrl}&per_page=100&page=${page}`, {
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64'),
+          'Content-Type': 'application/json'
+        },
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur API WordPress Posts: ${response.status} ${response.statusText}`);
+      }
+
+      const posts = await response.json();
+      if (!Array.isArray(posts) || posts.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      for (const wpPost of posts) {
+        const title = unescapeHtml(wpPost.title?.rendered || '');
+        const slug = wpPost.slug || slugify(title);
+        const content = wpPost.content?.rendered || '';
+        const excerpt = unescapeHtml(wpPost.excerpt?.rendered || '');
+        
+        let imageUrl: string | null = null;
+        const mediaSource = wpPost._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+        if (mediaSource) {
+          imageUrl = await uploadImageFromUrlToCloudinary(mediaSource);
+        }
+
+        await prisma.article.upsert({
+          where: { slug },
+          update: {
+            title,
+            content,
+            excerpt,
+            image: imageUrl,
+            isPublished: wpPost.status === 'publish',
+            metaTitle: title,
+            metaDescription: excerpt.slice(0, 160)
+          },
+          create: {
+            title,
+            slug,
+            content,
+            excerpt,
+            image: imageUrl,
+            isPublished: wpPost.status === 'publish',
+            metaTitle: title,
+            metaDescription: excerpt.slice(0, 160)
+          }
+        });
+        totalImported++;
+      }
+      page++;
+    }
+
+    revalidatePath('/admin/blogs');
+    revalidatePath('/blog');
+    return { success: true, count: totalImported };
+  } catch (error: any) {
+    console.error('Error importing WordPress articles:', error);
+    return { success: false, message: error.message || 'Erreur lors de l\'import des articles.' };
+  }
+}

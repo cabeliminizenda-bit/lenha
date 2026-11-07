@@ -14,7 +14,7 @@ export default getRequestConfig(async () => {
   const isAdminRoute = pathname.startsWith('/admin');
 
   // Fetch settings from DB
-  let activeLanguage = 'en';
+  let activeLanguage = 'pt';
   let translationScope = 'all'; // 'frontend_only', 'admin_only', 'all'
 
   try {
@@ -28,25 +28,29 @@ export default getRequestConfig(async () => {
   }
 
   // Determine locale based on scope options
-  let locale = 'en'; // default fallback
+  let locale = 'pt'; // default fallback for Lenha & Carvao Silva Dias
 
   if (translationScope === 'all') {
     locale = activeLanguage;
   } else if (translationScope === 'frontend_only') {
-    locale = isAdminRoute ? 'en' : activeLanguage;
+    locale = isAdminRoute ? 'pt' : activeLanguage;
   } else if (translationScope === 'admin_only') {
-    locale = isAdminRoute ? activeLanguage : 'en';
+    locale = isAdminRoute ? activeLanguage : 'pt';
   }
 
   let messages;
-  if (locale === 'fr') {
+  if (locale === 'pt') {
+    messages = (await import('../../messages/pt.json')).default;
+  } else if (locale === 'fr') {
     messages = (await import('../../messages/fr.json')).default;
   } else if (locale === 'es') {
     messages = (await import('../../messages/es.json')).default;
   } else if (locale === 'de') {
     messages = (await import('../../messages/de.json')).default;
-  } else {
+  } else if (locale === 'en') {
     messages = (await import('../../messages/en.json')).default;
+  } else {
+    messages = (await import('../../messages/pt.json')).default;
   }
 
   return {
