@@ -22,7 +22,7 @@ export default async function Home() {
       where: { isDeleted: false },
       include: { categories: true },
       orderBy: { createdAt: 'desc' },
-      take: 16
+      take: 150
     });
 
     formattedProducts = dbProducts.map(p => ({
@@ -34,7 +34,8 @@ export default async function Home() {
       images: p.images || [],
       discountLabel: p.discountLabel || (p.compareAtPrice && p.compareAtPrice > p.price ? `-${Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)}%` : null),
       categorySlug: p.categories[0]?.slug || '',
-      categoryName: p.categories[0]?.name || ''
+      categoryName: p.categories[0]?.name || '',
+      allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
   } catch (e) {
     console.error('Failed to fetch products for homepage:', e);

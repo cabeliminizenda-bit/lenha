@@ -43,6 +43,32 @@ export default async function PreviewPage() {
 
   const activeSections = layout.filter(s => s.enabled);
 
+  // Fetch thermal products from Prisma
+  let formattedProducts: any[] = [];
+  try {
+    const dbProducts = await prisma.product.findMany({
+      where: { isDeleted: false },
+      include: { categories: true },
+      orderBy: { createdAt: 'desc' },
+      take: 150
+    });
+
+    formattedProducts = dbProducts.map(p => ({
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      price: p.price,
+      compareAtPrice: p.compareAtPrice,
+      images: p.images || [],
+      discountLabel: p.discountLabel || (p.compareAtPrice && p.compareAtPrice > p.price ? `-${Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)}%` : null),
+      categorySlug: p.categories[0]?.slug || '',
+      categoryName: p.categories[0]?.name || '',
+      allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
+    }));
+  } catch (e) {
+    console.error('Failed to fetch products for preview:', e);
+  }
+
   const renderSection = (section: SectionConfig) => {
     let content = null;
     switch (section.type) {
@@ -56,7 +82,7 @@ export default async function PreviewPage() {
         );
         break;
       case 'FeaturedProductTabs':
-        content = <FeaturedProductTabs />;
+        content = <FeaturedProductTabs initialProducts={formattedProducts} />;
         break;
       case 'ShippingSimulator':
         content = <ShippingSimulator />;
