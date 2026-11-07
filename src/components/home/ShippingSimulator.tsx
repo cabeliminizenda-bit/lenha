@@ -852,8 +852,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     setIsDropdownOpen(true);
                   }}
                   className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'pallets'
-                      ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
-                      : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
+                    ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
                     }`}
                 >
                   <span className="text-lg">🪵</span>
@@ -870,8 +870,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     setIsDropdownOpen(true);
                   }}
                   className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'fireplaces'
-                      ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
-                      : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
+                    ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
                     }`}
                 >
                   <span className="text-lg">🔥</span>
@@ -888,8 +888,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     setIsDropdownOpen(true);
                   }}
                   className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'climate'
-                      ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
-                      : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
+                    ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/70 hover:text-white'
                     }`}
                 >
                   <span className="text-lg">❄️</span>
@@ -975,8 +975,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         searchQuery !== ''
                           ? searchQuery
                           : activeProduct
-                          ? `${formatProductShortTitle(activeProduct.title, activeProduct.brand, activeProduct.sku)} — ${activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}`
-                          : ''
+                            ? `${formatProductShortTitle(activeProduct.title, activeProduct.brand, activeProduct.sku)} — ${activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}`
+                            : ''
                       }
                       onChange={(e) => {
                         setSearchQuery(e.target.value);
@@ -1175,8 +1175,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                           }
                         }}
                         className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'nacional'
-                            ? 'bg-red-600 text-white shadow'
-                            : 'text-stone-400 hover:text-white'
+                          ? 'bg-red-600 text-white shadow'
+                          : 'text-stone-400 hover:text-white'
                           }`}
                       >
                         🇵🇹 Nacional
@@ -1190,8 +1190,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                           }
                         }}
                         className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'internacional'
-                            ? 'bg-red-600 text-white shadow'
-                            : 'text-stone-400 hover:text-white'
+                          ? 'bg-red-600 text-white shadow'
+                          : 'text-stone-400 hover:text-white'
                           }`}
                       >
                         🌍 Internacional
@@ -1277,8 +1277,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                       type="button"
                       onClick={() => setShippingSpeed('standard')}
                       className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'standard'
-                          ? 'bg-stone-800 border-red-500 text-white ring-1 ring-red-500 shadow-md'
-                          : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
+                        ? 'bg-stone-800 border-red-500 text-white ring-1 ring-red-500 shadow-md'
+                        : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
                         }`}
                     >
                       <span>🚛</span>
@@ -1288,8 +1288,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                       type="button"
                       onClick={() => setShippingSpeed('express')}
                       className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'express'
-                          ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500 shadow-md shadow-amber-500/20'
-                          : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
+                        ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500 shadow-md shadow-amber-500/20'
+                        : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
                         }`}
                     >
                       <span>⚡</span>
@@ -1316,8 +1316,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                           type="button"
                           onClick={() => setPalletQty(qty)}
                           className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${palletQty === qty
-                              ? 'bg-red-600 border-red-500 text-white shadow-md'
-                              : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
+                            ? 'bg-red-600 border-red-500 text-white shadow-md'
+                            : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
                             }`}
                         >
                           {qty === 4 ? '4+ Paletes' : `${qty} Palete${qty > 1 ? 's' : ''}`}
@@ -1344,8 +1344,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                           type="button"
                           onClick={() => setAcQty(qty)}
                           className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${acQty === qty
-                              ? 'bg-red-600 border-red-500 text-white shadow-md'
-                              : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
+                            ? 'bg-red-600 border-red-500 text-white shadow-md'
+                            : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
                             }`}
                         >
                           {qty === 3 ? '3+ Aparelhos' : `${qty} Climatizador${qty > 1 ? 'es' : ''}`}
@@ -1359,8 +1359,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/80 text-center text-xs text-stone-400 flex items-center justify-center gap-2">
                 <span className="text-stone-500">🔒</span>
                 <span>
-                  {activeProduct 
-                    ? 'Clique em «Continuar para Destino de Entrega» para avançar para a Etapa 3.' 
+                  {activeProduct
+                    ? 'Clique em «Continuar para Destino de Entrega» para avançar para a Etapa 3.'
                     : 'A Etapa 3 (Destino de Entrega) ficará disponível após selecionar um produto acima.'}
                 </span>
               </div>
