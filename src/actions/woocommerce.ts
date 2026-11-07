@@ -58,6 +58,92 @@ async function generateUniqueSlug(baseSlug: string) {
 }
 
 /**
+ * Safely find or create a Category without Unique constraint collisions on name or slug
+ */
+async function findOrCreateCategory(rawName: string, rawSlug?: string | null) {
+  const name = unescapeHtml(rawName || '').trim();
+  const slug = (rawSlug && rawSlug.trim()) || slugify(name);
+
+  // 1. Try to find by name or slug
+  let category = await prisma.category.findFirst({
+    where: {
+      OR: [
+        { name: name },
+        { slug: slug }
+      ]
+    }
+  });
+
+  if (category) {
+    return category;
+  }
+
+  // 2. If creating, ensure both name and slug are unique across the table
+  let finalSlug = slug;
+  let slugCounter = 1;
+  while (await prisma.category.findFirst({ where: { slug: finalSlug } })) {
+    finalSlug = `${slug}-${slugCounter}`;
+    slugCounter++;
+  }
+
+  let finalName = name;
+  let nameCounter = 1;
+  while (await prisma.category.findFirst({ where: { name: finalName } })) {
+    finalName = `${name} (${nameCounter})`;
+    nameCounter++;
+  }
+
+  return await prisma.category.create({
+    data: {
+      name: finalName,
+      slug: finalSlug,
+    }
+  });
+}
+
+/**
+ * Safely find or create a Brand without Unique constraint collisions on name or slug
+ */
+async function findOrCreateBrand(rawName: string, rawSlug?: string | null) {
+  const name = unescapeHtml(rawName || '').trim();
+  const slug = (rawSlug && rawSlug.trim()) || slugify(name);
+
+  let brand = await prisma.brand.findFirst({
+    where: {
+      OR: [
+        { name: name },
+        { slug: slug }
+      ]
+    }
+  });
+
+  if (brand) {
+    return brand;
+  }
+
+  let finalSlug = slug;
+  let slugCounter = 1;
+  while (await prisma.brand.findFirst({ where: { slug: finalSlug } })) {
+    finalSlug = `${slug}-${slugCounter}`;
+    slugCounter++;
+  }
+
+  let finalName = name;
+  let nameCounter = 1;
+  while (await prisma.brand.findFirst({ where: { name: finalName } })) {
+    finalName = `${name} (${nameCounter})`;
+    nameCounter++;
+  }
+
+  return await prisma.brand.create({
+    data: {
+      name: finalName,
+      slug: finalSlug,
+    }
+  });
+}
+
+/**
  * Test WooCommerce API connection
  */
 export type WcProductImportItemResult = {
@@ -302,18 +388,7 @@ export async function importWooCommerceCategories(
     const wcIdToUuidMap: Record<number, string> = {};
 
     for (const wcCat of categoriesToImport) {
-      let category = await prisma.category.findUnique({
-        where: { name: unescapeHtml(wcCat.name) }
-      });
-
-      if (!category) {
-        category = await prisma.category.create({
-          data: {
-            name: unescapeHtml(wcCat.name),
-            slug: wcCat.slug || slugify(unescapeHtml(wcCat.name)),
-          }
-        });
-      }
+      const category = await findOrCreateCategory(wcCat.name, wcCat.slug);
       wcIdToUuidMap[wcCat.id] = category.id;
     }
 
@@ -441,17 +516,7 @@ async function processAndSaveWcProducts(
             continue;
           }
 
-          let category = await prisma.category.findUnique({
-            where: { name: unescapeHtml(wcCat.name) }
-          });
-          if (!category) {
-            category = await prisma.category.create({
-              data: {
-                name: unescapeHtml(wcCat.name),
-                slug: wcCat.slug || slugify(unescapeHtml(wcCat.name)),
-              }
-            });
-          }
+          const category = await findOrCreateCategory(wcCat.name, wcCat.slug);
           categoryIds.push(category.id);
         }
       }
@@ -477,18 +542,8 @@ async function processAndSaveWcProducts(
         }
       }
 
-      if (brandName && brandSlug) {
-        let brand = await prisma.brand.findUnique({
-          where: { name: unescapeHtml(brandName) }
-        });
-        if (!brand) {
-          brand = await prisma.brand.create({
-            data: {
-              name: unescapeHtml(brandName),
-              slug: brandSlug,
-            }
-          });
-        }
+      if (brandName) {
+        const brand = await findOrCreateBrand(brandName, brandSlug);
         brandId = brand.id;
       }
 
