@@ -399,11 +399,12 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
   }, [productsData, activeCategory]);
 
   const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [isStep2Collapsed, setIsStep2Collapsed] = useState<boolean>(false);
 
-  // Active product
+  // Active product (null until user selects an article)
   const activeProduct = useMemo(() => {
-    if (!selectedProductId) return currentProducts[0] || null;
-    return currentProducts.find(p => p.id === selectedProductId) || currentProducts[0] || null;
+    if (!selectedProductId) return null;
+    return currentProducts.find(p => p.id === selectedProductId) || null;
   }, [currentProducts, selectedProductId]);
 
   // Filter products by search query (name, brand, sku, or model)
@@ -726,7 +727,15 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
 
   // Handle direct order & checkout redirect
   const handleOrderAndCheckout = () => {
-    if (!activeProduct) return;
+    if (!activeProduct) {
+      setIsStep2Collapsed(false);
+      setIsDropdownOpen(true);
+      const step2El = document.getElementById('step-2-product');
+      if (step2El) {
+        step2El.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
 
     const quantity = activeCategory === 'pallets' ? palletQty : activeCategory === 'climate' ? acQty : 1;
 
@@ -797,7 +806,9 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                   onClick={() => {
                     setActiveCategory('pallets');
                     setSelectedProductId('');
+                    setIsStep2Collapsed(false);
                     setSearchQuery('');
+                    setIsDropdownOpen(true);
                   }}
                   className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'pallets'
                       ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
@@ -813,7 +824,9 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                   onClick={() => {
                     setActiveCategory('fireplaces');
                     setSelectedProductId('');
+                    setIsStep2Collapsed(false);
                     setSearchQuery('');
+                    setIsDropdownOpen(true);
                   }}
                   className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'fireplaces'
                       ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
@@ -829,7 +842,9 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                   onClick={() => {
                     setActiveCategory('climate');
                     setSelectedProductId('');
+                    setIsStep2Collapsed(false);
                     setSearchQuery('');
+                    setIsDropdownOpen(true);
                   }}
                   className={`py-3 px-2 sm:px-3 rounded-2xl text-xs font-bold border transition-all cursor-pointer flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2 ${activeCategory === 'climate'
                       ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
@@ -842,141 +857,31 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               </div>
             </div>
 
-            {/* 2. Custom Searchable Combobox (Fixed width, never expands beyond container) */}
-            <div className="bg-stone-800/60 p-4 rounded-2xl border border-stone-700/70 space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block">
-                  2. Artigo a Simular ({currentProducts.length} disponíveis)
-                </label>
-                <span className="text-[10px] text-stone-400">
-                  Escreva para pesquisar por Nome, Marca ou SKU
-                </span>
-              </div>
-
-              {/* Combobox Input with Fixed Bounds */}
-              <div className="relative w-full" ref={dropdownRef}>
-                <div className="relative flex items-center">
-                  <input
-                    type="text"
-                    value={searchQuery !== '' ? searchQuery : (activeProduct ? `${formatProductShortTitle(activeProduct.title, activeProduct.brand, activeProduct.sku)} — ${activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}` : '')}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
+            {/* 2. Artigo a Simular: Collapsed State vs Expanded Searchable Combobox */}
+            {isStep2Collapsed && activeProduct ? (
+              <div className="bg-stone-850/90 p-3.5 sm:p-4 rounded-2xl border border-stone-700/80 shadow-md transition-all">
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xs font-black">✓</span>
+                    2. Artigo Selecionado
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsStep2Collapsed(false);
                       setIsDropdownOpen(true);
                     }}
-                    onFocus={(e) => {
-                      setIsDropdownOpen(true);
-                      e.target.select();
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') {
-                        setIsDropdownOpen(false);
-                      } else if (e.key === 'Enter') {
-                        if (filteredProducts.length > 0) {
-                          setSelectedProductId(filteredProducts[0].id);
-                          setSearchQuery('');
-                          setIsDropdownOpen(false);
-                        }
-                      }
-                    }}
-                    placeholder="Pesquisar por nome, marca, modelo ou SKU..."
-                    className="w-full px-4 py-3 pr-16 bg-stone-900 border border-stone-600 rounded-xl text-xs sm:text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 truncate"
-                  />
-
-                  {/* Right Action Buttons: Clear (x) and Chevron */}
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSearchQuery('');
-                        }}
-                        title="Limpar pesquisa"
-                        className="text-stone-400 hover:text-white p-1 rounded-md transition-colors"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="text-stone-400 hover:text-white transition-colors cursor-pointer p-1"
-                    >
-                      <svg className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  </div>
+                    className="px-3 py-1.5 rounded-xl bg-stone-700/80 hover:bg-stone-700 border border-stone-600 text-stone-200 hover:text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  >
+                    <svg className="w-3.5 h-3.5 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    <span>Alterar Artigo</span>
+                  </button>
                 </div>
 
-                {/* Floating Options Dropdown (Never breaks or stretches the column) */}
-                {isDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-stone-900 border border-stone-700 rounded-xl shadow-2xl z-50 divide-y divide-stone-800/80 no-scrollbar">
-                    {filteredProducts.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-stone-400">
-                        Nenhum artigo encontrado para &quot;{searchQuery}&quot;
-                      </div>
-                    ) : (
-                      filteredProducts.map((p) => {
-                        const isSelected = p.id === activeProduct?.id;
-                        const formattedLabel = formatProductShortTitle(p.title, p.brand, p.sku);
-                        return (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedProductId(p.id);
-                              setSearchQuery('');
-                              setIsDropdownOpen(false);
-                            }}
-                            className={`w-full text-left p-3 flex items-center justify-between gap-3 hover:bg-stone-800 transition-colors cursor-pointer ${isSelected ? 'bg-stone-800/90 border-l-4 border-red-500' : ''
-                              }`}
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="w-9 h-9 rounded-lg bg-stone-800 shrink-0 relative overflow-hidden flex items-center justify-center">
-                                {p.image ? (
-                                  <Image src={p.image} alt="" fill unoptimized={p.image.startsWith('http')} className="object-contain p-0.5" />
-                                ) : (
-                                  <span className="text-sm">
-                                    {activeCategory === 'pallets' ? '🪵' : activeCategory === 'fireplaces' ? '🔥' : '❄️'}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="min-w-0">
-                                <span className="font-bold text-white text-xs block truncate max-w-[210px] sm:max-w-[340px]">
-                                  {formattedLabel}
-                                </span>
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                  {p.brand && (
-                                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-800 text-stone-300 font-semibold">
-                                      {p.brand}
-                                    </span>
-                                  )}
-                                  {p.sku && (
-                                    <span className="text-[10px] text-stone-400 font-mono">
-                                      SKU: {p.sku}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            <span className="text-xs sm:text-sm font-extrabold text-emerald-400 shrink-0">
-                              {p.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-                            </span>
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Selected Product Card Preview */}
-              {activeProduct && (
-                <div className="flex items-center gap-3.5 bg-stone-900/90 p-3 rounded-xl border border-stone-700/80">
-                  <div className="w-14 h-14 rounded-lg bg-stone-800 flex items-center justify-center overflow-hidden shrink-0 relative">
+                <div className="flex items-center gap-3.5 bg-stone-900/90 p-3 rounded-xl border border-stone-700/70">
+                  <div className="w-12 h-12 rounded-lg bg-stone-800 flex items-center justify-center overflow-hidden shrink-0 relative border border-stone-700">
                     {activeProduct.image ? (
                       <Image
                         src={activeProduct.image}
@@ -986,7 +891,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         className="object-contain p-1"
                       />
                     ) : (
-                      <span className="text-2xl">
+                      <span className="text-xl">
                         {activeCategory === 'pallets' ? '🪵' : activeCategory === 'fireplaces' ? '🔥' : '❄️'}
                       </span>
                     )}
@@ -1002,207 +907,420 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         </span>
                       )}
                     </div>
-                    <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1">{activeProduct.title}</h4>
+                    <h4 className="font-bold text-white text-xs sm:text-sm truncate">{activeProduct.title}</h4>
                     <span className="text-emerald-400 font-extrabold text-sm block mt-0.5">
                       {activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
                     </span>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* 3. Destination Scope & Zone Selector (Nacional / Internacional) */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between">
-                <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block">
-                  3. Destino de Entrega
-                </label>
-                <div className="inline-flex rounded-lg p-0.5 bg-stone-900 border border-stone-700">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDestinationScope('nacional');
-                      if (destinationKey === 'espanha' || destinationKey === 'franca') {
-                        setDestinationKey('braga');
-                      }
-                    }}
-                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'nacional'
-                        ? 'bg-red-600 text-white shadow'
-                        : 'text-stone-400 hover:text-white'
-                      }`}
-                  >
-                    🇵🇹 Nacional
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDestinationScope('internacional');
-                      if (destinationKey !== 'espanha' && destinationKey !== 'franca') {
-                        setDestinationKey('espanha');
-                      }
-                    }}
-                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'internacional'
-                        ? 'bg-red-600 text-white shadow'
-                        : 'text-stone-400 hover:text-white'
-                      }`}
-                  >
-                    🌍 Internacional
-                  </button>
-                </div>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                {destinationScope === 'nacional' ? (
-                  <>
-                    {/* Postal Code input for PT */}
-                    <div className="sm:col-span-4">
-                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
-                        Código Postal (PT)
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Ex: 4700-001"
-                        maxLength={8}
-                        value={postalCode}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setPostalCode(val);
-                          const detected = detectDistrictFromPostalCode(val);
-                          if (detected) setDestinationKey(detected);
-                        }}
-                        className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
-                      />
-                    </div>
-
-                    {/* Portuguese Regions dropdown */}
-                    <div className="sm:col-span-8">
-                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
-                        Zona de Entrega Nacional
-                      </label>
-                      <select
-                        value={destinationKey}
-                        onChange={(e) => setDestinationKey(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
-                      >
-                        <option value="braga">Braga (Sede & Entrega Direta)</option>
-                        <option value="porto">Porto & Grande Porto</option>
-                        <option value="viana">Viana do Castelo & Alto Minho</option>
-                        <option value="aveiro_coimbra">Aveiro, Coimbra & Leiria</option>
-                        <option value="lisboa_valetejo">Lisboa, Setúbal & Vale do Tejo</option>
-                        <option value="vilareal_braganca">Vila Real & Bragança (Trás-os-Montes)</option>
-                        <option value="viseu_guarda">Viseu, Guarda & Castelo Branco</option>
-                        <option value="alentejo">Évora, Beja & Portalegre (Alentejo)</option>
-                        <option value="faro">Faro & Algarve</option>
-                        <option value="ilhas">Açores & Madeira (Regiões Autónomas)</option>
-                      </select>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* International Served Countries dropdown */}
-                    <div className="sm:col-span-12">
-                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
-                        País de Destino Internacional
-                      </label>
-                      <select
-                        value={destinationKey}
-                        onChange={(e) => setDestinationKey(e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
-                      >
-                        <option value="espanha">🇪🇸 Espanha Peninsular (Galiza, Madrid, Andaluzia - Logística Ibérica)</option>
-                        <option value="franca">🇫🇷 França (Hexagone - Transporte Especializado)</option>
-                      </select>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* 4. Modalidade de Envio (Standard vs Expresso) */}
-            <div>
-              <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block mb-1.5">
-                4. Modalidade de Envio
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShippingSpeed('standard')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'standard'
-                      ? 'bg-stone-800 border-red-500 text-white ring-1 ring-red-500 shadow-md'
-                      : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
-                    }`}
-                >
-                  <span>🚛</span>
-                  <span>Standard (48h-72h)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShippingSpeed('express')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'express'
-                      ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500 shadow-md shadow-amber-500/20'
-                      : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
-                    }`}
-                >
-                  <span>⚡</span>
-                  <span>Expresso (24h-48h)</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 5. Quantity Selector */}
-            {activeCategory === 'pallets' && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">
-                    5. Quantidade de Paletes
+            ) : (
+              <div id="step-2-product" className="bg-stone-800/60 p-4 rounded-2xl border border-stone-700/70 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block">
+                    2. Artigo a Simular ({currentProducts.length} disponíveis)
                   </label>
-                  <span className="text-[11px] text-amber-400 font-semibold">
-                    ⭐ Portes 100% Grátis a partir de 3 paletes
+                  <span className="text-[10px] text-stone-400">
+                    Clique na caixa ou escreva para pesquisar
                   </span>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[1, 2, 3, 4].map((qty) => (
-                    <button
-                      key={qty}
-                      type="button"
-                      onClick={() => setPalletQty(qty)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${palletQty === qty
-                          ? 'bg-red-600 border-red-500 text-white shadow-md'
-                          : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
-                        }`}
-                    >
-                      {qty === 4 ? '4+ Paletes' : `${qty} Palete${qty > 1 ? 's' : ''}`}
-                    </button>
-                  ))}
+
+                {/* Combobox Input with Fixed Bounds */}
+                <div className="relative w-full" ref={dropdownRef}>
+                  <div className="relative flex items-center">
+                    <input
+                      type="text"
+                      value={
+                        searchQuery !== ''
+                          ? searchQuery
+                          : activeProduct
+                          ? `${formatProductShortTitle(activeProduct.title, activeProduct.brand, activeProduct.sku)} — ${activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}`
+                          : ''
+                      }
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setIsDropdownOpen(true);
+                      }}
+                      onClick={() => {
+                        setIsDropdownOpen(true);
+                      }}
+                      onFocus={(e) => {
+                        setIsDropdownOpen(true);
+                        e.target.select();
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          setIsDropdownOpen(false);
+                        } else if (e.key === 'Enter') {
+                          if (filteredProducts.length > 0) {
+                            setSelectedProductId(filteredProducts[0].id);
+                            setSearchQuery('');
+                            setIsDropdownOpen(false);
+                          }
+                        }
+                      }}
+                      placeholder="Selecionar ou pesquisar um produto..."
+                      className="w-full px-4 py-3 pr-16 bg-stone-900 border border-stone-600 rounded-xl text-xs sm:text-sm text-white placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-red-500 truncate cursor-pointer"
+                    />
+
+                    {/* Right Action Buttons: Clear (x) and Chevron */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSearchQuery('');
+                          }}
+                          title="Limpar pesquisa"
+                          className="text-stone-400 hover:text-white p-1 rounded-md transition-colors"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="text-stone-400 hover:text-white transition-colors cursor-pointer p-1"
+                      >
+                        <svg className={`w-4 h-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Floating Options Dropdown (Never breaks or stretches the column) */}
+                  {isDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-y-auto bg-stone-900 border border-stone-700 rounded-xl shadow-2xl z-50 divide-y divide-stone-800/80 no-scrollbar">
+                      {filteredProducts.length === 0 ? (
+                        <div className="p-4 text-center text-xs text-stone-400">
+                          Nenhum artigo encontrado para &quot;{searchQuery}&quot;
+                        </div>
+                      ) : (
+                        filteredProducts.map((p) => {
+                          const isSelected = p.id === activeProduct?.id;
+                          const formattedLabel = formatProductShortTitle(p.title, p.brand, p.sku);
+                          return (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedProductId(p.id);
+                                setSearchQuery('');
+                                setIsDropdownOpen(false);
+                              }}
+                              className={`w-full text-left p-3 flex items-center justify-between gap-3 hover:bg-stone-800 transition-colors cursor-pointer ${isSelected ? 'bg-stone-800/90 border-l-4 border-red-500' : ''
+                                }`}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-9 h-9 rounded-lg bg-stone-800 shrink-0 relative overflow-hidden flex items-center justify-center">
+                                  {p.image ? (
+                                    <Image src={p.image} alt="" fill unoptimized={p.image.startsWith('http')} className="object-contain p-0.5" />
+                                  ) : (
+                                    <span className="text-sm">
+                                      {activeCategory === 'pallets' ? '🪵' : activeCategory === 'fireplaces' ? '🔥' : '❄️'}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="min-w-0">
+                                  <span className="font-bold text-white text-xs block truncate max-w-[210px] sm:max-w-[340px]">
+                                    {formattedLabel}
+                                  </span>
+                                  <div className="flex items-center gap-1.5 mt-0.5">
+                                    {p.brand && (
+                                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-stone-800 text-stone-300 font-semibold">
+                                        {p.brand}
+                                      </span>
+                                    )}
+                                    {p.sku && (
+                                      <span className="text-[10px] text-stone-400 font-mono">
+                                        SKU: {p.sku}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <span className="text-xs sm:text-sm font-extrabold text-emerald-400 shrink-0">
+                                {p.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                              </span>
+                            </button>
+                          );
+                        })
+                      )}
+                    </div>
+                  )}
                 </div>
+
+                {/* Selected Product Card Preview & Button Continuar / Seguinte */}
+                {activeProduct && (
+                  <div className="space-y-3 pt-1">
+                    <div className="flex items-center gap-3.5 bg-stone-900/90 p-3 rounded-xl border border-stone-700/80">
+                      <div className="w-14 h-14 rounded-lg bg-stone-800 flex items-center justify-center overflow-hidden shrink-0 relative border border-stone-700">
+                        {activeProduct.image ? (
+                          <Image
+                            src={activeProduct.image}
+                            alt={activeProduct.title}
+                            fill
+                            unoptimized={activeProduct.image.startsWith('http')}
+                            className="object-contain p-1"
+                          />
+                        ) : (
+                          <span className="text-2xl">
+                            {activeCategory === 'pallets' ? '🪵' : activeCategory === 'fireplaces' ? '🔥' : '❄️'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] uppercase font-bold text-red-400 tracking-wider">
+                            {activeProduct.categoryName || 'Silva Dias'}
+                          </span>
+                          {activeProduct.sku && (
+                            <span className="text-[10px] text-stone-400 font-mono">
+                              SKU: {activeProduct.sku}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1">{activeProduct.title}</h4>
+                        <span className="text-emerald-400 font-extrabold text-sm block mt-0.5">
+                          {activeProduct.price.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Button Continuar / Seguinte */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsStep2Collapsed(true);
+                        setTimeout(() => {
+                          const step3 = document.getElementById('step-3-destination');
+                          if (step3) {
+                            step3.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                          }
+                        }, 120);
+                      }}
+                      className="w-full py-3.5 px-4 bg-red-600 hover:bg-red-700 active:scale-98 text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 cursor-pointer mt-1"
+                    >
+                      <span>Continuar para Destino de Entrega</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
-            {activeCategory === 'climate' && (
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">
-                    5. Quantidade de Climatizadores
-                  </label>
-                  <span className="text-[11px] text-amber-400 font-semibold">
-                    ⭐ Portes 100% Grátis a partir de 2 aparelhos
-                  </span>
+            {/* 3. Destination, 4. Speed & 5. Quantity displayed when Step 2 is validated/collapsed */}
+            {isStep2Collapsed ? (
+              <div id="step-3-destination" className="space-y-6 pt-1 transition-all">
+                {/* 3. Destination Scope & Zone Selector (Nacional / Internacional) */}
+                <div className="space-y-3 pt-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block">
+                      3. Destino de Entrega
+                    </label>
+                    <div className="inline-flex rounded-lg p-0.5 bg-stone-900 border border-stone-700">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDestinationScope('nacional');
+                          if (destinationKey === 'espanha' || destinationKey === 'franca') {
+                            setDestinationKey('braga');
+                          }
+                        }}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'nacional'
+                            ? 'bg-red-600 text-white shadow'
+                            : 'text-stone-400 hover:text-white'
+                          }`}
+                      >
+                        🇵🇹 Nacional
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDestinationScope('internacional');
+                          if (destinationKey !== 'espanha' && destinationKey !== 'franca') {
+                            setDestinationKey('espanha');
+                          }
+                        }}
+                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${destinationScope === 'internacional'
+                            ? 'bg-red-600 text-white shadow'
+                            : 'text-stone-400 hover:text-white'
+                          }`}
+                      >
+                        🌍 Internacional
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    {destinationScope === 'nacional' ? (
+                      <>
+                        {/* Postal Code input for PT */}
+                        <div className="sm:col-span-4">
+                          <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                            Código Postal (PT)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ex: 4700-001"
+                            maxLength={8}
+                            value={postalCode}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setPostalCode(val);
+                              const detected = detectDistrictFromPostalCode(val);
+                              if (detected) setDestinationKey(detected);
+                            }}
+                            className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
+                          />
+                        </div>
+
+                        {/* Portuguese Regions dropdown */}
+                        <div className="sm:col-span-8">
+                          <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                            Zona de Entrega Nacional
+                          </label>
+                          <select
+                            value={destinationKey}
+                            onChange={(e) => setDestinationKey(e.target.value)}
+                            className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
+                          >
+                            <option value="braga">Braga (Sede & Entrega Direta)</option>
+                            <option value="porto">Porto & Grande Porto</option>
+                            <option value="viana">Viana do Castelo & Alto Minho</option>
+                            <option value="aveiro_coimbra">Aveiro, Coimbra & Leiria</option>
+                            <option value="lisboa_valetejo">Lisboa, Setúbal & Vale do Tejo</option>
+                            <option value="vilareal_braganca">Vila Real & Bragança (Trás-os-Montes)</option>
+                            <option value="viseu_guarda">Viseu, Guarda & Castelo Branco</option>
+                            <option value="alentejo">Évora, Beja & Portalegre (Alentejo)</option>
+                            <option value="faro">Faro & Algarve</option>
+                            <option value="ilhas">Açores & Madeira (Regiões Autónomas)</option>
+                          </select>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* International Served Countries dropdown */}
+                        <div className="sm:col-span-12">
+                          <label className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-1">
+                            País de Destino Internacional
+                          </label>
+                          <select
+                            value={destinationKey}
+                            onChange={(e) => setDestinationKey(e.target.value)}
+                            className="w-full px-3.5 py-2.5 bg-stone-800 border border-stone-600 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500 cursor-pointer"
+                          >
+                            <option value="espanha">🇪🇸 Espanha Peninsular (Galiza, Madrid, Andaluzia - Logística Ibérica)</option>
+                            <option value="franca">🇫🇷 França (Hexagone - Transporte Especializado)</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[1, 2, 3].map((qty) => (
+
+                {/* 4. Modalidade de Envio (Standard vs Expresso) */}
+                <div>
+                  <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider block mb-1.5">
+                    4. Modalidade de Envio
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
                     <button
-                      key={qty}
                       type="button"
-                      onClick={() => setAcQty(qty)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${acQty === qty
-                          ? 'bg-red-600 border-red-500 text-white shadow-md'
-                          : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
+                      onClick={() => setShippingSpeed('standard')}
+                      className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'standard'
+                          ? 'bg-stone-800 border-red-500 text-white ring-1 ring-red-500 shadow-md'
+                          : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
                         }`}
                     >
-                      {qty === 3 ? '3+ Aparelhos' : `${qty} Climatizador${qty > 1 ? 'es' : ''}`}
+                      <span>🚛</span>
+                      <span>Standard (48h-72h)</span>
                     </button>
-                  ))}
+                    <button
+                      type="button"
+                      onClick={() => setShippingSpeed('express')}
+                      className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center justify-center gap-2 ${shippingSpeed === 'express'
+                          ? 'bg-amber-600/20 border-amber-500 text-amber-300 ring-1 ring-amber-500 shadow-md shadow-amber-500/20'
+                          : 'bg-stone-900/60 border-stone-700 text-stone-400 hover:text-white'
+                        }`}
+                    >
+                      <span>⚡</span>
+                      <span>Expresso (24h-48h)</span>
+                    </button>
+                  </div>
                 </div>
+
+                {/* 5. Quantity Selector */}
+                {activeCategory === 'pallets' && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">
+                        5. Quantidade de Paletes
+                      </label>
+                      <span className="text-[11px] text-amber-400 font-semibold">
+                        ⭐ Portes 100% Grátis a partir de 3 paletes
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[1, 2, 3, 4].map((qty) => (
+                        <button
+                          key={qty}
+                          type="button"
+                          onClick={() => setPalletQty(qty)}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${palletQty === qty
+                              ? 'bg-red-600 border-red-500 text-white shadow-md'
+                              : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
+                            }`}
+                        >
+                          {qty === 4 ? '4+ Paletes' : `${qty} Palete${qty > 1 ? 's' : ''}`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeCategory === 'climate' && (
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">
+                        5. Quantidade de Climatizadores
+                      </label>
+                      <span className="text-[11px] text-amber-400 font-semibold">
+                        ⭐ Portes 100% Grátis a partir de 2 aparelhos
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[1, 2, 3].map((qty) => (
+                        <button
+                          key={qty}
+                          type="button"
+                          onClick={() => setAcQty(qty)}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer text-center ${acQty === qty
+                              ? 'bg-red-600 border-red-500 text-white shadow-md'
+                              : 'bg-stone-800/80 border-stone-700 text-stone-300 hover:bg-stone-700/80 hover:text-white'
+                            }`}
+                        >
+                          {qty === 3 ? '3+ Aparelhos' : `${qty} Climatizador${qty > 1 ? 'es' : ''}`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/80 text-center text-xs text-stone-400 flex items-center justify-center gap-2">
+                <span className="text-stone-500">🔒</span>
+                <span>
+                  {activeProduct 
+                    ? 'Clique em «Continuar para Destino de Entrega» para avançar para a Etapa 3.' 
+                    : 'A Etapa 3 (Destino de Entrega) ficará disponível após selecionar um produto acima.'}
+                </span>
               </div>
             )}
 
@@ -1233,34 +1351,47 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                   <span className="text-[11px] text-stone-400 block uppercase font-bold tracking-wider">
                     Custo de Envio Calibrado
                   </span>
-                  {calculation.isFree ? (
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-2xl sm:text-3xl font-black text-emerald-400">GRÁTIS</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
-                        {calculation.badge}
-                      </span>
-                    </div>
+                  {activeProduct ? (
+                    calculation.isFree ? (
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-2xl sm:text-3xl font-black text-emerald-400">GRÁTIS</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30">
+                          {calculation.badge}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="text-2xl sm:text-3xl font-black text-white">
+                          {calculation.rate.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-stone-800 text-stone-300 font-bold border border-stone-700">
+                          {calculation.badge}
+                        </span>
+                      </div>
+                    )
                   ) : (
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl sm:text-3xl font-black text-white">
-                        {calculation.rate.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-                      </span>
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-stone-800 text-stone-300 font-bold border border-stone-700">
-                        {calculation.badge}
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xl sm:text-2xl font-bold text-stone-300">Aguardando Artigo</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                        Etapa 2
                       </span>
                     </div>
                   )}
                 </div>
 
                 <div className="w-12 h-12 rounded-xl bg-stone-800 flex items-center justify-center text-2xl shrink-0">
-                  {calculation.isFree ? '🎁' : shippingSpeed === 'express' ? '⚡' : '🚛'}
+                  {!activeProduct ? '📦' : calculation.isFree ? '🎁' : shippingSpeed === 'express' ? '⚡' : '🚛'}
                 </div>
               </div>
 
               {/* Rule Explanation Banner */}
               <div className="p-3.5 rounded-xl bg-stone-900/60 border border-stone-700 text-xs text-stone-300 leading-relaxed space-y-1">
                 <span className="font-bold text-white block">Condições de Envio:</span>
-                <p>{calculation.explanation}</p>
+                <p>
+                  {activeProduct
+                    ? calculation.explanation
+                    : 'Selecione o artigo na Etapa 2 para calcular o frete exato e os prazos de entrega.'}
+                </p>
               </div>
 
               {/* Delivery Details */}
@@ -1294,13 +1425,30 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
               <button
                 type="button"
                 onClick={handleOrderAndCheckout}
-                className="w-full py-3.5 px-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 active:scale-[0.99] text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 cursor-pointer"
+                className={`w-full py-3.5 px-4 rounded-xl font-extrabold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer ${
+                  activeProduct
+                    ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 active:scale-[0.99] text-white shadow-red-600/30'
+                    : 'bg-stone-700 hover:bg-stone-600 text-stone-200'
+                }`}
               >
                 <span className="whitespace-nowrap truncate max-w-[240px] sm:max-w-[280px]">
-                  Encomendar {conciseProductTitle}
+                  {activeProduct ? `Encomendar ${conciseProductTitle}` : 'Selecione um Artigo no Passo 2'}
                 </span>
                 <span className="shrink-0 text-base font-bold">&rarr;</span>
               </button>
+              <p className="text-[11px] text-stone-400 text-center mt-2.5">
+                {activeProduct ? (
+                  <>
+                    Redirecionamento imediato para o Checkout com taxa de{' '}
+                    <span className="text-emerald-400 font-semibold">
+                      {calculation.rate === 0 ? '0,00 € (Grátis)' : `${calculation.rate.toFixed(2)} €`}
+                    </span>{' '}
+                    aplicada
+                  </>
+                ) : (
+                  'Selecione um artigo na Etapa 2 para avançar diretamente para o Checkout'
+                )}
+              </p>
             </div>
 
           </div>
