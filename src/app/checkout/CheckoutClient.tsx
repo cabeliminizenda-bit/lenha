@@ -28,19 +28,33 @@ interface CheckoutClientProps {
 export default function CheckoutClient({ settings, zones }: CheckoutClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { items: cart, getTotalPrice, clearCart, coupon, setCoupon } = useCartStore();
+  const { items: cart, getTotalPrice, clearCart, coupon, setCoupon, customShipping } = useCartStore();
   
-  const [selectedCountry, setSelectedCountry] = useState(zones.length > 0 ? zones[0].name : '');
-  const [shippingCountry, setShippingCountry] = useState(zones.length > 0 ? zones[0].name : '');
+  const [selectedCountry, setSelectedCountry] = useState(
+    customShipping?.zoneName ? customShipping.zoneName : (zones.length > 0 ? zones[0].name : '')
+  );
+  const [shippingCountry, setShippingCountry] = useState(
+    customShipping?.zoneName ? customShipping.zoneName : (zones.length > 0 ? zones[0].name : '')
+  );
   const [shipToDifferentAddress, setShipToDifferentAddress] = useState(false);
 
   const effectiveShippingCountry = shipToDifferentAddress ? shippingCountry : selectedCountry;
   const activeZone = zones.find(z => z.name === effectiveShippingCountry);
   const activeMethods = activeZone?.methods || [];
 
-  const [shippingMethodId, setShippingMethodId] = useState(activeMethods.length > 0 ? activeMethods[0].id : '');
+  const [shippingMethodId, setShippingMethodId] = useState(
+    customShipping?.methodId || (activeMethods.length > 0 ? activeMethods[0].id : '')
+  );
 
   useEffect(() => {
+    if (customShipping?.zoneName && customShipping.zoneName !== selectedCountry) {
+      setSelectedCountry(customShipping.zoneName);
+    }
+    if (customShipping?.methodId) {
+      setShippingMethodId(customShipping.methodId);
+      return;
+    }
+
     const newActiveZone = zones.find(z => z.name === effectiveShippingCountry);
     const newMethods = newActiveZone?.methods || [];
     if (newMethods.length > 0) {
@@ -48,7 +62,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
     } else {
       setShippingMethodId('');
     }
-  }, [effectiveShippingCountry, zones]);
+  }, [effectiveShippingCountry, zones, customShipping]);
   
   const enableBankTransfer = settings.ENABLE_BANK_TRANSFER !== 'false';
   const enableStripe = settings.ENABLE_STRIPE !== 'false';
@@ -79,7 +93,7 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
   }
 
   const selectedMethod = activeMethods.find(m => m.id === shippingMethodId);
-  const shippingCost = selectedMethod ? selectedMethod.rate : 0;
+  const shippingCost = selectedMethod ? selectedMethod.rate : (customShipping ? customShipping.rate : 0);
 
   const finalTotal = Math.max(0, cartTotal - discountAmount) + shippingCost;
 
@@ -344,12 +358,12 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('postcode_zip')} <span className="text-red-500">*</span></label>
-            <input type="text" name="postalCode" required className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded focus:ring-orange-500 focus:border-orange-500" />
+            <input type="text" name="postalCode" defaultValue={customShipping?.postalCode || ''} required className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded focus:ring-orange-500 focus:border-orange-500" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('city')} <span className="text-red-500">*</span></label>
-            <input type="text" name="city" required className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded focus:ring-orange-500 focus:border-orange-500" />
+            <input type="text" name="city" defaultValue={customShipping?.district || ''} required className="w-full px-4 py-2 border border-gray-200 bg-gray-50 rounded focus:ring-orange-500 focus:border-orange-500" />
           </div>
 
           <div>
@@ -484,6 +498,21 @@ export default function CheckoutClient({ settings, zones }: CheckoutClientProps)
               <div className="border-b border-gray-200 pb-4 mb-4 flex justify-between text-sm font-bold text-green-600">
                 <span>{t('discount', { code: coupon.code })}</span>
                 <span>-{formatPrice(discountAmount)}</span>
+              </div>
+            )}
+
+            {customShipping && (
+              <div className="mb-4 p-3.5 bg-emerald-50 border border-emerald-300 rounded-xl text-xs text-emerald-950 flex items-center justify-between shadow-xs">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xl">🚛</span>
+                  <div>
+                    <span className="font-extrabold text-xs sm:text-sm block text-emerald-950">Frete Calibrado pelo Simulador Silva Dias</span>
+                    <span className="text-emerald-700 font-medium">{customShipping.label} • {customShipping.district || 'Portugal Continental'}</span>
+                  </div>
+                </div>
+                <span className="font-black text-xs sm:text-sm bg-emerald-600 text-white px-2.5 py-1 rounded-md shrink-0">
+                  {customShipping.rate === 0 ? 'GRÁTIS' : `${customShipping.rate.toFixed(2)} €`}
+                </span>
               </div>
             )}
 

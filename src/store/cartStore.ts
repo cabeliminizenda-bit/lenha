@@ -13,6 +13,15 @@ export interface CartItem {
   forcedByItemId?: string; // id of the item that forces this product
 }
 
+export interface CustomShippingInfo {
+  methodId: string;
+  zoneName: string;
+  rate: number;
+  label: string;
+  district?: string;
+  postalCode?: string;
+}
+
 interface CartStore {
   items: CartItem[];
   addItem: (item: CartItem, forceSalesItems?: CartItem[]) => void;
@@ -25,6 +34,8 @@ interface CartStore {
   setIsOpen: (isOpen: boolean) => void;
   coupon: { code: string; type: 'PERCENTAGE' | 'FIXED_AMOUNT'; value: number } | null;
   setCoupon: (coupon: { code: string; type: 'PERCENTAGE' | 'FIXED_AMOUNT'; value: number } | null) => void;
+  customShipping: CustomShippingInfo | null;
+  setCustomShipping: (shipping: CustomShippingInfo | null) => void;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -34,6 +45,8 @@ export const useCartStore = create<CartStore>()(
       setIsOpen: (isOpen) => set({ isOpen }),
       coupon: null,
       setCoupon: (coupon) => set({ coupon }),
+      customShipping: null,
+      setCustomShipping: (customShipping) => set({ customShipping }),
       items: [],
       addItem: (item, forceSalesItems = []) => {
         const currentItems = get().items;
@@ -76,7 +89,7 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: 'mystore-cart',
-      partialize: (state) => ({ items: state.items, coupon: state.coupon }),
+      partialize: (state) => ({ items: state.items, coupon: state.coupon, customShipping: state.customShipping }),
     }
   )
 );
