@@ -75,10 +75,16 @@ export default function MobileSidebar({
         {/* Logo */}
         <div className="p-6 border-b border-gray-100">
           <Link href="/" onClick={onClose} className="block">
-            {logoImage ? (
+            {logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? (
               <Image src={logoImage} alt="Logo" width={200} height={80} className="object-contain" style={{ width: 'auto', height: `${logoHeight}px` }} />
             ) : (
-              <span className="text-2xl font-extrabold text-gray-900">LOGO</span>
+              <div className="flex items-center gap-2.5">
+                <Image src="/logo-flame.png" alt="Silva Dias" width={32} height={52} className="h-8 w-auto object-contain shrink-0" />
+                <div>
+                  <span className="font-extrabold text-base tracking-tight text-gray-900 block leading-tight">LENHA &amp; CARVÃO</span>
+                  <span className="text-[10px] font-bold tracking-wider text-red-600 uppercase block">SILVA DIAS</span>
+                </div>
+              </div>
             )}
           </Link>
         </div>

@@ -86,12 +86,18 @@ export default function Footer({
           {/* Column 1: Info */}
           <div className="lg:col-span-1">
             <div className="mb-6 flex items-center">
-              {footerLogoImage ? (
+              {footerLogoImage && footerLogoImage !== '/logo.png' && footerLogoImage !== '/logo.jpg' ? (
                 <Image src={footerLogoImage} alt="Footer Logo" width={200} height={48} className="max-h-12 w-auto object-contain" />
               ) : (
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white shadow-md">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.5 6 7 8 7 12c0 2.8 2.2 5 5 5s5-2.2 5-5c0-4-2.5-6-5-10zm0 13c-1.7 0-3-1.3-3-3 0-1.7 1.1-2.9 2-4.5.9 1.6 2 2.8 2 4.5 0 1.7-1.3 3-3 3z"/></svg>
+                  <div className="relative h-9 w-auto shrink-0 flex items-center justify-center">
+                    <Image
+                      src="/logo-flame.png"
+                      alt="Lenha & Carvão Silva Dias"
+                      width={51}
+                      height={82}
+                      className="h-8 w-auto object-contain"
+                    />
                   </div>
                   <div>
                     <span className="font-extrabold text-base tracking-tight text-white block leading-tight">LENHA &amp; CARVÃO</span>

@@ -269,7 +269,7 @@ export default function Header({
         {/* Logo */}
         <div className="flex-shrink-0 flex items-center">
           <Link href="/" className="flex items-center">
-            {logoImage && logoImage !== '/logo.png' ? (
+            {logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? (
               <Image 
                 src={logoImage} 
                 alt="Lenha & Carvão Silva Dias" 
@@ -279,13 +279,20 @@ export default function Header({
                 priority 
               />
             ) : (
-              <div className="flex items-center gap-2.5 group">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform text-white">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.5 6 7 8 7 12c0 2.8 2.2 5 5 5s5-2.2 5-5c0-4-2.5-6-5-10zm0 13c-1.7 0-3-1.3-3-3 0-1.7 1.1-2.9 2-4.5.9 1.6 2 2.8 2 4.5 0 1.7-1.3 3-3 3z"/></svg>
+              <div className="flex items-center gap-3 group">
+                <div className="relative h-11 w-auto shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Image
+                    src="/logo-flame.png"
+                    alt="Lenha & Carvão Silva Dias"
+                    width={51}
+                    height={82}
+                    className="h-10 w-auto object-contain"
+                    priority
+                  />
                 </div>
                 <div>
-                  <span className="font-extrabold text-lg sm:text-xl tracking-tight text-stone-900 block leading-tight">LENHA & CARVÃO</span>
-                  <span className="text-[10px] font-bold tracking-wider text-red-600 uppercase block">SILVA DIAS</span>
+                  <span className="font-extrabold text-lg sm:text-xl tracking-tight text-stone-900 block leading-tight">LENHA &amp; CARVÃO</span>
+                  <span className="text-[11px] font-bold tracking-wider text-red-600 uppercase block">SILVA DIAS</span>
                 </div>
               </div>
             )}
