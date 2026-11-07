@@ -39,19 +39,19 @@ type FooterProps = {
 };
 
 export default function Footer({ 
-  supportPhone = '+08 9229 8228', 
+  supportPhone = '+351 253 000 000', 
   supportEmail = 'cabeliminizenda@gmail.com',
-  footerBgColor = '#278a54',
+  footerBgColor = '#1C1917',
   footerTextColor = '#ffffff',
   footerHeadingColor = '#ffffff',
-  footerAddress1 = '17 Rue des Marronniers, 31240 L\'Union, FRANCE',
+  footerAddress1 = 'Portugal Continental & Ilhas',
   footerAddress2 = '',
-  footerLocationsTitle = 'Our Locations',
-  footerNewsletterTitle = 'Unser Newsletter',
-  footerNewsletterText = 'Erhalten Sie 20€ Rabatt, wenn Sie sich für unseren Newsletter anmelden!',
-  footerNewsletterPlaceholder = 'Geben Sie Ihre Email ein',
-  footerCallUsText = 'Call Us Now',
-  footerCopyright = '© 2026 My Store. All rights reserved.',
+  footerLocationsTitle = 'Informações',
+  footerNewsletterTitle = 'A Nossa Newsletter',
+  footerNewsletterText = 'Subscreva para receber ofertas exclusivas e conselhos úteis sobre aquecimento a biomassa.',
+  footerNewsletterPlaceholder = 'O seu endereço de e-mail...',
+  footerCallUsText = 'Apoio Telefónico',
+  footerCopyright = '© 2026 Lenha & Carvão Silva Dias. Todos os direitos reservados.',
   footerSocialFacebook = '#',
   footerSocialTwitter = '#',
   footerSocialInstagram = '#',
@@ -59,7 +59,7 @@ export default function Footer({
   footerColumns = [],
   categories = [],
   footerLogoImage = '',
-  footerDescription = 'Unsere Verpflichtungen : Qualität : Produkte, die aufgrund ihrer Leistung und ihrer Übereinstimmung mit den Umweltstandards ausgewählt wurden. Ökologie : Nachhaltige und verantwortungsvolle Heizlösungen. Nähe : Ein Team, das auf Ihre Bedürfnisse hört und bereit ist, Sie bei Ihren Projekten zu beraten und zu begleiten. Service : Schnelle Lieferung und ein Kundenservice, der immer für Sie da ist.',
+  footerDescription = 'Especialistas em biomassa, pellets certificados ENplus A1, lenha seca e equipamentos térmicos de alta eficiência (salamandras, recuperadores de calor e climatização) com entregas em Portugal Continental.',
   footerShowAddress = true,
   footerShowEmail = true,
   footerShowPhone = true,
@@ -89,10 +89,15 @@ export default function Footer({
               {footerLogoImage ? (
                 <Image src={footerLogoImage} alt="Footer Logo" width={200} height={48} className="max-h-12 w-auto object-contain" />
               ) : (
-                <>
-                  <span className="text-orange-600 font-bold text-xl mr-2">🔥 TOP KAMIN</span>
-                  <span className="text-xs uppercase opacity-70 tracking-widest mt-1">BRENNSTOFFE</span>
-                </>
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-red-700 flex items-center justify-center text-white shadow-md">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.5 6 7 8 7 12c0 2.8 2.2 5 5 5s5-2.2 5-5c0-4-2.5-6-5-10zm0 13c-1.7 0-3-1.3-3-3 0-1.7 1.1-2.9 2-4.5.9 1.6 2 2.8 2 4.5 0 1.7-1.3 3-3 3z"/></svg>
+                  </div>
+                  <div>
+                    <span className="font-extrabold text-base tracking-tight text-white block leading-tight">LENHA &amp; CARVÃO</span>
+                    <span className="text-[10px] font-bold tracking-wider text-red-500 uppercase block">SILVA DIAS</span>
+                  </div>
+                </div>
               )}
             </div>
             
@@ -140,56 +145,49 @@ export default function Footer({
             ))
           ) : (
             <>
-              {/* Column 2: Rechtliche Links (Fallback) */}
+              {/* Column 2: Informações Legais */}
               <div className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Rechtliche Links</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Informações Legais</h3>
                 <ul className="space-y-4 text-sm opacity-90">
-                  <li><Link href="/pages/agb" className="hover:text-yellow-400 transition">AGB</Link></li>
-                  <li><Link href="/pages/about" className="hover:text-yellow-400 transition">Über uns</Link></li>
-                  <li><Link href="/pages/impressum" className="hover:text-yellow-400 transition">Impressum</Link></li>
-                  <li><Link href="/pages/shipping" className="hover:text-yellow-400 transition">Versandrichtlinien</Link></li>
-                  <li><Link href="/pages/payment" className="hover:text-yellow-400 transition">Zahlungpolitik</Link></li>
-                  <li><Link href="/pages/returns" className="hover:text-yellow-400 transition">Rückgabe- und Rückerstattungsrichtlinie</Link></li>
-                  <li><Link href={`/${contactSlug}`} className="hover:text-yellow-400 transition">Kontakt</Link></li>
+                  <li><Link href="/devolucoes" className="hover:text-red-400 transition">Política de Devolução</Link></li>
+                  <li><Link href="/expedicao" className="hover:text-red-400 transition">Expedição e Entrega</Link></li>
+                  <li><Link href="/termos-e-condicoes" className="hover:text-red-400 transition">Termos e Condições</Link></li>
+                  <li><Link href="/privacidade" className="hover:text-red-400 transition">Privacidade (RGPD)</Link></li>
+                  <li><Link href={`/${contactSlug}`} className="hover:text-red-400 transition">Contacte-nos</Link></li>
                 </ul>
               </div>
 
-              {/* Column 3: Kunde (Fallback) */}
+              {/* Column 3: A Minha Conta */}
               <div className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Kunde</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>A Minha Conta</h3>
                 <ul className="space-y-4 text-sm opacity-90">
-                  <li><Link href="/account" className="hover:text-yellow-400 transition">Mein konto</Link></li>
-                  <li><Link href="/cart" className="hover:text-yellow-400 transition">Warenkorb</Link></li>
-                  <li><Link href="/account/orders" className="hover:text-yellow-400 transition">Meine Bestellungen</Link></li>
-                  <li><Link href="/checkout" className="hover:text-yellow-400 transition">Checkout</Link></li>
-                  <li><Link href="/compare" className="hover:text-yellow-400 transition">Vergleiche</Link></li>
-                  <li><Link href="/wishlist" className="hover:text-yellow-400 transition">Wunschliste</Link></li>
+                  <li><Link href="/account" className="hover:text-red-400 transition">A Minha Conta</Link></li>
+                  <li><Link href="/cart" className="hover:text-red-400 transition">Ver Carrinho</Link></li>
+                  <li><Link href="/account/orders" className="hover:text-red-400 transition">As Minhas Encomendas</Link></li>
+                  <li><Link href="/checkout" className="hover:text-red-400 transition">Finalizar Compra</Link></li>
+                  <li><Link href="/#simulador-envio" className="hover:text-red-400 transition">Simulador de Envio</Link></li>
                 </ul>
               </div>
-              {/* Column 4: Alle Kategorien (Fallback) */}
+              {/* Column 4: Categorias em Destaque */}
               <div className="lg:col-span-1">
-                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Alle Kategorien</h3>
+                <h3 className="font-bold text-lg mb-6" style={{ color: footerHeadingColor }}>Categorias</h3>
                 <ul className="space-y-4 text-sm uppercase opacity-90 tracking-wide">
                   {categories && categories.length > 0 ? (
                     categories.slice(0, 10).map((cat) => (
                       <li key={cat.id}>
-                        <Link href={`/category/${cat.slug}`} className="hover:text-yellow-400 transition">
+                        <Link href={`/product-category/${cat.slug}`} className="hover:text-red-400 transition">
                           {cat.name}
                         </Link>
                       </li>
                     ))
                   ) : (
                     <>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">BRENNSTOFFE</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">HOLZPELLETS</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">KAMINBRIKETTS</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">Holzbriketts</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">BRENNHOLZ</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">Kaminholz</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">KAMINE &amp; ÖFEN</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">KAMINBAUSATZ</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">PELLETKESSEL</Link></li>
-                      <li><Link href="#" className="hover:text-yellow-400 transition">HOLZHERD / KÜCHENHERD</Link></li>
+                      <li><Link href="/product-category/pellets-e-lenha" className="hover:text-red-400 transition">Pellets &amp; Lenha</Link></li>
+                      <li><Link href="/product-category/salamandras" className="hover:text-red-400 transition">Salamandras</Link></li>
+                      <li><Link href="/product-category/recuperadores-de-calor" className="hover:text-red-400 transition">Recuperadores de Calor</Link></li>
+                      <li><Link href="/product-category/fogoes" className="hover:text-red-400 transition">Fogões a Lenha</Link></li>
+                      <li><Link href="/product-category/climatizacao" className="hover:text-red-400 transition">Climatização</Link></li>
+                      <li><Link href="/product-category/termoacumuladores" className="hover:text-red-400 transition">Termoacumuladores</Link></li>
                     </>
                   )}
                 </ul>
