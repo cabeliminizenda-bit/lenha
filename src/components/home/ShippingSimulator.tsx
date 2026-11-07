@@ -761,7 +761,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
   }, [activeProduct]);
 
   return (
-    <section id="simulador-envios" className="py-16 max-w-7xl mx-auto px-4">
+    <section id="simulador-envio" className="py-16 max-w-7xl mx-auto px-4 scroll-mt-24">
       <div className="bg-gradient-to-br from-stone-900 via-stone-850 to-stone-900 rounded-3xl p-6 sm:p-10 md:p-12 text-white relative overflow-hidden shadow-2xl border border-stone-700/80">
 
         {/* Glow ambient background accents */}
@@ -774,9 +774,9 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           <div className="lg:col-span-7 space-y-6">
 
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 font-extrabold text-[11px] uppercase tracking-wider mb-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-950/80 border border-red-500/40 text-white font-extrabold text-[11px] uppercase tracking-wider mb-2 shadow-sm">
                 <span>🚛</span>
-                <span>Calculador de Frete Calibrado Silva Dias</span>
+                <span className="text-white font-bold tracking-wide">Calculador de Frete Calibrado Silva Dias</span>
               </div>
               <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Simulador de Envio & Logística

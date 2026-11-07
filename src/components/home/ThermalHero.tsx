@@ -81,8 +81,8 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
 
   // Background settings
   const bgImageUrl = config?.bgImageUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=1600';
-  const rawBgOpacity = config?.bgOverlayOpacity !== undefined && config?.bgOverlayOpacity !== '' 
-    ? parseFloat(config.bgOverlayOpacity.toString()) 
+  const rawBgOpacity = config?.bgOverlayOpacity !== undefined && config?.bgOverlayOpacity !== ''
+    ? parseFloat(config.bgOverlayOpacity.toString())
     : 0.60;
   // Normalized opacity between 0.1 and 1.0
   const bgOpacity = isNaN(rawBgOpacity) ? 0.60 : Math.min(Math.max(rawBgOpacity, 0.1), 1.0);
@@ -243,9 +243,17 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
   const handleCta2Click = (e: React.MouseEvent) => {
     if (cta2Link.startsWith('#')) {
       e.preventDefault();
-      const el = document.getElementById(cta2Link.replace('#', ''));
+      const targetId = cta2Link.replace('#', '');
+      const el = 
+        document.getElementById(targetId) ||
+        document.getElementById('simulador-envio') ||
+        document.getElementById('simulador-envios') ||
+        document.getElementById('sec_shipping') ||
+        document.querySelector('[id*="simulador"]');
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.location.hash = targetId;
       }
     }
   };
@@ -265,9 +273,9 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
 
         {/* User Background Image with controllable opacity */}
         {bgImageUrl && (
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center transition-all duration-500 ease-out"
-            style={{ 
+            style={{
               backgroundImage: `url('${bgImageUrl}')`,
               opacity: bgOpacity
             }}
@@ -281,7 +289,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className={`grid grid-cols-1 ${isShowcaseVisible ? 'lg:grid-cols-12 gap-10 lg:gap-8 items-center' : 'max-w-4xl'}`}>
-          
+
           {/* Left Column: Headlines & Call to Actions */}
           <div className={`${isShowcaseVisible ? 'lg:col-span-7' : 'w-full'} space-y-6`}>
             {campaignBadge && (
@@ -295,7 +303,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                 </span>
               </div>
             )}
-            
+
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white drop-shadow-md">
               {titlePrefix && <>{titlePrefix}<br /></>}
               {titleGradient && (
@@ -314,8 +322,8 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             {/* CTA Buttons */}
             <div className="flex flex-wrap items-center gap-3.5 pt-2">
               {cta1Text && (
-                <Link 
-                  href={cta1Link} 
+                <Link
+                  href={cta1Link}
                   className="px-7 py-3.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white rounded-xl font-bold text-sm shadow-xl shadow-red-600/30 transition-all flex items-center gap-2 group/btn"
                 >
                   <span>{cta1Text}</span>
@@ -324,9 +332,9 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                   </svg>
                 </Link>
               )}
-              
+
               {cta2Text && (
-                <a 
+                <a
                   href={cta2Link}
                   onClick={handleCta2Click}
                   className="px-6 py-3.5 bg-stone-900/90 hover:bg-stone-800/90 active:scale-95 text-stone-200 border border-stone-700 rounded-xl font-semibold text-sm transition-all flex items-center gap-2 shadow-sm cursor-pointer backdrop-blur-sm"
@@ -361,13 +369,13 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
 
           {/* Right Column: Visual Showcase Card with Automatic Rotation */}
           {isShowcaseVisible && (
-            <div 
+            <div
               className="lg:col-span-5 relative"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
               <div className="relative bg-gradient-to-b from-stone-900/95 via-stone-850/95 to-stone-950/95 border border-stone-700/70 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
-                
+
                 {/* Card Top Bar: Badge + Navigation Controls */}
                 <div className="flex items-center justify-between mb-3.5">
                   <div className="flex items-center gap-2">
@@ -413,9 +421,9 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                   <div className="aspect-4/3 rounded-2xl bg-stone-950/90 border border-stone-800 relative overflow-hidden group/img flex items-center justify-center p-3">
                     {/* Optional Showcase Background Image */}
                     {showcaseBgImage && (
-                      <div 
+                      <div
                         className="absolute inset-0 bg-cover bg-center z-0 transition-opacity"
-                        style={{ 
+                        style={{
                           backgroundImage: `url('${showcaseBgImage}')`,
                           opacity: 0.85
                         }}
@@ -502,9 +510,8 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                             setIsAnimating(false);
                           }, 150);
                         }}
-                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                          idx === currentIndex ? 'w-6 bg-red-500' : 'w-1.5 bg-stone-700 hover:bg-stone-500'
-                        }`}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${idx === currentIndex ? 'w-6 bg-red-500' : 'w-1.5 bg-stone-700 hover:bg-stone-500'
+                          }`}
                         title={`Ir para produto ${idx + 1}`}
                       />
                     ))}
@@ -512,13 +519,12 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                 )}
 
                 {/* Action Button */}
-                <button 
+                <button
                   onClick={handleAddToCart}
-                  className={`w-full mt-3.5 py-3.5 px-4 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
-                    added 
-                      ? 'bg-emerald-600 text-white' 
+                  className={`w-full mt-3.5 py-3.5 px-4 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${added
+                      ? 'bg-emerald-600 text-white'
                       : 'bg-red-600 hover:bg-red-700 active:scale-98 text-white shadow-red-600/30'
-                  }`}
+                    }`}
                 >
                   {added ? (
                     <>

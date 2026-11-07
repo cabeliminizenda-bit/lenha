@@ -23,10 +23,10 @@ export const dynamic = 'force-dynamic';
 export default async function PreviewPage() {
   const draftLayoutSetting = await prisma.setting.findUnique({ where: { key: 'PREVIEW_LAYOUT_DRAFT' } });
   const draftFontSetting = await prisma.setting.findUnique({ where: { key: 'PREVIEW_FONT_DRAFT' } });
-  
+
   let layoutCookieStr = draftLayoutSetting?.value || '';
   // We can use the draft font if needed later
-  
+
   let layout: SectionConfig[] = [];
   if (layoutCookieStr) {
     try {
