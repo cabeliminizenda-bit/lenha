@@ -468,12 +468,74 @@ export default function Header({
 
       {/* Red Navigation Bar (Bottom Bar) */}
       <div className="hidden lg:block bg-[#DC2626] w-full shadow-inner">
-        <div className="max-w-7xl mx-auto px-4 w-full flex items-center justify-between h-12">
+        <div className="max-w-7xl mx-auto px-4 w-full flex items-center h-12">
           
-          <nav className="flex items-center space-x-1 font-extrabold text-[13px] tracking-wide text-white uppercase">
+          {/* ALL CATEGORIES BUTTON (Black block on the left) */}
+          <div className="relative shrink-0" ref={bottomCategoryRef}>
+            <button 
+              type="button"
+              onClick={() => setIsBottomCategoryOpen(!isBottomCategoryOpen)}
+              className="bg-black hover:bg-stone-900 text-white px-6 h-12 flex items-center gap-3 font-extrabold text-[13px] tracking-wider uppercase transition-colors shadow-sm cursor-pointer select-none"
+            >
+              <svg className="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span>ALL CATEGORIES</span>
+              <svg className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${isBottomCategoryOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {isBottomCategoryOpen && (
+              <div className="absolute top-full left-0 w-72 bg-white border border-stone-200 shadow-2xl rounded-b-xl z-50 py-2 divide-y divide-stone-100 normal-case font-medium">
+                {categories && categories.length > 0 ? (
+                  categories.map((cat) => (
+                    <Link 
+                      key={cat.id} 
+                      href={`/product-category/${cat.slug || cat.id}`}
+                      className={`flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 transition ${!cat.parentId ? 'font-bold text-stone-900 text-xs' : 'text-stone-600 pl-8 text-xs'}`}
+                      onClick={() => setIsBottomCategoryOpen(false)}
+                    >
+                      <span>{cat.name}</span>
+                      <svg className="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                    </Link>
+                  ))
+                ) : (
+                  [
+                    { name: 'Pellets & Lenha', slug: 'pellets-e-lenha', icon: '🪵' },
+                    { name: 'Salamandras a Pellets', slug: 'salamandras', icon: '🔥' },
+                    { name: 'Salamandras a Lenha', slug: 'salamandras-a-lenha', icon: '🔥' },
+                    { name: 'Recuperadores de Calor', slug: 'recuperadores-de-calor', icon: '🏠' },
+                    { name: 'Fogões a Lenha', slug: 'fogoes', icon: '🍳' },
+                    { name: 'Climatização / Ar Condicionado', slug: 'climatizacao', icon: '❄️' },
+                    { name: 'Termoacumuladores', slug: 'termoacumuladores', icon: '💧' },
+                    { name: 'Caldeiras a Biomassa', slug: 'caldeiras', icon: '⚙️' },
+                    { name: 'Acessórios & Manutenção', slug: 'acessorios', icon: '🛠️' },
+                  ].map((cat, idx) => (
+                    <Link
+                      key={idx}
+                      href={`/product-category/${cat.slug}`}
+                      className="flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 text-stone-800 text-xs font-semibold transition"
+                      onClick={() => setIsBottomCategoryOpen(false)}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span>{cat.icon}</span>
+                        <span>{cat.name}</span>
+                      </span>
+                      <svg className="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                    </Link>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Horizontal Menu Links */}
+          <nav className="flex items-center space-x-1 font-extrabold text-[13px] tracking-wide text-white uppercase ml-3 flex-1 overflow-x-auto no-scrollbar">
             {menuLinks && menuLinks.length > 0 ? (
               menuLinks.map((link, idx) => (
-                <div key={idx} className="relative group">
+                <div key={idx} className="relative group shrink-0">
                   <Link 
                     href={link.url} 
                     className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white"
@@ -484,42 +546,20 @@ export default function Header({
               ))
             ) : (
               <>
-                <Link href="/" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
-                  <span>HOME</span>
+                <Link href="/" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                  <span>INÍCIO</span>
                 </Link>
-                <div className="relative group" ref={bottomCategoryRef}>
-                  <button 
-                    onClick={() => setIsBottomCategoryOpen(!isBottomCategoryOpen)}
-                    className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black uppercase cursor-pointer"
-                  >
-                    <span>CATALOG</span>
-                  </button>
-                  {isBottomCategoryOpen && (
-                    <div className="absolute top-full left-0 w-64 bg-white border border-gray-200 shadow-xl rounded-md z-40 py-2 normal-case font-normal">
-                      {categories.map((cat) => (
-                        <Link 
-                          key={cat.id} 
-                          href={`/product-category/${cat.slug || cat.id}`}
-                          className={`block px-6 py-2 hover:bg-yellow-50 hover:text-gray-900 transition ${!cat.parentId ? 'font-bold text-gray-900' : 'text-gray-700'}`}
-                          onClick={() => setIsBottomCategoryOpen(false)}
-                        >
-                          {cat.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
-                  <span>FEATURED PRODUCTS</span>
+                <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                  <span>SHOP</span>
                 </Link>
-                <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
-                  <span>PRODUCT PAGES</span>
+                <Link href="/devolucoes" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                  <span>DEVOLUÇÃO E REEMBOLSO</span>
                 </Link>
-                <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
-                  <span>PAGES</span>
+                <Link href="/envios-e-entregas" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                  <span>EXPEDIÇÃO</span>
                 </Link>
-                <Link href="/pages/faq" className="flex items-center px-4 py-3 hover:bg-black/5 rounded transition font-black">
-                  <span>FAQ PAGE</span>
+                <Link href="/contact" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                  <span>CONTACTAR NOS</span>
                 </Link>
               </>
             )}
