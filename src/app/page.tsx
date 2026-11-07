@@ -6,6 +6,9 @@ import Newsletter from '@/components/home/Newsletter';
 import PromoBanners from '@/components/home/PromoBanners';
 import ProductGrid from '@/components/home/ProductGrid';
 import FullWidthBanner from '@/components/home/FullWidthBanner';
+import TrustBar from '@/components/home/TrustBar';
+import CategoryExplorer from '@/components/home/CategoryExplorer';
+import ShippingSimulator from '@/components/home/ShippingSimulator';
 import { getSettings } from '@/actions/settings';
 import { SectionConfig, SectionType } from '@/app/admin/(dashboard)/landing/LandingForm';
 
@@ -21,11 +24,11 @@ export default async function Home() {
     } else {
       layout = [
         { id: 'sec_1', type: 'Hero', name: 'Hero', enabled: true, settings: {} },
-        { id: 'sec_2', type: 'BestDeals', name: 'Best Deals', enabled: true, settings: { title: "Today's Best Deals", countdown: '2026-12-31T23:59:59', filterType: 'ON_SALE' } },
+        { id: 'sec_2', type: 'BestDeals', name: 'Best Deals', enabled: true, settings: { title: "Promoções em Destaque", countdown: '2026-12-31T23:59:59', filterType: 'ON_SALE' } },
         { id: 'sec_3', type: 'PromoBanners', name: 'Banners', enabled: false, settings: {} },
-        { id: 'sec_4', type: 'BestSeller', name: 'Best Seller', enabled: true, settings: { title: "Best Seller", filterType: 'POPULAR' } },
+        { id: 'sec_4', type: 'BestSeller', name: 'Best Seller', enabled: true, settings: { title: "Mais Populares", filterType: 'POPULAR' } },
         { id: 'sec_5', type: 'LatestBlogs', name: 'Blogs', enabled: true, settings: {} },
-        { id: 'sec_6', type: 'Newsletter', name: 'Newsletter', enabled: false, settings: {} }
+        { id: 'sec_6', type: 'Newsletter', name: 'Newsletter', enabled: true, settings: {} }
       ];
     }
   } catch (e) {
@@ -38,11 +41,22 @@ export default async function Home() {
   const renderSection = (section: SectionConfig) => {
     switch (section.type) {
       case 'Hero':
-        return <Hero key={section.id} config={section.settings} />;
+        return (
+          <div key={section.id}>
+            <Hero config={section.settings} />
+            <TrustBar />
+            <CategoryExplorer />
+          </div>
+        );
       case 'BestDeals':
         return <BestDeals key={section.id} config={section.settings} />;
       case 'BestSeller':
-        return <BestSeller key={section.id} config={section.settings} />;
+        return (
+          <div key={section.id}>
+            <BestSeller config={section.settings} />
+            <ShippingSimulator />
+          </div>
+        );
       case 'LatestBlogs':
         return <LatestBlogs key={section.id} config={section.settings} />;
       case 'Newsletter':

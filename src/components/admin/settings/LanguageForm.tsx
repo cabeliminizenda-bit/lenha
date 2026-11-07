@@ -7,10 +7,10 @@ import { updateSettingsBatch } from '@/actions/settings';
 export default function LanguageForm({ initialSettings }: { initialSettings: Record<string, string> }) {
   const tSettings = useTranslations('AdminSettings');
   const router = useRouter();
-  
+
   const [activeLanguage, setActiveLanguage] = useState(initialSettings.active_language || 'en');
   const [translationScope, setTranslationScope] = useState(initialSettings.translation_scope || 'all');
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -18,7 +18,7 @@ export default function LanguageForm({ initialSettings }: { initialSettings: Rec
     e.preventDefault();
     setIsLoading(true);
     setMessage('');
-    
+
     const settingsMap: Record<string, string> = {
       active_language: activeLanguage,
       translation_scope: translationScope
