@@ -138,10 +138,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "My Store";
 
   const storeSettings = {
-    announcement: settingsMap.HEADER_ANNOUNCEMENT || `Welcome to ${storeName}`,
-    logoImage: settingsMap.HEADER_LOGO_IMAGE || '/logo.png',
-    supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '+08 9229 8228',
-    supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'support@mystore.com',
+    announcement: settingsMap.HEADER_ANNOUNCEMENT_TEXT || settingsMap.HEADER_ANNOUNCEMENT || 'Envios para todo o Portugal Continental com descarga por plataforma elevatória',
+    logoImage: settingsMap.HEADER_LOGO_IMAGE && settingsMap.HEADER_LOGO_IMAGE !== '/logo.png' ? settingsMap.HEADER_LOGO_IMAGE : '',
+    supportPhone: settingsMap.FOOTER_SUPPORT_PHONE ?? settingsMap.HEADER_SUPPORT_PHONE ?? '+351 253 000 000',
+    supportEmail: settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL ?? 'cabeliminizenda@gmail.com',
     menuLinks: menuLinks,
     topBarLinks: topBarLinks,
     loginText: settingsMap.LOGIN_TEXT,
@@ -149,10 +149,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     adminDashboardText: settingsMap.ADMIN_DASHBOARD_TEXT,
     topBarBgColor: settingsMap.TOP_BAR_BG_COLOR || '#ffffff',
     topBarTextColor: settingsMap.TOP_BAR_TEXT_COLOR || '#4b5563',
-    footerBgColor: settingsMap.FOOTER_BG_COLOR || '#0B162C',
+    footerBgColor: settingsMap.FOOTER_BG_COLOR || '#1C1917',
     footerTextColor: settingsMap.FOOTER_TEXT_COLOR || '#d1d5db',
     footerHeadingColor: settingsMap.FOOTER_HEADING_COLOR || '#ffffff',
-    footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? '2972 Westheimer Rd. Illinois 85486',
+    footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? 'Portugal Continental',
     footerAddress2: settingsMap.FOOTER_ADDRESS_2 ?? '17 Princess Road, London, Greater London NW1 8JR, UK',
     footerLocationsTitle: settingsMap.FOOTER_LOCATIONS_TITLE || 'Our Locations',
     footerNewsletterTitle: settingsMap.FOOTER_NEWSLETTER_TITLE || 'Newsletter',

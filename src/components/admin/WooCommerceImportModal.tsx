@@ -12,6 +12,9 @@ import {
   fetchWooCommerceProductsList,
   importWooCommerceSelectedProducts,
   testWooCommerceConnection,
+  importWooCommerceOrders,
+  importWordPressPages,
+  importWordPressArticles,
   type WcProductImportItemResult
 } from '@/actions/woocommerce';
 
@@ -34,6 +37,11 @@ export default function WooCommerceImportModal() {
   
   // Mode
   const [importMode, setImportMode] = useState<ImportMode>('ALL');
+
+  // Additional Data To Import
+  const [includeOrders, setIncludeOrders] = useState(true);
+  const [includePages, setIncludePages] = useState(true);
+  const [includeArticles, setIncludeArticles] = useState(true);
 
   // Categories Selection State
   const [availableCategories, setAvailableCategories] = useState<Array<{ id: number; name: string; count: number; slug: string }>>([]);

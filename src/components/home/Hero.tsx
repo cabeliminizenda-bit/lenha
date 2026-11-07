@@ -312,7 +312,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           {settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SUBTITLE || settings.HERO_1_SUBTITLE) }} />
           ) : (
-            <span>Sale Offer <span className="text-[#e01b1b] font-bold">Black Friday</span> This Week</span>
+            <span>Campanha de Inverno <span className="text-[#DC2626] font-bold">Lenha & Pellets</span></span>
           )}
         </div>
 
@@ -321,27 +321,27 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           {settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_TITLE || settings.HERO_1_TITLE) }} />
           ) : (
-            <>Work Desk<br />Surface Studio 2018</>
+            <>Promoção de Inverno!<br /><span className="text-[#DC2626]">Fogão a Pellets & Lenha</span></>
           )}
         </h1>
 
         {/* Price & Label */}
         {((settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE) || (settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL)) && (
           <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1 animate-hero-price">
-            <span>{settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL || 'Starting at'}</span>
-            <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">
-              {settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE || '$824.00'}
+            <span>{settings.STYLE2_HERO_1_PRICE_LABEL || settings.HERO_1_PRICE_LABEL || 'A partir de'}</span>
+            <span className="text-[#DC2626] font-bold text-2xl md:text-3xl ml-1">
+              {settings.STYLE2_HERO_1_PRICE || settings.HERO_1_PRICE || '1.417,50 €'}
             </span>
           </div>
         )}
 
-        {/* Yellow Button (placed right under price) */}
+        {/* Button (placed right under price) */}
         <div className="animate-hero-btn">
           <Link
             href={settings.STYLE2_HERO_1_LINK || settings.HERO_1_LINK || '/shop'}
-            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md text-xs tracking-wider uppercase cursor-pointer"
+            className="inline-block bg-[#DC2626] hover:bg-[#B91C1C] text-white font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md text-xs tracking-wider uppercase cursor-pointer"
           >
-            {settings.STYLE2_HERO_1_CTA || settings.HERO_1_CTA || 'SHOP NOW'}
+            {settings.STYLE2_HERO_1_CTA || settings.HERO_1_CTA || 'VER OFERTAS'}
           </Link>
         </div>
       </div>
@@ -382,7 +382,7 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           {settings.STYLE2_HERO_1_SLIDE2_SUBTITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_SUBTITLE) }} />
           ) : (
-            <span>Sale Offer <span className="text-[#e01b1b] font-bold">-20% Off</span> This Week</span>
+            <span>Eficiência Certificada <span className="text-[#DC2626] font-bold">Eco-Design</span></span>
           )}
         </div>
 
@@ -391,27 +391,27 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           {settings.STYLE2_HERO_1_SLIDE2_TITLE ? (
             <span dangerouslySetInnerHTML={{ __html: basicSanitizeHtml(settings.STYLE2_HERO_1_SLIDE2_TITLE) }} />
           ) : (
-            <>Samsung<br />Galaxy S9 | S9+</>
+            <>Salamandras &<br />Recuperadores de Calor</>
           )}
         </h1>
 
         {/* Price & Label */}
         {(settings.STYLE2_HERO_1_SLIDE2_PRICE || settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL) && (
           <div className="text-lg md:text-xl text-gray-700 font-medium mb-6 flex items-baseline flex-wrap gap-1 animate-hero-price">
-            <span>{settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL || 'Starting at'}</span>
-            <span className="text-[#e01b1b] font-bold text-2xl md:text-3xl ml-1">
-              {settings.STYLE2_HERO_1_SLIDE2_PRICE || '$1209.00'}
+            <span>{settings.STYLE2_HERO_1_SLIDE2_PRICE_LABEL || 'A partir de'}</span>
+            <span className="text-[#DC2626] font-bold text-2xl md:text-3xl ml-1">
+              {settings.STYLE2_HERO_1_SLIDE2_PRICE || '975,00 €'}
             </span>
           </div>
         )}
 
-        {/* Yellow Button (placed right under price) */}
+        {/* Button */}
         <div className="animate-hero-btn">
           <Link
             href={settings.STYLE2_HERO_1_SLIDE2_LINK || settings.STYLE2_HERO_1_LINK || '/shop'}
-            className="inline-block bg-[#fed700] hover:bg-[#eab308] text-gray-900 font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md text-xs tracking-wider uppercase cursor-pointer"
+            className="inline-block bg-[#DC2626] hover:bg-[#B91C1C] text-white font-extrabold px-8 py-3.5 rounded-md shadow-sm transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-md text-xs tracking-wider uppercase cursor-pointer"
           >
-            {settings.STYLE2_HERO_1_SLIDE2_CTA || 'SHOP NOW'}
+            {settings.STYLE2_HERO_1_SLIDE2_CTA || 'VER CATÁLOGO'}
           </Link>
         </div>
       </div>
@@ -462,10 +462,10 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           className="font-semibold text-xs md:text-sm mb-2"
           style={{
             ...getResponsiveVars('STYLE2_HERO_2_CATEGORY', { m: '12px', t: '13px', d: '14px' }),
-            color: settings.STYLE2_HERO_2_CATEGORY_COLOR || '#0284c7'
+            color: settings.STYLE2_HERO_2_CATEGORY_COLOR || '#DC2626'
           }}
         >
-          {settings.STYLE2_HERO_2_CATEGORY || 'Full HD Display'}
+          {settings.STYLE2_HERO_2_CATEGORY || 'Biomassa & Aquecimento'}
         </span>
         <h2
           className="font-bold text-lg md:text-xl mb-2 leading-snug"
@@ -474,16 +474,16 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             color: settings.STYLE2_HERO_2_TEXT_COLOR || '#111827'
           }}
         >
-          {settings.STYLE2_HERO_2_TITLE || 'Smartphone Meizu M5 New Color Green'}
+          {settings.STYLE2_HERO_2_TITLE || 'Paletes de Pellets ENplus A1'}
         </h2>
         <p
           className="font-bold text-sm md:text-base mb-3"
           style={{
             ...getResponsiveVars('STYLE2_HERO_2_SUBTITLE', { m: '14px', t: '15px', d: '16px' }),
-            color: settings.STYLE2_HERO_2_SUBTITLE_COLOR || '#e01b1b'
+            color: settings.STYLE2_HERO_2_SUBTITLE_COLOR || '#DC2626'
           }}
         >
-          {settings.STYLE2_HERO_2_SUBTITLE || 'Sale 20% Off'}
+          {settings.STYLE2_HERO_2_SUBTITLE || '70 Sacos de 15kg • Alta Eficiência'}
         </p>
 
         {/* CTA Button for Block 2 */}
@@ -494,8 +494,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
               className="inline-block font-extrabold px-5 py-2 rounded-md shadow-sm transition-all text-[11px] tracking-wider uppercase cursor-pointer"
               style={{
                 ...getResponsiveVars('STYLE2_HERO_2_CTA', { m: '11px', t: '11px', d: '11px' }),
-                backgroundColor: settings.STYLE2_HERO_2_BTN_BG_COLOR || '#fed700',
-                color: settings.STYLE2_HERO_2_BTN_TEXT_COLOR || '#111827'
+                backgroundColor: settings.STYLE2_HERO_2_BTN_BG_COLOR || '#DC2626',
+                color: settings.STYLE2_HERO_2_BTN_TEXT_COLOR || '#FFFFFF'
               }}
             >
               {settings.STYLE2_HERO_2_CTA}
@@ -537,10 +537,10 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
           className="font-semibold text-xs md:text-sm mb-2"
           style={{
             ...getResponsiveVars('STYLE2_HERO_3_CATEGORY', { m: '12px', t: '13px', d: '14px' }),
-            color: settings.STYLE2_HERO_3_CATEGORY_COLOR || '#0284c7'
+            color: settings.STYLE2_HERO_3_CATEGORY_COLOR || '#2563EB'
           }}
         >
-          {settings.STYLE2_HERO_3_CATEGORY || 'Sale 20% Off All Store'}
+          {settings.STYLE2_HERO_3_CATEGORY || 'Climatização'}
         </span>
         <h2
           className="font-bold text-lg md:text-xl mb-2 leading-snug"
@@ -549,16 +549,16 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
             color: settings.STYLE2_HERO_3_TEXT_COLOR || '#111827'
           }}
         >
-          {settings.STYLE2_HERO_3_TITLE || 'Playstaytion VR Plus Network 2018'}
+          {settings.STYLE2_HERO_3_TITLE || 'Ar Condicionado Inverter A+++'}
         </h2>
         <p
           className="font-bold text-sm md:text-base mb-3"
           style={{
             ...getResponsiveVars('STYLE2_HERO_3_SUBTITLE', { m: '14px', t: '15px', d: '16px' }),
-            color: settings.STYLE2_HERO_3_SUBTITLE_COLOR || '#e01b1b'
+            color: settings.STYLE2_HERO_3_SUBTITLE_COLOR || '#DC2626'
           }}
         >
-          {settings.STYLE2_HERO_3_SUBTITLE || 'Sale 20% Off'}
+          {settings.STYLE2_HERO_3_SUBTITLE || 'Conforto Térmico Todo o Ano'}
         </p>
 
         {/* CTA Button for Block 3 */}
@@ -569,8 +569,8 @@ export default async function Hero({ config, isPreview, sectionId }: { config?: 
               className="inline-block font-extrabold px-5 py-2 rounded-md shadow-sm transition-all text-[11px] tracking-wider uppercase cursor-pointer"
               style={{
                 ...getResponsiveVars('STYLE2_HERO_3_CTA', { m: '11px', t: '11px', d: '11px' }),
-                backgroundColor: settings.STYLE2_HERO_3_BTN_BG_COLOR || '#fed700',
-                color: settings.STYLE2_HERO_3_BTN_TEXT_COLOR || '#111827'
+                backgroundColor: settings.STYLE2_HERO_3_BTN_BG_COLOR || '#DC2626',
+                color: settings.STYLE2_HERO_3_BTN_TEXT_COLOR || '#FFFFFF'
               }}
             >
               {settings.STYLE2_HERO_3_CTA}
