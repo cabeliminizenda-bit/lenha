@@ -50,3 +50,4 @@ export default function CategoryExplorer({ categories }: CategoryExplorerProps) 
     </section>
   );
 }
+
