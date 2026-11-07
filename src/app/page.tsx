@@ -65,7 +65,7 @@ export default async function Home() {
       case 'Hero':
         return (
           <div key={section.id}>
-            <ThermalHero />
+            <ThermalHero config={section.settings} />
             <TrustBar />
             <CategoryExplorer />
           </div>

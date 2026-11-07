@@ -273,6 +273,31 @@ export default function LandingForm({ initialSettings, categories }: { initialSe
         />
       );
     }
+
+    if (section.type === 'FeaturedProductTabs' || section.type === 'ShippingSimulator' || section.type === 'HeatingGuideBlogs') {
+      return (
+        <div className="p-4 bg-gray-50 border rounded-xl text-xs text-gray-600 space-y-3">
+          <div className="flex items-center gap-2 text-stone-900 font-bold text-sm">
+            <span>🔥</span>
+            <span>{section.name}</span>
+          </div>
+          <p className="leading-relaxed">
+            Esta secção especializada em aquecimento a biomassa e equipamentos térmicos está integrada e ativa na loja.
+          </p>
+          <div className="p-2.5 bg-white border border-stone-200 rounded-lg text-stone-700">
+            <span className="font-semibold block mb-0.5">Gestão de Conteúdo:</span>
+            Os produtos e artigos são alimentados automaticamente a partir do catálogo e do blog.
+          </div>
+          <button 
+            type="button" 
+            onClick={() => setEditingId(null)}
+            className="w-full py-2 bg-stone-800 hover:bg-stone-900 text-white font-medium rounded-lg transition-colors"
+          >
+            Voltar à lista de secções
+          </button>
+        </div>
+      );
+    }
     
     return null;
   };

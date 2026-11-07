@@ -1,4 +1,9 @@
-import Hero from '@/components/home/Hero';
+import ThermalHero from '@/components/home/ThermalHero';
+import FeaturedProductTabs from '@/components/home/FeaturedProductTabs';
+import ShippingSimulator from '@/components/home/ShippingSimulator';
+import HeatingGuideBlogs from '@/components/home/HeatingGuideBlogs';
+import TrustBar from '@/components/home/TrustBar';
+import CategoryExplorer from '@/components/home/CategoryExplorer';
 import BestDeals from '@/components/home/BestDeals';
 import BestSeller from '@/components/home/BestSeller';
 import LatestBlogs from '@/components/home/LatestBlogs';
@@ -42,7 +47,22 @@ export default async function PreviewPage() {
     let content = null;
     switch (section.type) {
       case 'Hero':
-        content = <Hero config={section.settings} isPreview={true} sectionId={section.id} />;
+        content = (
+          <div>
+            <ThermalHero config={section.settings} isPreview={true} sectionId={section.id} />
+            <TrustBar />
+            <CategoryExplorer />
+          </div>
+        );
+        break;
+      case 'FeaturedProductTabs':
+        content = <FeaturedProductTabs />;
+        break;
+      case 'ShippingSimulator':
+        content = <ShippingSimulator />;
+        break;
+      case 'HeatingGuideBlogs':
+        content = <HeatingGuideBlogs />;
         break;
       case 'BestDeals':
         content = <BestDeals config={section.settings} />;
