@@ -206,7 +206,7 @@ interface DestinationZone {
   key: string;
   name: string;
   region: string;
-  country: 'PT' | 'ES' | 'FR' | 'ISLANDS';
+  country: 'PT' | 'ES' | 'FR' | 'DE' | 'ISLANDS';
   timeframe: string;
   timeframeExpress: string;
   isLocalNorth: boolean; // Braga, Porto, Viana
@@ -220,8 +220,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Braga (Sede & Entrega Direta)',
     region: 'Zona Norte Proximidade',
     country: 'PT',
-    timeframe: '24 a 48 horas úteis',
-    timeframeExpress: '24 horas úteis (Entrega Prioritária)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: true,
     zonePrismaName: 'Portugal Continental'
   },
@@ -230,8 +230,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Porto & Grande Porto',
     region: 'Zona Norte Litoral',
     country: 'PT',
-    timeframe: '24 a 48 horas úteis',
-    timeframeExpress: '24 a 48 horas úteis (Expresso)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: true,
     zonePrismaName: 'Portugal Continental'
   },
@@ -240,8 +240,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Viana do Castelo & Alto Minho',
     region: 'Zona Norte',
     country: 'PT',
-    timeframe: '24 a 48 horas úteis',
-    timeframeExpress: '24 a 48 horas úteis (Expresso)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: true,
     zonePrismaName: 'Portugal Continental'
   },
@@ -250,8 +250,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Aveiro, Coimbra & Leiria',
     region: 'Região Centro Litoral',
     country: 'PT',
-    timeframe: '48 a 72 horas úteis',
-    timeframeExpress: '24 a 48 horas úteis (Expresso)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -260,8 +260,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Lisboa, Setúbal & Vale do Tejo',
     region: 'Região Metropolitana de Lisboa',
     country: 'PT',
-    timeframe: '48 a 72 horas úteis',
-    timeframeExpress: '24 a 48 horas úteis (Expresso)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -270,8 +270,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Vila Real & Bragança',
     region: 'Trás-os-Montes & Douro',
     country: 'PT',
-    timeframe: '48 a 72 horas úteis',
-    timeframeExpress: '24 a 48 horas úteis (Expresso)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -280,8 +280,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Viseu, Guarda & Castelo Branco',
     region: 'Região Centro Interior & Beiras',
     country: 'PT',
-    timeframe: '48 a 72 horas úteis',
-    timeframeExpress: '24 a 48 horas úteis (Expresso)',
+    timeframe: '3 a 5 dias úteis',
+    timeframeExpress: '48 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Portugal Continental'
   },
@@ -324,8 +324,8 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     name: 'Espanha Peninsular (Galiza, Madrid, etc.)',
     region: 'Espanha (Logística Ibérica)',
     country: 'ES',
-    timeframe: '3 a 5 dias úteis',
-    timeframeExpress: '48 horas úteis (Expresso Ibérico)',
+    timeframe: '5 a 7 dias úteis',
+    timeframeExpress: '72 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'Espanha Peninsular'
   },
@@ -337,9 +337,21 @@ const DESTINATIONS: Record<string, DestinationZone> = {
     region: 'França (Transporte Internacional)',
     country: 'FR',
     timeframe: '5 a 7 dias úteis',
-    timeframeExpress: '48 a 72 horas úteis (Expresso Internacional)',
+    timeframeExpress: '72 horas úteis (Expresso)',
     isLocalNorth: false,
     zonePrismaName: 'França'
+  },
+
+  // Alemanha
+  alemanha: {
+    key: 'alemanha',
+    name: 'Alemanha (Deutschland - Europa Central)',
+    region: 'Alemanha (Transporte Especializado Europa Central)',
+    country: 'DE',
+    timeframe: '5 a 7 dias úteis',
+    timeframeExpress: '72 horas úteis (Expresso)',
+    isLocalNorth: false,
+    zonePrismaName: 'Alemanha'
   }
 };
 
@@ -432,14 +444,18 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
     const METHOD_15_ID = '1422c9b3-378a-4b52-b70a-53cf1f2bf0bd';   // Envio 15€
     const METHOD_16_ID = '0e0461cc-df55-468a-9e5a-a8d5d101ec89';   // Envio 16€
     const METHOD_18_ID = '9632573c-952e-4ee6-a115-4a56f55d5b48';   // Envio 18€
-    const METHOD_EXPRESS_PT_ID = 'b32ab1c7-a946-4487-a935-08d8ac391618'; // Expresso PT 24h
-    const METHOD_EXPRESS_ES_ID = '05320fbb-78e3-46bd-8c59-3881967d9a31'; // Expresso ES 48h
-    const METHOD_EXPRESS_FR_ID = 'af223a10-66c1-46bc-9563-32fcbc43da53'; // Expresso FR
+    const METHOD_EXPRESS_PT_ID = 'b32ab1c7-a946-4487-a935-08d8ac391618'; // Expresso PT 48h
+    const METHOD_EXPRESS_ES_ID = '05320fbb-78e3-46bd-8c59-3881967d9a31'; // Expresso ES 72h
+    const METHOD_EXPRESS_FR_ID = 'af223a10-66c1-46bc-9563-32fcbc43da53'; // Expresso FR 72h
+    const METHOD_EXPRESS_DE_ID = '19e4f69c-5f10-450e-95d2-7a4ba89a775d'; // Expresso DE 72h
+    const METHOD_DE_PALLET_ID = 'e8067ba7-e791-4b4f-9d8d-20529e0a2d07';
+    const METHOD_DE_HEATER_ID = '1582773b-4950-44b6-ba75-c82bb931a870';
+    const METHOD_DE_AC_ID = '6da18d2d-551f-40f1-a38e-25c542b30f00';
     const METHOD_EXPRESS_ISLANDS_ID = 'a68680f8-6fd4-448e-a740-6676cdf01906'; // Expresso Ilhas
 
     const isExpress = shippingSpeed === 'express';
 
-    // 1. INTERNATIONAL DESTINATIONS (Espanha, França, Ilhas)
+    // 1. INTERNATIONAL DESTINATIONS (Espanha, França, Alemanha, Ilhas)
     if (!isPortugalContinental) {
       if (currentDestination.country === 'ES') {
         if (activeCategory === 'pallets') {
@@ -448,10 +464,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
             return {
               rate: rateES,
               methodId: METHOD_EXPRESS_ES_ID,
-              methodLabel: 'Envio Expresso Ibérico 48h (Paletes)',
+              methodLabel: 'Envio Expresso Ibérico 72h (Paletes)',
               isFree: false,
-              explanation: `Expedição expresso 48h para Espanha Peninsular: ${rateES.toFixed(2)} € com camião plataforma.`,
-              badge: 'Expresso Ibérico 48h'
+              explanation: `Expedição expresso 72h para Espanha Peninsular: ${rateES.toFixed(2)} € com camião plataforma.`,
+              badge: 'Expresso Ibérico 72h'
             };
           }
           const isFreeES = palletQty >= 5;
@@ -463,7 +479,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
             isFree: isFreeES,
             explanation: isFreeES
               ? '✓ Portes 100% Oferecidos para encomendas a partir de 5 paletes para Espanha Peninsular!'
-              : `Taxa de transporte logístico para Espanha Peninsular: ${rateES.toFixed(2)} € no total.`,
+              : `Taxa de transporte logístico para Espanha Peninsular: ${rateES.toFixed(2)} € no total (5 a 7 dias úteis).`,
             badge: isFreeES ? 'Oferta 5+ Paletes' : 'Logística Ibérica'
           };
         }
@@ -473,10 +489,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
             return {
               rate: rateES,
               methodId: METHOD_EXPRESS_ES_ID,
-              methodLabel: 'Envio Expresso Ibérico 48h (Equipamento Térmico)',
+              methodLabel: 'Envio Expresso Ibérico 72h (Equipamento Térmico)',
               isFree: false,
-              explanation: `Envio expresso 48h para equipamento térmico em Espanha Peninsular: ${rateES.toFixed(2)} €.`,
-              badge: 'Expresso Ibérico 48h'
+              explanation: `Envio expresso 72h para equipamento térmico em Espanha Peninsular: ${rateES.toFixed(2)} €.`,
+              badge: 'Expresso Ibérico 72h'
             };
           }
           const isFreeES = prodPrice >= 700;
@@ -487,7 +503,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
             isFree: isFreeES,
             explanation: isFreeES
               ? '✓ Portes 100% Oferecidos para equipamentos térmicos superiores a 700 € para Espanha!'
-              : 'Taxa fixa de envio para Espanha Peninsular: 35,00 € com entrega especializada.',
+              : 'Taxa fixa de envio para Espanha Peninsular: 35,00 € com entrega especializada (5 a 7 dias úteis).',
             badge: isFreeES ? 'Oferta Valor ≥ 700 €' : 'Taxa Especial 35 €'
           };
         }
@@ -497,10 +513,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           return {
             rate: rateES,
             methodId: METHOD_EXPRESS_ES_ID,
-            methodLabel: 'Envio Expresso Ibérico 48h (Climatizador)',
+            methodLabel: 'Envio Expresso Ibérico 72h (Climatizador)',
             isFree: false,
-            explanation: `Envio expresso 48h para climatizadores em Espanha Peninsular: ${rateES.toFixed(2)} €.`,
-            badge: 'Expresso Ibérico 48h'
+            explanation: `Envio expresso 72h para climatizadores em Espanha Peninsular: ${rateES.toFixed(2)} €.`,
+            badge: 'Expresso Ibérico 72h'
           };
         }
         const isFreeES = acQty >= 2;
@@ -511,7 +527,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           isFree: isFreeES,
           explanation: isFreeES
             ? '✓ Portes 100% Oferecidos para 2 ou mais aparelhos para Espanha Peninsular!'
-            : 'Taxa de envio de 25,00 € para 1 aparelho para Espanha Peninsular.',
+            : 'Taxa de envio de 25,00 € para 1 aparelho para Espanha Peninsular (5 a 7 dias úteis).',
           badge: isFreeES ? 'Oferta 2+ Aparelhos' : 'Taxa 25 €'
         };
       }
@@ -522,12 +538,34 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
         return {
           rate: rateFR,
           methodId: isExpress ? METHOD_EXPRESS_FR_ID : 'af223a10-66c1-46bc-9563-32fcbc43da53',
-          methodLabel: isExpress ? 'Envio Expresso França (Prioritário)' : 'Envio Internacional França (Camião com Plataforma)',
+          methodLabel: isExpress ? 'Envio Expresso França (Prioritário 72h)' : 'Envio Internacional França (Camião com Plataforma)',
           isFree: false,
           explanation: isExpress
-            ? `Transporte expresso internacional direto para França (48h a 72h): ${rateFR.toFixed(2)} €.`
-            : `Transporte internacional regular direto para França com plataforma: ${rateFR.toFixed(2)} €.`,
-          badge: isExpress ? 'Expresso França' : 'Internacional França'
+            ? `Transporte expresso internacional direto para França (72 horas úteis): ${rateFR.toFixed(2)} € com camião plataforma.`
+            : `Transporte internacional regular direto para França com camião plataforma: ${rateFR.toFixed(2)} € (5 a 7 dias úteis).`,
+          badge: isExpress ? 'Expresso França 72h' : 'Internacional França'
+        };
+      }
+
+      if (currentDestination.country === 'DE') {
+        const baseRate = activeCategory === 'pallets' ? 75.00 * palletQty : activeCategory === 'fireplaces' ? 45.00 : 35.00;
+        const rateDE = isExpress ? baseRate + 20.00 : baseRate;
+        const methodId = isExpress
+          ? METHOD_EXPRESS_DE_ID
+          : activeCategory === 'pallets'
+            ? METHOD_DE_PALLET_ID
+            : activeCategory === 'fireplaces'
+              ? METHOD_DE_HEATER_ID
+              : METHOD_DE_AC_ID;
+        return {
+          rate: rateDE,
+          methodId,
+          methodLabel: isExpress ? 'Envio Expresso Alemanha (Prioritário 72h)' : 'Envio Internacional Alemanha (Camião com Plataforma)',
+          isFree: false,
+          explanation: isExpress
+            ? `Transporte expresso internacional prioritário para a Alemanha (72 horas úteis): ${rateDE.toFixed(2)} € com camião plataforma.`
+            : `Transporte internacional regular direto para a Alemanha com camião plataforma: ${rateDE.toFixed(2)} € (5 a 7 dias úteis).`,
+          badge: isExpress ? 'Expresso Alemanha 72h' : 'Internacional Alemanha'
         };
       }
 
@@ -565,8 +603,8 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
             methodId: METHOD_EXPRESS_PT_ID,
             methodLabel: 'Envio Expresso Prioritário (3+ Paletes)',
             isFree: false,
-            explanation: 'Envio expresso prioritário 24h para 3 ou mais paletes com transporte dedicado e plataforma.',
-            badge: 'Prioritário 24h/48h'
+            explanation: 'Envio expresso prioritário 48h úteis para 3 ou mais paletes com transporte dedicado e plataforma.',
+            badge: 'Expresso 48h'
           };
         }
         if (palletQty === 2) {
@@ -574,20 +612,20 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
           return {
             rate: rateExp,
             methodId: METHOD_EXPRESS_PT_ID,
-            methodLabel: 'Envio Expresso de 2 Paletes (24h)',
+            methodLabel: 'Envio Expresso de 2 Paletes (48h)',
             isFree: false,
-            explanation: `Envio expresso prioritário 24h com camião plataforma para 2 paletes: ${rateExp.toFixed(2)} € no total.`,
-            badge: 'Expresso 24h'
+            explanation: `Envio expresso prioritário 48h úteis com camião plataforma para 2 paletes: ${rateExp.toFixed(2)} € no total.`,
+            badge: 'Expresso 48h'
           };
         }
         const costExp = destinationKey === 'braga' ? 10.00 : isLocalNorth ? 18.00 : 25.00;
         return {
           rate: costExp,
           methodId: METHOD_EXPRESS_PT_ID,
-          methodLabel: 'Envio Expresso 24h com Camião Plataforma',
+          methodLabel: 'Envio Expresso 48h com Camião Plataforma',
           isFree: false,
-          explanation: `Envio expresso prioritário 24h para 1 palete com agendamento direto e plataforma elevatória: ${costExp.toFixed(2)} €.`,
-          badge: 'Expresso 24h'
+          explanation: `Envio expresso prioritário 48h úteis para 1 palete com agendamento direto e plataforma elevatória: ${costExp.toFixed(2)} €.`,
+          badge: 'Expresso 48h'
         };
       }
 
@@ -644,10 +682,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
         return {
           rate: rateExp,
           methodId: METHOD_EXPRESS_PT_ID,
-          methodLabel: 'Envio Expresso 24h de Equipamento Térmico',
+          methodLabel: 'Envio Expresso 48h de Equipamento Térmico',
           isFree: false,
-          explanation: `Envio expresso prioritário 24h/48h para equipamento térmico: taxa de ${rateExp.toFixed(2)} € com agendamento dedicado.`,
-          badge: 'Expresso 24h'
+          explanation: `Envio expresso prioritário 48h úteis para equipamento térmico: taxa de ${rateExp.toFixed(2)} € com agendamento dedicado.`,
+          badge: 'Expresso 48h'
         };
       }
       if (prodPrice >= 500) {
@@ -678,10 +716,10 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
         return {
           rate: rateExp,
           methodId: METHOD_EXPRESS_PT_ID,
-          methodLabel: 'Envio Expresso 24h de Climatizador',
+          methodLabel: 'Envio Expresso 48h de Climatizador',
           isFree: false,
-          explanation: `Envio expresso prioritário 24h para climatização: taxa de ${rateExp.toFixed(2)} €.`,
-          badge: 'Expresso 24h'
+          explanation: `Envio expresso prioritário 48h úteis para climatização: taxa de ${rateExp.toFixed(2)} €.`,
+          badge: 'Expresso 48h'
         };
       }
       if (acQty >= 2) {
@@ -1132,7 +1170,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         type="button"
                         onClick={() => {
                           setDestinationScope('nacional');
-                          if (destinationKey === 'espanha' || destinationKey === 'franca') {
+                          if (destinationKey === 'espanha' || destinationKey === 'franca' || destinationKey === 'alemanha') {
                             setDestinationKey('braga');
                           }
                         }}
@@ -1147,7 +1185,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         type="button"
                         onClick={() => {
                           setDestinationScope('internacional');
-                          if (destinationKey !== 'espanha' && destinationKey !== 'franca') {
+                          if (destinationKey !== 'espanha' && destinationKey !== 'franca' && destinationKey !== 'alemanha') {
                             setDestinationKey('espanha');
                           }
                         }}
@@ -1221,6 +1259,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                           >
                             <option value="espanha">🇪🇸 Espanha Peninsular (Galiza, Madrid, Andaluzia - Logística Ibérica)</option>
                             <option value="franca">🇫🇷 França (Hexagone - Transporte Especializado)</option>
+                            <option value="alemanha">🇩🇪 Alemanha (Deutschland - Transporte Especializado Europa Central)</option>
                           </select>
                         </div>
                       </>
@@ -1243,7 +1282,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         }`}
                     >
                       <span>🚛</span>
-                      <span>Standard (48h-72h)</span>
+                      <span>{destinationScope === 'internacional' ? 'Standard (5 a 7 dias úteis)' : 'Standard (3 a 5 dias úteis)'}</span>
                     </button>
                     <button
                       type="button"
@@ -1254,7 +1293,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         }`}
                     >
                       <span>⚡</span>
-                      <span>Expresso (24h-48h)</span>
+                      <span>{destinationScope === 'internacional' ? 'Expresso (72h úteis)' : 'Expresso (48h úteis)'}</span>
                     </button>
                   </div>
                 </div>
@@ -1345,7 +1384,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     </div>
                   </div>
                   <span className="text-2xl">
-                    {currentDestination.country === 'PT' ? '🇵🇹' : currentDestination.country === 'ES' ? '🇪🇸' : currentDestination.country === 'FR' ? '🇫🇷' : '🏝️'}
+                    {currentDestination.country === 'PT' ? '🇵🇹' : currentDestination.country === 'ES' ? '🇪🇸' : currentDestination.country === 'FR' ? '🇫🇷' : currentDestination.country === 'DE' ? '🇩🇪' : '🏝️'}
                   </span>
                 </div>
 
