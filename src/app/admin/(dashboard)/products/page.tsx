@@ -18,14 +18,17 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  const where = query
-    ? {
-        OR: [
-          { title: { contains: query, mode: 'insensitive' as const } },
-          { slug: { contains: query, mode: 'insensitive' as const } },
-        ],
-      }
-    : {};
+  const where = {
+    isDeleted: false,
+    ...(query
+      ? {
+          OR: [
+            { title: { contains: query, mode: 'insensitive' as const } },
+            { slug: { contains: query, mode: 'insensitive' as const } },
+          ],
+        }
+      : {}),
+  };
 
   const [products, total] = await Promise.all([
     prisma.product.findMany({

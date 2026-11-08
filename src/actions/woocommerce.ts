@@ -1130,11 +1130,21 @@ export async function importWooCommerceOrders(
 
         if (wcOrder.line_items && Array.isArray(wcOrder.line_items)) {
           for (const item of wcOrder.line_items) {
+            const cleanItemName = unescapeHtml(item.name || '').trim();
+            const baseItemName = cleanItemName.split(',')[0].trim();
+            const itemSlug = slugify(cleanItemName);
+            const baseSlug = slugify(baseItemName);
+
+            // Robust multi-step product lookup to avoid phantom duplicates
             let product = await prisma.product.findFirst({
               where: {
+                isDeleted: false,
                 OR: [
-                  { title: unescapeHtml(item.name) },
-                  { title: item.name }
+                  { title: cleanItemName },
+                  { title: item.name },
+                  { slug: itemSlug },
+                  ...(baseSlug ? [{ slug: baseSlug }, { slug: { startsWith: `${baseSlug}-` } }] : []),
+                  ...(baseItemName.length > 5 ? [{ title: { contains: baseItemName, mode: 'insensitive' as const } }] : [])
                 ]
               }
             });
@@ -1142,11 +1152,13 @@ export async function importWooCommerceOrders(
             if (!product) {
               product = await prisma.product.create({
                 data: {
-                  title: unescapeHtml(item.name),
-                  slug: slugify(unescapeHtml(item.name)) + `-${item.id}`,
+                  title: cleanItemName,
+                  slug: `${itemSlug}-${item.id}`,
                   price: parseFloat(item.price) || 0,
                   stock: 0,
-                  description: item.name
+                  description: item.name,
+                  isPublished: false,
+                  isDeleted: true
                 }
               });
             }
