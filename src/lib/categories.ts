@@ -112,3 +112,4 @@ export async function getCategoryWithDescendantIds(categoryIdOrSlug: string): Pr
 
   return resultIds;
 }
+

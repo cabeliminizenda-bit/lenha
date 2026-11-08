@@ -163,19 +163,20 @@ export default async function CatchAllPage({
                       (currentSlug === 'condicoes-gerais-de-venda' && item.slug === 'termos-e-condicoes') ||
                       (currentSlug === 'politica-de-privacidade' && item.slug === 'privacidade') ||
                       (currentSlug === 'politica-de-expedicao' && item.slug === 'expedicao') ||
-                      (currentSlug === 'politica-de-garantia-2' && item.slug === 'politica-de-garantia');
+                      (currentSlug === 'politica-de-garantia-2' && item.slug === 'politica-de-garantia') ||
+                      (currentSlug === 'faturacao' && item.slug === 'politica-de-faturacao');
 
                     return (
                       <Link
                         key={item.slug}
                         href={`/${item.slug}`}
-                        className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all shadow-sm ${
+                        className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-xs font-bold whitespace-nowrap transition-all shadow-xs ${
                           isActive
                             ? 'bg-red-600 text-white shadow-red-600/30 ring-2 ring-red-400/50'
                             : 'bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/90'
                         }`}
                       >
-                        <span className="text-base">{item.icon}</span>
+                        <span className="text-sm sm:text-base">{item.icon}</span>
                         <span>{item.label}</span>
                       </Link>
                     );

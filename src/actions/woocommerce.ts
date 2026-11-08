@@ -44,6 +44,81 @@ async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string 
   }
 }
 
+
+/**
+ * Helper to extract RankMath and Yoast SEO metadata from WooCommerce product/category meta_data
+ */
+export function extractRankMathSEO(
+  metaData: any[],
+  item: { name?: string; title?: string; description?: string; short_description?: string; price?: string | number },
+  storeName: string = 'Lenha & Carvão Silva Dias'
+) {
+  if (!Array.isArray(metaData)) {
+    return { metaTitle: null, metaDescription: null, metaKeywords: null, gtin: null };
+  }
+
+  let rawTitle: string | null = null;
+  let rawDesc: string | null = null;
+  let rawKeywords: string | null = null;
+  let gtin: string | null = null;
+
+  for (const meta of metaData) {
+    if (!meta || !meta.key) continue;
+    const key = String(meta.key).trim().toLowerCase();
+    const val = typeof meta.value === 'string' ? meta.value.trim() : null;
+    if (!val) continue;
+
+    // RankMath fields
+    if (key === 'rank_math_title') rawTitle = val;
+    if (key === 'rank_math_description') rawDesc = val;
+    if (key === 'rank_math_focus_keyword') rawKeywords = val;
+
+    // Yoast SEO fallback fields
+    if (!rawTitle && (key === '_yoast_wpseo_title' || key === 'yoast_wpseo_title')) rawTitle = val;
+    if (!rawDesc && (key === '_yoast_wpseo_metadesc' || key === 'yoast_wpseo_metadesc')) rawDesc = val;
+    if (!rawKeywords && (key === '_yoast_wpseo_focuskw' || key === 'yoast_wpseo_focuskw')) rawKeywords = val;
+
+    // GTIN / EAN / Barcode
+    if (!gtin && (key === '_gtin' || key === 'gtin' || key === '_ean' || key === 'ean' || key === '_barcode' || key === 'barcode' || key === 'hwp_gtin' || key === 'hwp_product_gtin')) {
+      gtin = val;
+    }
+  }
+
+  const cleanName = unescapeHtml(item.name || item.title || '').trim();
+  const cleanExcerpt = (item.short_description || item.description || '')
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&nbsp;/g, ' ')
+    .substring(0, 160)
+    .trim();
+
+  const replaceVars = (str: string | null) => {
+    if (!str) return null;
+    return str
+      .replace(/%title%/gi, cleanName)
+      .replace(/%%title%%/gi, cleanName)
+      .replace(/%sep%/gi, '|')
+      .replace(/%%sep%%/gi, '|')
+      .replace(/%sitename%/gi, storeName)
+      .replace(/%%sitename%%/gi, storeName)
+      .replace(/%excerpt%/gi, cleanExcerpt)
+      .replace(/%%excerpt%%/gi, cleanExcerpt)
+      .replace(/%primary_category%/gi, '')
+      .replace(/%%primary_category%%/gi, '')
+      .replace(/%category%/gi, '')
+      .replace(/%%category%%/gi, '')
+      .replace(/%price%/gi, item.price ? `${item.price} €` : '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  return {
+    metaTitle: replaceVars(rawTitle),
+    metaDescription: replaceVars(rawDesc),
+    metaKeywords: rawKeywords,
+    gtin
+  };
+}
+
 /**
  * Generates a unique slug
  */
@@ -390,6 +465,19 @@ export async function importWooCommerceCategories(
     for (const wcCat of categoriesToImport) {
       const category = await findOrCreateCategory(wcCat.name, wcCat.slug);
       wcIdToUuidMap[wcCat.id] = category.id;
+
+      // Extract and update SEO metadata from RankMath / Yoast
+      const catSeo = extractRankMathSEO(wcCat.meta_data, wcCat);
+      if (catSeo.metaTitle || catSeo.metaDescription || catSeo.metaKeywords) {
+        await prisma.category.update({
+          where: { id: category.id },
+          data: {
+            ...(catSeo.metaTitle ? { metaTitle: catSeo.metaTitle } : {}),
+            ...(catSeo.metaDescription ? { metaDescription: catSeo.metaDescription } : {}),
+            ...(catSeo.metaKeywords ? { metaKeywords: catSeo.metaKeywords } : {}),
+          }
+        });
+      }
     }
 
     // 2nd Pass: Link parents
@@ -483,7 +571,10 @@ async function processAndSaveWcProducts(
     const priceVal = wcProduct.price || wcProduct.regular_price || '0';
 
     try {
-      // 1. Check if product with same title or slug already exists on destination site
+      // 1. Extract SEO metadata from RankMath / Yoast
+      const seo = extractRankMathSEO(wcProduct.meta_data, wcProduct);
+
+      // Check if product with same title or slug already exists on destination site
       const baseSlug = wcProduct.slug || slugify(decodedTitle);
       const existingProduct = await prisma.product.findFirst({
         where: { 
@@ -497,6 +588,18 @@ async function processAndSaveWcProducts(
       });
 
       if (existingProduct) {
+        // Synchronize SEO & GTIN metadata on existing product
+        if (seo.metaTitle || seo.metaDescription || seo.gtin) {
+          await prisma.product.update({
+            where: { id: existingProduct.id },
+            data: {
+              ...(seo.metaTitle ? { metaTitle: seo.metaTitle } : {}),
+              ...(seo.metaDescription ? { metaDescription: seo.metaDescription } : {}),
+              ...(seo.gtin ? { gtin: seo.gtin } : {}),
+            }
+          });
+        }
+
         items.push({
           id: wcProduct.id,
           name: decodedTitle,
@@ -682,6 +785,9 @@ async function processAndSaveWcProducts(
           images: cloudinaryImageUrls,
           stock: stock,
           type: wcProduct.type === 'variable' ? 'VARIABLE' : 'SIMPLE',
+          metaTitle: seo.metaTitle,
+          metaDescription: seo.metaDescription,
+          gtin: seo.gtin,
           tags: {
             connectOrCreate: tags.map((t: string) => ({
               where: { name: t },
@@ -1377,5 +1483,142 @@ export async function importWooCommerceShipping(
   } catch (error: any) {
     console.error('Error importing WooCommerce shipping:', error);
     return { success: false, message: error.message || 'Erreur lors de l\'import des zones et méthodes de livraison.' };
+  }
+}
+
+/**
+ * Fast SEO synchronizer: Updates only metaTitle, metaDescription and GTIN from RankMath/Yoast
+ * without downloading images or re-creating variations. Very fast (100 products per API page).
+ */
+export async function syncWooCommerceRankMathSEO(
+  url: string,
+  consumerKey: string,
+  consumerSecret: string
+) {
+  await requireAdmin();
+
+  const baseUrl = url.replace(/\/$/, '');
+  const authHeader = 'Basic ' + Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+
+  let updatedProductsCount = 0;
+  let updatedCategoriesCount = 0;
+  let totalProductsScanned = 0;
+
+  try {
+    // 1. Sync Categories SEO
+    const catResponse = await fetch(`${baseUrl}/wp-json/wc/v3/products/categories?per_page=100&hide_empty=false`, {
+      headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+      cache: 'no-store'
+    });
+
+    if (catResponse.ok) {
+      const remoteCategories = await catResponse.json();
+      if (Array.isArray(remoteCategories)) {
+        for (const wcCat of remoteCategories) {
+          const catSeo = extractRankMathSEO(wcCat.meta_data, wcCat);
+          if (catSeo.metaTitle || catSeo.metaDescription || catSeo.metaKeywords) {
+            const cleanName = unescapeHtml(wcCat.name || '').trim();
+            const cleanSlug = wcCat.slug;
+
+            const localCat = await prisma.category.findFirst({
+              where: {
+                OR: [
+                  { slug: cleanSlug },
+                  { name: cleanName }
+                ]
+              }
+            });
+
+            if (localCat) {
+              await prisma.category.update({
+                where: { id: localCat.id },
+                data: {
+                  ...(catSeo.metaTitle ? { metaTitle: catSeo.metaTitle } : {}),
+                  ...(catSeo.metaDescription ? { metaDescription: catSeo.metaDescription } : {}),
+                  ...(catSeo.metaKeywords ? { metaKeywords: catSeo.metaKeywords } : {}),
+                }
+              });
+              updatedCategoriesCount++;
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Sync Products SEO (100 per page)
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore && page <= 20) {
+      const prodResponse = await fetch(`${baseUrl}/wp-json/wc/v3/products?per_page=100&page=${page}`, {
+        headers: { 'Authorization': authHeader, 'Content-Type': 'application/json' },
+        cache: 'no-store'
+      });
+
+      if (!prodResponse.ok) {
+        throw new Error(`Erreur API WooCommerce: ${prodResponse.status} ${prodResponse.statusText}`);
+      }
+
+      const prods = await prodResponse.json();
+      if (!Array.isArray(prods) || prods.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      totalProductsScanned += prods.length;
+
+      for (const wcProduct of prods) {
+        const seo = extractRankMathSEO(wcProduct.meta_data, wcProduct);
+        if (seo.metaTitle || seo.metaDescription || seo.gtin) {
+          const decodedTitle = unescapeHtml(wcProduct.name || '');
+          const rawTitle = wcProduct.name || '';
+          const baseSlug = wcProduct.slug;
+
+          const localProduct = await prisma.product.findFirst({
+            where: {
+              OR: [
+                { slug: baseSlug },
+                { title: decodedTitle },
+                { title: rawTitle },
+                ...(baseSlug ? [{ slug: { startsWith: `${baseSlug}-` } }] : [])
+              ]
+            },
+            select: { id: true }
+          });
+
+          if (localProduct) {
+            await prisma.product.update({
+              where: { id: localProduct.id },
+              data: {
+                ...(seo.metaTitle ? { metaTitle: seo.metaTitle } : {}),
+                ...(seo.metaDescription ? { metaDescription: seo.metaDescription } : {}),
+                ...(seo.gtin ? { gtin: seo.gtin } : {}),
+              }
+            });
+            updatedProductsCount++;
+          }
+        }
+      }
+
+      page++;
+    }
+
+    revalidatePath('/admin/products');
+    revalidatePath('/admin/categories');
+    revalidatePath('/sitemap.xml');
+
+    return {
+      success: true,
+      updatedProductsCount,
+      updatedCategoriesCount,
+      totalProductsScanned,
+      message: `Sincronização SEO concluída com sucesso! ${updatedProductsCount} produtos e ${updatedCategoriesCount} categorias atualizados com os dados RankMath.`
+    };
+  } catch (error: any) {
+    console.error('Error syncing RankMath SEO:', error);
+    return {
+      success: false,
+      message: error.message || 'Erro durante a sincronização dos dados SEO do RankMath.'
+    };
   }
 }

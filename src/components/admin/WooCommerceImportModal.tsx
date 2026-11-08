@@ -16,10 +16,11 @@ import {
   importWordPressPages,
   importWordPressArticles,
   importWooCommerceShipping,
+  syncWooCommerceRankMathSEO,
   type WcProductImportItemResult
 } from '@/actions/woocommerce';
 
-type ImportMode = 'ALL' | 'CATEGORIES' | 'INDIVIDUAL';
+type ImportMode = 'ALL' | 'CATEGORIES' | 'INDIVIDUAL' | 'SEO_SYNC';
 type FilterTab = 'ALL' | 'FAILED' | 'ALREADY_EXISTS' | 'SUCCESS';
 
 export default function WooCommerceImportModal() {
@@ -212,6 +213,24 @@ export default function WooCommerceImportModal() {
     let currentSuccess = 0;
     let currentAlreadyExists = 0;
     let currentFailed = 0;
+
+    // Fast SEO Synchronizer Mode
+    if (importMode === 'SEO_SYNC') {
+      try {
+        const seoRes = await syncWooCommerceRankMathSEO(url, consumerKey, consumerSecret);
+        setLoading(false);
+        if (seoRes.success) {
+          setResultMessage({ type: 'success', text: seoRes.message });
+          router.refresh();
+        } else {
+          setResultMessage({ type: 'error', text: seoRes.message });
+        }
+      } catch (err: any) {
+        setResultMessage({ type: 'error', text: err.message || 'Erro durante a sincronização SEO.' });
+        setLoading(false);
+      }
+      return;
+    }
 
     try {
       // 0. Synchroniser les catégories : si mode 'CATEGORIES', synchroniser uniquement les catégories sélectionnées
@@ -534,7 +553,7 @@ export default function WooCommerceImportModal() {
               {credentialsVerified && !loading && (
                 <div className="space-y-3">
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Méthode d'importation</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <button
                       type="button"
                       onClick={() => setImportMode('ALL')}
@@ -561,12 +580,23 @@ export default function WooCommerceImportModal() {
                       <span className="font-bold text-xs text-gray-900">Produits au choix</span>
                       <span className="text-[10px] text-gray-500 mt-0.5">Sélectionner individuellement</span>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setImportMode('SEO_SYNC')}
+                      className={`p-3 rounded-xl border text-left transition flex flex-col ${importMode === 'SEO_SYNC' ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20' : 'border-gray-200 hover:bg-gray-50'}`}
+                    >
+                      <span className="font-bold text-xs text-emerald-900 flex items-center gap-1">
+                        <span>🎯</span> Sincronizar SEO
+                      </span>
+                      <span className="text-[10px] text-emerald-700 mt-0.5 font-medium">RankMath / Yoast (Rápido)</span>
+                    </button>
                   </div>
                 </div>
               )}
 
               {/* Additional Data Options (Shipping, Orders, Pages, Articles) */}
-              {credentialsVerified && !loading && (
+              {credentialsVerified && !loading && importMode !== 'SEO_SYNC' && (
                 <div className="bg-stone-50 border border-stone-200 rounded-xl p-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold uppercase tracking-wider text-stone-800">
@@ -970,7 +1000,9 @@ export default function WooCommerceImportModal() {
                         ? `Importer les ${selectedProductIds.length} produit(s) sélectionné(s)`
                         : importMode === 'CATEGORIES' 
                           ? `Importer les catégories sélectionnées`
-                          : `Importer tout le catalogue`}
+                          : importMode === 'SEO_SYNC'
+                            ? `Sincronizar Meta Tags SEO RankMath`
+                            : `Importer tout le catalogue`}
                     </span>
                   )}
                 </button>
