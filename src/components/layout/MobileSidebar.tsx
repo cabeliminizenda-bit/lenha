@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useCartStore } from '@/store/cartStore';
-import { useWishlistStore } from '@/store/wishlistStore';
 
 type MobileSidebarProps = {
   isOpen: boolean;
@@ -36,17 +35,14 @@ export default function MobileSidebar({
   onClose,
   logoImage,
   logoHeight = '64',
-  aboutTitle,
-  aboutDesc,
   menuLinks = [],
-  contactAddress = 'Alto Almosquia, 2750-000 Cascais – Portugal',
-  contactPhone = '+351 253 000 000',
-  contactEmail = 'info@lenhaecarvaosilvadias.com',
+  contactAddress = '',
+  contactPhone = '',
+  contactEmail = '',
   categories = [],
 }: MobileSidebarProps) {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(true);
   const cartStore = useCartStore();
-  const wishlistStore = useWishlistStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -68,6 +64,29 @@ export default function MobileSidebar({
   if (!isOpen) return null;
 
   const displayCategories = categories && categories.length > 0 ? categories : defaultCategories;
+
+  // Filter out Home / Início from the rest of the desktop menu so it's not duplicated
+  const isHomeLink = (url: string, label: string) => {
+    const u = (url || '').trim().toLowerCase();
+    const l = (label || '').trim().toLowerCase();
+    return u === '/' || l === 'início' || l === 'inicio' || l === 'home';
+  };
+
+  const otherDesktopLinks = (menuLinks || []).filter(link => !isHomeLink(link.url, link.label));
+
+  // Check if contact items are defined (ignoring old dummy placeholders)
+  const isDummyPlaceholder = (str?: string) => {
+    if (!str) return true;
+    const s = str.trim().toLowerCase();
+    if (!s) return true;
+    if (s.includes('123 main') || s.includes('example.com') || s.includes('123 456') || s.includes('253 000')) return true;
+    return false;
+  };
+
+  const hasPhone = Boolean(contactPhone?.trim() && !isDummyPlaceholder(contactPhone));
+  const hasEmail = Boolean(contactEmail?.trim() && !isDummyPlaceholder(contactEmail));
+  const hasAddress = Boolean(contactAddress?.trim() && !isDummyPlaceholder(contactAddress));
+  const hasAnyContact = hasPhone || hasEmail || hasAddress;
 
   return (
     <div className="fixed inset-0 z-[100] flex lg:hidden">
@@ -152,9 +171,9 @@ export default function MobileSidebar({
         </div>
 
         {/* Navigation Section */}
-        <nav className="p-3.5 flex-1 divide-y divide-stone-100">
-          {/* Main Links */}
+        <nav className="p-3.5 flex-1 overflow-y-auto">
           <ul className="space-y-1 pb-3">
+            {/* 1. Início */}
             <li>
               <Link 
                 href="/"
@@ -166,21 +185,7 @@ export default function MobileSidebar({
               </Link>
             </li>
 
-            <li>
-              <Link 
-                href="/shop"
-                onClick={onClose}
-                className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
-              >
-                <span className="flex items-center gap-2">
-                  <span className="px-1.5 py-0.5 bg-red-600 text-white text-[10px] font-black rounded uppercase">Catálogo</span>
-                  <span>Ver Loja Completa</span>
-                </span>
-                <span className="text-stone-400 text-xs">&rarr;</span>
-              </Link>
-            </li>
-
-            {/* Categories Accordion */}
+            {/* 2. Categorias de Produtos Accordion */}
             <li>
               <button 
                 type="button"
@@ -219,91 +224,53 @@ export default function MobileSidebar({
               )}
             </li>
 
-            {/* Custom or Fallback Links */}
-            {menuLinks && menuLinks.length > 0 ? (
-              menuLinks.map((link, idx) => (
-                <li key={`menu-${idx}`}>
-                  <Link 
-                    href={link.url}
-                    onClick={onClose}
-                    className="block px-3.5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))
-            ) : (
-              <>
-                <li>
-                  <Link 
-                    href="/order-tracking"
-                    onClick={onClose}
-                    className="flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
-                  >
-                    <svg className="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0zM13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                    </svg>
-                    <span>Rastrear Encomenda</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    href="/devolucoes"
-                    onClick={onClose}
-                    className="block px-3.5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
-                  >
-                    Devolução e Reembolso
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    href="/envios-e-entregas"
-                    onClick={onClose}
-                    className="block px-3.5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
-                  >
-                    Expedição e Entrega com Plataforma
-                  </Link>
-                </li>
-                <li>
-                  <Link 
-                    href="/contact"
-                    onClick={onClose}
-                    className="block px-3.5 py-2.5 text-sm font-semibold text-stone-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
-                  >
-                    Contactar Apoio ao Cliente
-                  </Link>
-                </li>
-              </>
-            )}
+            {/* 3. The rest of the main menu defined for Desktop */}
+            {otherDesktopLinks.map((link, idx) => (
+              <li key={`desktop-menu-${idx}`}>
+                <Link 
+                  href={link.url}
+                  onClick={onClose}
+                  className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
+                >
+                  <span>{link.label}</span>
+                  <span className="text-stone-400 text-xs">&rarr;</span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
 
-        {/* Contact & Support Details at the bottom */}
-        <div className="p-4 bg-stone-50 border-t border-stone-200 mt-auto text-xs space-y-2.5">
-          <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px]">Apoio ao Cliente</p>
-          {contactPhone && (
-            <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition">
-              <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-              </svg>
-              <span>{contactPhone}</span>
-            </a>
-          )}
-          {contactEmail && (
-            <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition truncate">
-              <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <span className="truncate">{contactEmail}</span>
-            </a>
-          )}
-          {contactAddress && (
-            <p className="flex items-start gap-2 text-stone-500 pt-1 border-t border-stone-200/60 text-[11px] leading-tight">
-              <span>📍</span>
-              <span>{contactAddress}</span>
-            </p>
-          )}
-        </div>
+        {/* Contact & Support Details at the bottom - ONLY DISPLAY WHAT IS DEFINED */}
+        {hasAnyContact && (
+          <div className="p-4 bg-stone-50 border-t border-stone-200 mt-auto text-xs space-y-2.5">
+            <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px]">Apoio ao Cliente</p>
+            
+            {hasPhone && (
+              <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition">
+                <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span>{contactPhone}</span>
+              </a>
+            )}
+
+            {hasEmail && (
+              <a href={`mailto:${contactEmail}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition truncate">
+                <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span className="truncate">{contactEmail}</span>
+              </a>
+            )}
+
+            {hasAddress && (
+              <p className="flex items-start gap-2 text-stone-500 pt-1 border-t border-stone-200/60 text-[11px] leading-tight">
+                <span className="shrink-0">📍</span>
+                <span>{contactAddress}</span>
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

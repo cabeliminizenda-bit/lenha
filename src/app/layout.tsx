@@ -94,12 +94,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     taxIncludedInPrice: settingsMap.TAX_INCLUDED_IN_PRICE === 'true',
     defaultVatRate: Number(settingsMap.DEFAULT_VAT_RATE) || 20,
   };
-  const contactSlug = settingsMap.CONTACT_SLUG || 'contact';
+  const contactSlug = settingsMap.CONTACT_SLUG || 'contactar-nos';
   const defaultMenuLinks = [
-    { label: 'Home', url: '/' },
-    { label: 'Shop', url: '/shop' },
-    { label: 'Blog', url: '/blog' },
-    { label: 'Contact Us', url: `/${contactSlug}` },
+    { label: 'Início', url: '/' },
+    { label: 'Loja', url: '/shop' },
+    { label: 'Devoluções', url: '/politica-de-devolucao-e-reembolso' },
+    { label: 'Expedição', url: '/politica-de-expedicao' },
+    { label: 'Contacto', url: `/${contactSlug}` },
   ];
 
   let menuLinks = defaultMenuLinks;
@@ -202,15 +203,29 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     mobileAboutDesc: settingsMap.MOBILE_ABOUT_DESC || 'Especialistas em biomassa, lenha de qualidade superior, recuperadores e soluções térmicas sustentáveis em Portugal.',
     mobileMenuLinks: (() => {
       try {
-        return settingsMap.MOBILE_MENU_LINKS ? JSON.parse(settingsMap.MOBILE_MENU_LINKS) : defaultMenuLinks;
+        return settingsMap.MOBILE_MENU_LINKS ? JSON.parse(settingsMap.MOBILE_MENU_LINKS) : menuLinks;
       } catch {
-        return defaultMenuLinks;
+        return menuLinks;
       }
     })(),
-    mobileContactAddress: settingsMap.MOBILE_CONTACT_ADDRESS ?? 'Braga, Portugal Continental',
-    mobileContactPhone: settingsMap.MOBILE_CONTACT_PHONE ?? '+351 253 000 000',
-    mobileContactEmail: settingsMap.MOBILE_CONTACT_EMAIL ?? 'cabeliminizenda@gmail.com',
-    mobileContactWebsite: settingsMap.MOBILE_CONTACT_WEBSITE ?? 'lenhaecarvaosilvadias.com',
+    mobileContactAddress: (
+      (settingsMap.MOBILE_CONTACT_ADDRESS && !settingsMap.MOBILE_CONTACT_ADDRESS.includes('123 Main'))
+        ? settingsMap.MOBILE_CONTACT_ADDRESS.trim()
+        : (settingsMap.FOOTER_ADDRESS_1?.trim() || settingsMap.CONTACT_ADDRESS?.trim() || '')
+    ),
+    mobileContactPhone: (
+      (settingsMap.MOBILE_CONTACT_PHONE && !settingsMap.MOBILE_CONTACT_PHONE.includes('123 456') && !settingsMap.MOBILE_CONTACT_PHONE.includes('253 000'))
+        ? settingsMap.MOBILE_CONTACT_PHONE.trim()
+        : (settingsMap.FOOTER_SUPPORT_PHONE?.trim() || settingsMap.HEADER_SUPPORT_PHONE?.trim() || settingsMap.CONTACT_PHONE?.trim() || '')
+    ),
+    mobileContactEmail: (
+      (settingsMap.MOBILE_CONTACT_EMAIL && !settingsMap.MOBILE_CONTACT_EMAIL.includes('example.com'))
+        ? settingsMap.MOBILE_CONTACT_EMAIL.trim()
+        : (settingsMap.FOOTER_SUPPORT_EMAIL?.trim() || settingsMap.HEADER_SUPPORT_EMAIL?.trim() || settingsMap.CONTACT_EMAIL_DISPLAY?.trim() || '')
+    ),
+    mobileContactWebsite: settingsMap.MOBILE_CONTACT_WEBSITE && !settingsMap.MOBILE_CONTACT_WEBSITE.includes('example.com')
+      ? settingsMap.MOBILE_CONTACT_WEBSITE
+      : '',
     mobileHeaderBorderColor: settingsMap.MOBILE_HEADER_BORDER_COLOR || '#d1d5db',
     allCategoriesBgColor: settingsMap.ALL_CATEGORIES_BG_COLOR || '#111827', // text-gray-900 by default
     allCategoriesTextColor: settingsMap.ALL_CATEGORIES_TEXT_COLOR || '#ffffff', // text-white

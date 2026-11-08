@@ -619,7 +619,7 @@ export default function Header({
         logoHeight={mobileLogoHeight}
         aboutTitle={mobileAboutTitle}
         aboutDesc={mobileAboutDesc}
-        menuLinks={mobileMenuLinks}
+        menuLinks={menuLinks && menuLinks.length > 0 ? menuLinks : mobileMenuLinks}
         contactAddress={mobileContactAddress}
         contactPhone={mobileContactPhone}
         contactEmail={mobileContactEmail}
