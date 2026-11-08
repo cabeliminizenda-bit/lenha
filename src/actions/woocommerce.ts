@@ -1157,8 +1157,8 @@ export async function importWooCommerceOrders(
                   price: parseFloat(item.price) || 0,
                   stock: 0,
                   description: item.name,
-                  isPublished: false,
-                  isDeleted: true
+                  isDeleted: true,
+                  deletedAt: new Date()
                 }
               });
             }
