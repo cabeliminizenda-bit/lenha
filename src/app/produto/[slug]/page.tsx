@@ -11,6 +11,8 @@ import { safeJsonLd } from '@/lib/security';
 import { Metadata } from 'next';
 
 import { getCachedProductBySlug, getCachedSettings, getCachedRelatedProducts } from '@/lib/cache';
+import { getCategoryCanonicalPath } from '@/lib/categories';
+import { SITE_URL } from '@/lib/site';
 import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -70,6 +72,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
     include: { methods: { where: { isActive: true }, orderBy: { rate: 'asc' } } }
   });
   const lowestShippingRate = ptZone?.methods?.[0]?.rate ?? 0;
+
+  // Canonical category path for SEO
+  const primaryCat = (product as any).categories?.[0];
+  const primaryCatPath = primaryCat ? await getCategoryCanonicalPath(primaryCat.id) : null;
 
   // Check if logged in
   const supabase = await createClient();
@@ -192,19 +198,19 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                   '@type': 'ListItem',
                   position: 1,
                   name: 'Início',
-                  item: process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com',
+                  item: SITE_URL,
                 },
-                ...((product as any).categories && (product as any).categories.length > 0 ? [{
+                ...(primaryCat ? [{
                   '@type': 'ListItem',
                   position: 2,
-                  name: (product as any).categories[0].name,
-                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com'}/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`,
+                  name: primaryCat.name,
+                  item: `${SITE_URL}${primaryCatPath || `/product-category/${primaryCat.slug || primaryCat.id}`}`,
                 }] : []),
                 {
                   '@type': 'ListItem',
-                  position: (product as any).categories && (product as any).categories.length > 0 ? 3 : 2,
+                  position: primaryCat ? 3 : 2,
                   name: product.title,
-                  item: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com'}/produto/${product.slug}`,
+                  item: `${SITE_URL}/produto/${product.slug}`,
                 },
               ],
             })
@@ -215,12 +221,12 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <div className="max-w-7xl mx-auto px-5 py-4 text-sm text-gray-500 flex items-center gap-2 flex-wrap">
             <Link href="/" className="hover:text-orange-600 transition">{t('home')}</Link>
             <span className="text-gray-300">/</span>
-            {(product as any).categories && (product as any).categories.length > 0 ? (
+            {primaryCat ? (
               <Link 
-                href={`/product-category/${(product as any).categories[0].slug || (product as any).categories[0].id}`}
+                href={primaryCatPath || `/product-category/${primaryCat.slug || primaryCat.id}`}
                 className="hover:text-orange-600 transition"
               >
-                {(product as any).categories[0].name}
+                {primaryCat.name}
               </Link>
             ) : (
               <span>{t('category')}</span>
