@@ -228,6 +228,8 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
       billing: {
         firstName,
         lastName,
+        company: ((formData.get('companyName') as string) || (formData.get('company') as string) || '').trim(),
+        nif: ((formData.get('nif') as string) || (formData.get('nipc') as string) || '').trim(),
         email,
         phone: formData.get('phone') as string,
         address1: formData.get('address1') as string,

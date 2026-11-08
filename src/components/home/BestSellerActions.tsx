@@ -90,7 +90,7 @@ export const WishlistBtn = ({ product, btnBgColor, btnTextColor, btnHoverBgColor
   return (
     <button 
       onClick={handleToggle}
-      style={{ backgroundColor: isWishlisted ? (btnHoverBgColor || '#ea580c') : (btnBgColor || '#ffffff'), color: isWishlisted ? (btnHoverTextColor || '#ffffff') : (btnTextColor || '#9ca3af'), '--btn-hover-bg': btnHoverBgColor || '#ea580c', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
+      style={{ backgroundColor: isWishlisted ? (btnHoverBgColor || '#dc2626') : (btnBgColor || '#ffffff'), color: isWishlisted ? (btnHoverTextColor || '#ffffff') : (btnTextColor || '#9ca3af'), '--btn-hover-bg': btnHoverBgColor || '#dc2626', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
       className="p-2 rounded-full shadow transition-all duration-300 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] hover:scale-105"
       aria-label="Wishlist"
       title={t('add_to_wishlist')}
@@ -116,7 +116,7 @@ export const QuickviewBtn = ({ product, btnBgColor, btnTextColor, btnHoverBgColo
     <>
       <button 
         onClick={handleQuickview}
-        style={{ backgroundColor: btnBgColor || '#ffffff', color: btnTextColor || '#4b5563', '--btn-hover-bg': btnHoverBgColor || '#ea580c', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
+        style={{ backgroundColor: btnBgColor || '#ffffff', color: btnTextColor || '#4b5563', '--btn-hover-bg': btnHoverBgColor || '#dc2626', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
         className="p-2 rounded-full shadow transition-all duration-300 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] hover:scale-105"
         aria-label="Quickview"
         title={t('quick_view')}

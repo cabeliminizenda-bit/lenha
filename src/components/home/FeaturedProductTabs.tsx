@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/store/cartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
+import QuickViewModal from '@/components/product/QuickViewModal';
 
 export interface ProductItem {
   id: string;
@@ -315,6 +317,38 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const cartStore = useCartStore();
+  const wishlistStore = useWishlistStore();
+  const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
+
+  const handleToggleWishlist = (e: React.MouseEvent, prod: ProductItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const wasWishlisted = wishlistStore.hasItem(prod.id);
+    wishlistStore.toggleItem(prod.id);
+    if (!wasWishlisted) {
+      wishlistStore.setIsOpen(true);
+    }
+  };
+
+  const handleOpenQuickView = (e: React.MouseEvent, prod: ProductItem) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuickViewProduct({
+      id: prod.id,
+      title: prod.title,
+      slug: prod.slug,
+      price: prod.price,
+      compareAtPrice: prod.compareAtPrice,
+      images: prod.images,
+      description: '',
+      shortDescription: prod.discountLabel || '',
+      category: prod.categoryName || '',
+      stock: 15,
+      type: 'SIMPLE'
+    });
+    setIsQuickViewOpen(true);
+  };
 
   // Combine initialProducts with verified fallbacks, and strictly filter ONLY PROMO items
   const products: ProductItem[] = React.useMemo(() => {
@@ -530,20 +564,50 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
               >
                 <div>
                   {/* Image & Badges Container */}
-                  <div className="relative rounded-xl bg-stone-50 border border-stone-100 aspect-square flex items-center justify-center mb-4 overflow-hidden">
+                  <div className="relative rounded-xl bg-stone-50 border border-stone-100 aspect-square flex items-center justify-center mb-4 overflow-hidden group/img">
 
-                    {/* Top Badges */}
-                    <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between pointer-events-none">
+                    {/* Top Left Badges */}
+                    <div className="absolute top-2.5 left-2.5 z-10 flex flex-col items-start gap-1 pointer-events-none">
                       {prod.discountLabel ? (
                         <span className="px-2.5 py-1 bg-red-600 text-white font-extrabold text-[10px] rounded-md uppercase tracking-wider shadow-sm">
                           {prod.discountLabel}
                         </span>
-                      ) : (
-                        <span />
-                      )}
-                      <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-semibold text-[11px] rounded border border-emerald-200 shadow-xs">
+                      ) : null}
+                      <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-semibold text-[10px] rounded border border-emerald-200 shadow-xs">
                         Em Stock
                       </span>
+                    </div>
+
+                    {/* Top Right Action Icons: Wishlist & Quick View */}
+                    <div className="absolute top-2.5 right-2.5 z-20 flex flex-col gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => handleToggleWishlist(e, prod)}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
+                          wishlistStore.hasItem(prod.id)
+                            ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
+                            : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
+                        }`}
+                        title={wishlistStore.hasItem(prod.id) ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+                        aria-label="Wishlist"
+                      >
+                        <svg className="w-4 h-4" fill={wishlistStore.hasItem(prod.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={(e) => handleOpenQuickView(e, prod)}
+                        className="w-8 h-8 rounded-full bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600 flex items-center justify-center transition-all shadow-md cursor-pointer"
+                        title="Vista Rápida"
+                        aria-label="Quick View"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
                     </div>
 
                     {/* Resilient Product Image */}
@@ -641,6 +705,15 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>{toastMessage}</span>
         </div>
+      )}
+
+      {/* Quick View Modal */}
+      {quickViewProduct && (
+        <QuickViewModal
+          isOpen={isQuickViewOpen}
+          onClose={() => setIsQuickViewOpen(false)}
+          product={quickViewProduct}
+        />
       )}
     </section>
   );

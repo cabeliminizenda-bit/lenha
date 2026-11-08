@@ -191,7 +191,16 @@ export default async function CheckoutSuccessPage({
         <div className="p-6 text-gray-700 space-y-1 text-sm leading-relaxed">
           {addressToShow ? (
             <>
-              {addressToShow.company && <p className="font-medium">{addressToShow.company}</p>}
+              {(addressToShow.company || metadata?.billing?.company) && (
+                <p className="font-semibold text-gray-900">
+                  🏢 {addressToShow.company || metadata?.billing?.company}
+                </p>
+              )}
+              {metadata?.billing?.nif && (
+                <p className="text-xs font-mono bg-stone-100 text-stone-700 px-2 py-0.5 rounded inline-block mb-1">
+                  NIF / NIPC: {metadata.billing.nif}
+                </p>
+              )}
               <p>{addressToShow.firstName.charAt(0)}*** {addressToShow.lastName.charAt(0)}***</p>
               <p>{addressToShow.address1.substring(0, 3)}***</p>
               {addressToShow.address2 && <p>***</p>}

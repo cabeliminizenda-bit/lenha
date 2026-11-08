@@ -197,6 +197,18 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
                     <span className="text-gray-500 w-4 shrink-0">👤</span>
                     <span className="font-medium">{[billing.firstName, billing.lastName].filter(Boolean).join(' ') || '—'}</span>
                   </div>
+                  {billing.company && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500 w-4 shrink-0">🏢</span>
+                      <span className="font-semibold text-gray-900">{billing.company}</span>
+                    </div>
+                  )}
+                  {billing.nif && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500 w-4 shrink-0">📋</span>
+                      <span className="font-mono text-xs bg-stone-100 text-stone-800 px-2 py-0.5 rounded border border-stone-200">NIF/NIPC: {billing.nif}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <span className="text-gray-500 w-4 shrink-0">✉️</span>
                     <a href={`mailto:${billing.email || order.user?.email}`} className="text-orange-700 hover:underline break-all text-xs">

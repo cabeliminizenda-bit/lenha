@@ -80,7 +80,7 @@ const BigCard = ({
     <div className="border rounded-xl p-5 flex flex-col h-full group bg-white relative transition hover:shadow-lg" style={{ borderColor: borderColor || '#e5e7eb' }}>
       
       {/* Action buttons (Wishlist, Quickview) on top right */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none group-hover:pointer-events-auto">
+      <div className="absolute top-3.5 right-3.5 flex flex-col gap-1.5 z-20">
         <WishlistBtn 
           product={p} 
           btnBgColor={(p as any).btnBgColor} 
