@@ -98,7 +98,7 @@ async function createChatMessage(sessionId: string, sender: ChatSender, content:
       
       const { sendAdminNewChatMessageEmail } = await import('@/lib/mailer');
       sendAdminNewChatMessageEmail(
-        updatedSession.guestName || 'Visiteur',
+        updatedSession.guestName || 'Visitante',
         updatedSession.guestEmail,
         content.trim(),
         adminEmail,
@@ -112,7 +112,7 @@ async function createChatMessage(sessionId: string, sender: ChatSender, content:
     await createNotification({
       isAdmin: true,
       type: 'CHAT',
-      message: JSON.stringify({ key: 'new_chat_from', name: updatedSession.guestName || 'Visiteur' }),
+      message: JSON.stringify({ key: 'new_chat_from', name: updatedSession.guestName || 'Visitante' }),
       link: '/admin/chat',
     });
   } else {

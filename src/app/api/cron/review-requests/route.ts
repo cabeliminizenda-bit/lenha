@@ -47,8 +47,17 @@ export async function GET(request: Request) {
 
     for (const order of eligibleOrders) {
       if (order.user?.email) {
-        // Send email
-        const userName = 'Client';
+        // Resolve customer name
+        let userName = 'Estimado(a) Cliente';
+        if (order.destinationAddress) {
+          try {
+            const addr = typeof order.destinationAddress === 'string' ? JSON.parse(order.destinationAddress) : order.destinationAddress;
+            const b = addr?.billing || addr?.shipping;
+            if (b?.firstName) {
+              userName = `${b.firstName} ${b.lastName || ''}`.trim();
+            }
+          } catch (e) {}
+        }
         await sendReviewRequestEmail(order, order.user.email, userName, storeUrl);
 
         // Update database

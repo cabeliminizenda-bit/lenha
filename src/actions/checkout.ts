@@ -279,9 +279,9 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         const { sendAdminAlertEmail } = await import('@/lib/mailer');
         const { createNotification } = await import('@/lib/notifications');
         sendAdminAlertEmail({
-          title: "Tentative de paiement Carte (Stripe non configuré)",
-          message: `Un client (${email}) a tenté de payer une commande de ${verifiedTotal} € par Carte Bancaire, mais Stripe n'est pas encore configuré dans l'administration.`,
-          details: { Client: email, Montant: `${verifiedTotal} €`, Pays: effectiveCountry }
+          title: "Tentativa de pagamento por Cartão (Stripe não configurado)",
+          message: `Um cliente (${email}) tentou pagar uma encomenda de ${verifiedTotal} € por Cartão de Crédito/Débito, mas o Stripe ainda não está configurado na administração.`,
+          details: { Cliente: email, Montante: `${verifiedTotal} €`, 'País': effectiveCountry }
         }).catch(e => console.error('[Supervision Live] Email alert error:', e));
 
         createNotification({
@@ -310,9 +310,9 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
         const { sendAdminAlertEmail } = await import('@/lib/mailer');
         const { createNotification } = await import('@/lib/notifications');
         sendAdminAlertEmail({
-          title: "Tentative de paiement PayPal (Non configuré)",
-          message: `Un client (${email}) a tenté de payer une commande de ${verifiedTotal} € via PayPal, mais PayPal n'est pas encore configuré dans l'administration.`,
-          details: { Client: email, Montant: `${verifiedTotal} €`, Pays: effectiveCountry }
+          title: "Tentativa de pagamento PayPal (Não configurado)",
+          message: `Um cliente (${email}) tentou pagar uma encomenda de ${verifiedTotal} € via PayPal, mas o PayPal ainda não está configurado na administração.`,
+          details: { Cliente: email, Montante: `${verifiedTotal} €`, 'País': effectiveCountry }
         }).catch(e => console.error('[Supervision Live] Email alert error:', e));
 
         createNotification({

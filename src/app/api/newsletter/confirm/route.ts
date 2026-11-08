@@ -40,31 +40,31 @@ export async function GET(request: Request) {
 
     const settings = await getSettings();
     const receiverEmail = settings.CONTACT_RECEIVER_EMAIL || 'cabeliminizenda@gmail.com';
-    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Lenha & Carvao Silva Dias';
+    const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Lenha & Carvão Silva Dias';
 
     // 1. Send notification to admin
     await sendEmail({
       to: receiverEmail,
-      subject: `Neue Newsletter-Anmeldung — ${escapeHtml(email)} (Bestätigt)`,
+      subject: `Nova Subscrição na Newsletter — ${escapeHtml(email)} (Confirmada)`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
-          <h1 style="font-size: 24px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">📬 Neue Newsletter-Anmeldung</h1>
-          <p style="font-size: 13px; color: #666;">Ein Besucher hat sich gerade erfolgreich für den Newsletter von <strong>${escapeHtml(storeName)}</strong> angemeldet (Double Opt-in abgeschlossen).</p>
+          <h1 style="font-size: 22px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">📬 Nova Subscrição na Newsletter</h1>
+          <p style="font-size: 13px; color: #666;">Um visitante acabou de subscrever e confirmar a sua adesão à newsletter de <strong>${escapeHtml(storeName)}</strong>.</p>
           
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px; background-color: #f9fafb; padding: 15px; border-radius: 8px;">
             <tr>
               <td style="padding: 10px; font-size: 13px; font-weight: bold; width: 120px;">E-Mail:</td>
               <td style="padding: 10px; font-size: 13px;">
-                <a href="mailto:${escapeHtml(email)}" style="color: #2563eb;">${escapeHtml(email)}</a>
+                <a href="mailto:${escapeHtml(email)}" style="color: #ea580c; text-decoration: none; font-weight: 600;">${escapeHtml(email)}</a>
               </td>
             </tr>
             <tr style="border-top: 1px solid #e5e7eb;">
-              <td style="padding: 10px; font-size: 13px; font-weight: bold;">Datum:</td>
-              <td style="padding: 10px; font-size: 13px;">${new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin' })}</td>
+              <td style="padding: 10px; font-size: 13px; font-weight: bold;">Data:</td>
+              <td style="padding: 10px; font-size: 13px;">${new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}</td>
             </tr>
           </table>
           
-          <div style="border-top: 1px solid #eee; margin-top: 40px; padding-top: 25px; text-align: center; font-size: 10px; color: #eab308; text-transform: uppercase;">
+          <div style="border-top: 1px solid #eee; margin-top: 40px; padding-top: 25px; text-align: center; font-size: 11px; color: #ea580c; text-transform: uppercase;">
             <strong>${escapeHtml(storeName)}</strong>
           </div>
         </div>

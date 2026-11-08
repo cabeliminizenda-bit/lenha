@@ -925,24 +925,24 @@ export async function testSmtpConnection(targetEmail: string) {
     const { sendEmail } = await import('@/lib/mailer');
     const result = await sendEmail({
       to: targetEmail,
-      subject: 'Test de configuration SMTP - Lenha & Carvao Silva Dias',
+      subject: 'Teste de Configuração SMTP - Lenha & Carvão Silva Dias',
       html: `
-        <div style="font-family: sans-serif; padding: 20px; color: #333;">
-          <h2 style="color: #ea580c;">Test de transmission SMTP réussi !</h2>
-          <p>Ce message confirme que votre serveur SMTP et l'envoi d'emails transactionnels pour <strong>Lenha & Carvao Silva Dias</strong> fonctionnent parfaitement.</p>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
-          <small style="color: #777;">Envoyé depuis l'administration Lenha & Carvao Silva Dias à ${new Date().toLocaleString('fr-FR')}</small>
+        <div style="font-family: Arial, sans-serif; padding: 25px; color: #1e293b; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ea580c; margin-top: 0;">Teste de transmissão SMTP com sucesso!</h2>
+          <p>Esta mensagem confirma que o seu servidor SMTP e o envio de e-mails transacionais para a <strong>Lenha & Carvão Silva Dias</strong> estão a funcionar perfeitamente.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <small style="color: #64748b;">Enviado a partir da administração Lenha & Carvão Silva Dias a ${new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' })}</small>
         </div>
       `
     });
 
     if (!result.success) {
-      return { success: false, error: (result.error as any)?.message || 'Échec de l\'envoi du message de test.' };
+      return { success: false, error: (result.error as any)?.message || 'Falha no envio da mensagem de teste.' };
     }
 
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message || 'Erreur inattendue lors du test SMTP.' };
+    return { success: false, error: error.message || 'Erro inesperado durante o teste SMTP.' };
   }
 }
 
@@ -950,8 +950,8 @@ export async function sendRecoveryEmail(id: string) {
   await requireAdmin();
   try {
     const cart = await prisma.abandonedCart.findUnique({ where: { id } });
-    if (!cart) return { error: "Panier introuvable." };
-    if (!cart.email) return { error: "Email non fourni pour ce panier." };
+    if (!cart) return { error: "Carrinho não encontrado." };
+    if (!cart.email) return { error: "E-mail não indicado para este carrinho." };
 
     const { sendAbandonedCartRecoveryEmail } = await import('@/lib/mailer');
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com';
@@ -971,6 +971,6 @@ export async function sendRecoveryEmail(id: string) {
     return { success: true };
   } catch (error) {
     console.error(error);
-    return { error: "Erreur lors de l'envoi de l'email de relance." };
+    return { error: "Erro ao enviar o e-mail de recuperação de carrinho." };
   }
 }
