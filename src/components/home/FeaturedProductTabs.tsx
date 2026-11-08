@@ -474,8 +474,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                     key={tab.id}
                     onClick={() => handleTabChange(tab.id)}
                     className={`px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${isActive
-                        ? 'bg-stone-900 text-white shadow-sm'
-                        : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
+                      ? 'bg-stone-900 text-white shadow-sm'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
                       }`}
                   >
                     {tab.label}
@@ -493,8 +493,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   disabled={!canScrollLeft}
                   aria-label="Artigos anteriores"
                   className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${canScrollLeft
-                      ? 'bg-white border-stone-300 text-stone-800 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm'
-                      : 'bg-stone-100 border-stone-200 text-stone-300 cursor-not-allowed'
+                    ? 'bg-white border-stone-300 text-stone-800 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm'
+                    : 'bg-stone-100 border-stone-200 text-stone-300 cursor-not-allowed'
                     }`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -508,8 +508,8 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   disabled={!canScrollRight}
                   aria-label="Próximos artigos"
                   className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${canScrollRight
-                      ? 'bg-white border-stone-300 text-stone-800 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm'
-                      : 'bg-stone-100 border-stone-200 text-stone-300 cursor-not-allowed'
+                    ? 'bg-white border-stone-300 text-stone-800 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm'
+                    : 'bg-stone-100 border-stone-200 text-stone-300 cursor-not-allowed'
                     }`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -583,11 +583,10 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       <button
                         type="button"
                         onClick={(e) => handleToggleWishlist(e, prod)}
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-                          wishlistStore.hasItem(prod.id)
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${wishlistStore.hasItem(prod.id)
                             ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
                             : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
-                        }`}
+                          }`}
                         title={wishlistStore.hasItem(prod.id) ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
                         aria-label="Wishlist"
                       >

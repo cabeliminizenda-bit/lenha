@@ -9,9 +9,9 @@ import { AddToCartBtn, AddToCartBtnBig, WishlistBtn, QuickviewBtn } from './Best
 
 // ... (Star component kept the same)
 const Star = ({ filled = true }: { filled?: boolean }) => (
-  <svg 
-    className={`w-4 h-4 ${filled ? 'text-orange-600' : 'text-gray-300'}`} 
-    fill="currentColor" 
+  <svg
+    className={`w-4 h-4 ${filled ? 'text-orange-600' : 'text-gray-300'}`}
+    fill="currentColor"
     viewBox="0 0 20 20"
   >
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -58,10 +58,10 @@ const SmallCard = ({ product, icon, title, price, rating, ratingText, imageUrl, 
       </div>
       <div className="flex items-center justify-between mt-auto pt-2">
         <Price amount={price} className="text-xs sm:text-sm font-bold text-gray-900" />
-        <AddToCartBtn 
-          product={p} 
-          btnBgColor={(p as any).btnBgColor} 
-          btnTextColor={(p as any).btnTextColor} 
+        <AddToCartBtn
+          product={p}
+          btnBgColor={(p as any).btnBgColor}
+          btnTextColor={(p as any).btnTextColor}
           btnHoverBgColor={(p as any).btnHoverBgColor}
           btnHoverTextColor={(p as any).btnHoverTextColor}
         />
@@ -70,28 +70,28 @@ const SmallCard = ({ product, icon, title, price, rating, ratingText, imageUrl, 
   );
 };
 
-const BigCard = ({ 
-  product, icon, category, title, price, rating, ratingText, imageUrl, linkUrl = '#', borderColor 
-}: { 
-  product?: any, icon: string, category: string, title: string, price: number, rating: number, ratingText: string, imageUrl?: string, linkUrl?: string, borderColor?: string 
+const BigCard = ({
+  product, icon, category, title, price, rating, ratingText, imageUrl, linkUrl = '#', borderColor
+}: {
+  product?: any, icon: string, category: string, title: string, price: number, rating: number, ratingText: string, imageUrl?: string, linkUrl?: string, borderColor?: string
 }) => {
   const p = product || { ...DummyProduct, title, price, imageUrl };
   return (
     <div className="border rounded-xl p-5 flex flex-col h-full group bg-white relative transition hover:shadow-lg" style={{ borderColor: borderColor || '#e5e7eb' }}>
-      
+
       {/* Action buttons (Wishlist, Quickview) on top right */}
       <div className="absolute top-3.5 right-3.5 flex flex-col gap-1.5 z-20">
-        <WishlistBtn 
-          product={p} 
-          btnBgColor={(p as any).btnBgColor} 
-          btnTextColor={(p as any).btnTextColor} 
+        <WishlistBtn
+          product={p}
+          btnBgColor={(p as any).btnBgColor}
+          btnTextColor={(p as any).btnTextColor}
           btnHoverBgColor={(p as any).btnHoverBgColor}
           btnHoverTextColor={(p as any).btnHoverTextColor}
         />
-        <QuickviewBtn 
-          product={p} 
-          btnBgColor={(p as any).btnBgColor} 
-          btnTextColor={(p as any).btnTextColor} 
+        <QuickviewBtn
+          product={p}
+          btnBgColor={(p as any).btnBgColor}
+          btnTextColor={(p as any).btnTextColor}
           btnHoverBgColor={(p as any).btnHoverBgColor}
           btnHoverTextColor={(p as any).btnHoverTextColor}
         />
@@ -130,10 +130,10 @@ const BigCard = ({
       </div>
       <div className="flex items-center justify-between mt-auto">
         <Price amount={price} className="font-bold text-gray-900" />
-        <AddToCartBtnBig 
-          product={p} 
-          btnBgColor={(p as any).btnBgColor} 
-          btnTextColor={(p as any).btnTextColor} 
+        <AddToCartBtnBig
+          product={p}
+          btnBgColor={(p as any).btnBgColor}
+          btnTextColor={(p as any).btnTextColor}
           btnHoverBgColor={(p as any).btnHoverBgColor}
           btnHoverTextColor={(p as any).btnHoverTextColor}
         />
@@ -148,11 +148,11 @@ export default async function BestSeller({ config }: { config?: any }) {
 
   const dbProducts = await getFilteredProducts(filterType, categoryId, 10, config?.productIds);
   const settings = await import('@/lib/cache').then(m => m.getCachedSettings());
-  
+
   if (config) {
     Object.assign(settings, config);
   }
-  
+
   const t = await getTranslations('Home');
 
   const getResponsiveVars = (baseKey: string, defaultSizes: { m: string, t: string, d: string }) => {
@@ -167,7 +167,7 @@ export default async function BestSeller({ config }: { config?: any }) {
     const approvedReviews = (p as any).reviews || [];
     const ratingCount = approvedReviews.length;
     const avgRating = ratingCount > 0 ? approvedReviews.reduce((sum: number, r: any) => sum + r.rating, 0) / ratingCount : 0;
-    
+
     return {
       id: p.id,
       slug: p.slug,
@@ -197,17 +197,17 @@ export default async function BestSeller({ config }: { config?: any }) {
 
   return (
     <section className={`max-w-7xl mx-auto px-4 w-full py-12 font-sans${config?.hideMobile ? ' hidden sm:block' : ''}`}>
-      
+
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
-        <h2 
+        <h2
           className="font-bold text-gray-900 text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]"
-          style={getResponsiveVars('title', {m: '20px', t: '24px', d: '24px'})}
+          style={getResponsiveVars('title', { m: '20px', t: '24px', d: '24px' })}
         >
           {config?.title || t('best_seller_title')}
         </h2>
         {config?.SEE_ALL_TEXT !== '' && (
-          <Link href={seeAllUrl} className="flex items-center text-sm font-semibold text-gray-900 hover:text-orange-600 transition text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]" style={getResponsiveVars('SEE_ALL_TEXT', {m: '14px', t: '14px', d: '14px'})}>
+          <Link href={seeAllUrl} className="flex items-center text-sm font-semibold text-gray-900 hover:text-orange-600 transition text-[length:var(--sz-m)] md:text-[length:var(--sz-t)] lg:text-[length:var(--sz-d)]" style={getResponsiveVars('SEE_ALL_TEXT', { m: '14px', t: '14px', d: '14px' })}>
             {config?.SEE_ALL_TEXT || t('see_all')}
             <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -218,17 +218,17 @@ export default async function BestSeller({ config }: { config?: any }) {
 
       {/* Grid Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        
+
         {/* Column 1: Big Card */}
         <div className="col-span-1">
-          <BigCard 
+          <BigCard
             product={bigProduct1}
-            icon={bigProduct1?.imagePlaceholder || "👟"} 
-            category={bigProduct1?.category || "Cosmetics"} 
-            title={bigProduct1?.title || "Comfortable Regular Comfort Sports Sneakers"} 
-            price={bigProduct1?.price || 33.00} 
-            rating={bigProduct1?.rating || 0} 
-            ratingText={bigProduct1?.ratingText || ''} 
+            icon={bigProduct1?.imagePlaceholder || "👟"}
+            category={bigProduct1?.category || "Cosmetics"}
+            title={bigProduct1?.title || "Comfortable Regular Comfort Sports Sneakers"}
+            price={bigProduct1?.price || 33.00}
+            rating={bigProduct1?.rating || 0}
+            ratingText={bigProduct1?.ratingText || ''}
             imageUrl={bigProduct1?.imageUrl}
             linkUrl={bigProduct1 ? `/product/${bigProduct1.slug}` : '#'}
             borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
@@ -240,12 +240,12 @@ export default async function BestSeller({ config }: { config?: any }) {
           {[0, 1, 2, 3].map((i) => {
             const p = smallProductsGroup1[i];
             return (
-              <SmallCard 
+              <SmallCard
                 key={i}
                 product={p}
-                icon={["📱", "👟", "🍯", "⌚"][i]} 
-                title={p?.title || "Product placeholder"} 
-                price={p ? p.price : 18.00} 
+                icon={["📱", "👟", "🍯", "⌚"][i]}
+                title={p?.title || "Product placeholder"}
+                price={p ? p.price : 18.00}
                 rating={p?.rating || 0}
                 ratingText={p?.ratingText || ''}
                 imageUrl={p?.imageUrl}
@@ -258,14 +258,14 @@ export default async function BestSeller({ config }: { config?: any }) {
 
         {/* Column 3: Big Card */}
         <div className="col-span-1">
-          <BigCard 
+          <BigCard
             product={bigProduct2}
-            icon="🧀" 
-            category={bigProduct2?.category || "Cosmetics"} 
-            title={bigProduct2?.title || "Comfortable Regular Comfort Sports Sneakers"} 
-            price={bigProduct2 ? bigProduct2.price : 35.00} 
-            rating={bigProduct2?.rating || 0} 
-            ratingText={bigProduct2?.ratingText || ''} 
+            icon="🧀"
+            category={bigProduct2?.category || "Cosmetics"}
+            title={bigProduct2?.title || "Comfortable Regular Comfort Sports Sneakers"}
+            price={bigProduct2 ? bigProduct2.price : 35.00}
+            rating={bigProduct2?.rating || 0}
+            ratingText={bigProduct2?.ratingText || ''}
             imageUrl={bigProduct2?.imageUrl}
             linkUrl={bigProduct2 ? `/product/${bigProduct2.slug}` : '#'}
             borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
@@ -277,12 +277,12 @@ export default async function BestSeller({ config }: { config?: any }) {
           {[0, 1, 2, 3].map((i) => {
             const p = smallProductsGroup2[i];
             return (
-              <SmallCard 
+              <SmallCard
                 key={i}
                 product={p}
-                icon={["🩳", "🧀", "🎒", "👟"][i]} 
-                title={p?.title || "Product placeholder"} 
-                price={p ? p.price : 35.00} 
+                icon={["🩳", "🧀", "🎒", "👟"][i]}
+                title={p?.title || "Product placeholder"}
+                price={p ? p.price : 35.00}
                 rating={p?.rating || 0}
                 ratingText={p?.ratingText || ''}
                 imageUrl={p?.imageUrl}

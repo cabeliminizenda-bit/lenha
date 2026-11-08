@@ -25,7 +25,7 @@ export const AddToCartBtn = ({ product, btnBgColor, btnTextColor, btnHoverBgColo
   };
 
   return (
-    <button 
+    <button
       onClick={handleAddToCart}
       style={{ backgroundColor: btnBgColor || '#111827', color: btnTextColor || '#ffffff', '--btn-hover-bg': btnHoverBgColor || '#1f2937', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
       className="p-2 rounded-full transition-all duration-300 shadow-sm hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] hover:scale-105"
@@ -58,7 +58,7 @@ export const AddToCartBtnBig = ({ product, btnBgColor, btnTextColor, btnHoverBgC
   };
 
   return (
-    <button 
+    <button
       onClick={handleAddToCart}
       style={{ backgroundColor: btnBgColor || '#111827', color: btnTextColor || '#ffffff', '--btn-hover-bg': btnHoverBgColor || '#1f2937', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
       className="p-2.5 rounded-full transition-all duration-300 shadow-sm hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] hover:scale-105"
@@ -88,7 +88,7 @@ export const WishlistBtn = ({ product, btnBgColor, btnTextColor, btnHoverBgColor
   };
 
   return (
-    <button 
+    <button
       onClick={handleToggle}
       style={{ backgroundColor: isWishlisted ? (btnHoverBgColor || '#dc2626') : (btnBgColor || '#ffffff'), color: isWishlisted ? (btnHoverTextColor || '#ffffff') : (btnTextColor || '#9ca3af'), '--btn-hover-bg': btnHoverBgColor || '#dc2626', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
       className="p-2 rounded-full shadow transition-all duration-300 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] hover:scale-105"
@@ -114,7 +114,7 @@ export const QuickviewBtn = ({ product, btnBgColor, btnTextColor, btnHoverBgColo
 
   return (
     <>
-      <button 
+      <button
         onClick={handleQuickview}
         style={{ backgroundColor: btnBgColor || '#ffffff', color: btnTextColor || '#4b5563', '--btn-hover-bg': btnHoverBgColor || '#dc2626', '--btn-hover-text': btnHoverTextColor || '#ffffff' } as React.CSSProperties}
         className="p-2 rounded-full shadow transition-all duration-300 hover:[background-color:var(--btn-hover-bg)] hover:[color:var(--btn-hover-text)] hover:scale-105"
@@ -126,11 +126,11 @@ export const QuickviewBtn = ({ product, btnBgColor, btnTextColor, btnHoverBgColo
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
         </svg>
       </button>
-      
-      <QuickViewModal 
-        isOpen={isQuickViewOpen} 
-        onClose={() => setIsQuickViewOpen(false)} 
-        product={product} 
+
+      <QuickViewModal
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+        product={product}
       />
     </>
   );

@@ -29,9 +29,9 @@ import { toast } from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
 
 const Star = ({ filled = true }: { filled?: boolean }) => (
-  <svg 
-    className={`w-3.5 h-3.5 ${filled ? 'text-orange-600' : 'text-gray-300'}`} 
-    fill="currentColor" 
+  <svg
+    className={`w-3.5 h-3.5 ${filled ? 'text-orange-600' : 'text-gray-300'}`}
+    fill="currentColor"
     viewBox="0 0 20 20"
   >
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -90,11 +90,10 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
         <button
           type="button"
           onClick={handleToggleWishlist}
-          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${
-            isWishlisted
+          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isWishlisted
               ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
               : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
-          }`}
+            }`}
           title={isWishlisted ? (t('removed_from_wishlist') || 'Remover dos Favoritos') : (t('add_to_wishlist') || 'Adicionar aos Favoritos')}
           aria-label="Wishlist"
         >
@@ -121,7 +120,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
   if (view === 'list') {
     return (
-      <div 
+      <div
         onClick={() => router.push(`/product/${product.slug}`)}
         className="group flex flex-col sm:flex-row bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
         style={borderColor ? { borderColor } : {}}
@@ -132,13 +131,13 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
               {product.discountLabel}
             </span>
           )}
-          
+
           <HoverActions />
-          
+
           {image ? (
-            <Image 
-              src={image} 
-              alt={product.title} 
+            <Image
+              src={image}
+              alt={product.title}
               width={500}
               height={500}
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
@@ -161,7 +160,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
               ))
             ) : t('general')}
           </span>
-          
+
           <h3 className="text-lg font-bold text-gray-900 mb-2 transition-colors">
             <Link
               href={`/product/${product.slug}`}
@@ -194,7 +193,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
                 <Price amount={product.price} />
               </span>
             </div>
-            <button 
+            <button
               className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors duration-300 shadow-sm"
               title={product.type === 'variable' ? t('select_options') : t('add_to_cart')}
               onClick={handleAddToCart}
@@ -209,7 +208,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
   }
 
   return (
-    <div 
+    <div
       onClick={() => router.push(`/product/${product.slug}`)}
       className="group flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       style={borderColor ? { borderColor } : {}}
@@ -221,13 +220,13 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
             {product.discountLabel}
           </span>
         )}
-        
+
         <HoverActions />
-        
+
         {image ? (
-          <Image 
-            src={image} 
-            alt={product.title} 
+          <Image
+            src={image}
+            alt={product.title}
             width={500}
             height={500}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 250px" className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
@@ -252,7 +251,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
             ))
           ) : t('general')}
         </span>
-        
+
         {/* Title constrained to 2 lines max with ellipsis */}
         <h3
           className="text-sm font-semibold text-gray-900 mb-2 line-clamp-2 transition-colors"
@@ -291,7 +290,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
               <Price amount={product.price} />
             </span>
           </div>
-          <button 
+          <button
             className="w-8 h-8 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700 transition-colors duration-300 shadow-sm"
             title={product.type === 'variable' ? t('select_options') : t('add_to_cart')}
             onClick={handleAddToCart}

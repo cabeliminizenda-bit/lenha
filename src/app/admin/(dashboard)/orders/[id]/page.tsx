@@ -48,19 +48,19 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
   const shipping = orderMeta?.shipping || null;
   const couponCode = orderMeta?.couponCode || null;
   const discount = orderMeta?.discount || 0;
-  
+
   let subTotal = orderMeta?.subTotal;
   if (subTotal === undefined || subTotal === null) {
     subTotal = order.orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   }
-  
+
   let shippingCost = orderMeta?.shippingCost;
   if (shippingCost === undefined || shippingCost === null) {
     shippingCost = order.total - subTotal;
     // ensure no floating point weirdness
     shippingCost = Math.max(0, Math.round(shippingCost * 100) / 100);
   }
-  
+
   const shippingMethodName = orderMeta?.shippingMethodName || null;
 
   // For old orders without JSON metadata, look up name from AbandonedCart by email
@@ -81,19 +81,17 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ i
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold text-gray-900">{t('order_number')}{order.id.split('-')[0]}</h1>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-            order.paymentMethod === 'BANK_TRANSFER' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
-            order.paymentMethod === 'STRIPE' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
-            'bg-sky-100 text-sky-800 border border-sky-200'
-          }`}>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${order.paymentMethod === 'BANK_TRANSFER' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+              order.paymentMethod === 'STRIPE' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' :
+                'bg-sky-100 text-sky-800 border border-sky-200'
+            }`}>
             💳 {order.paymentMethod}
           </span>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
-            order.status === 'PAID' ? 'bg-green-100 text-green-800' :
-            order.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
-            order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-            'bg-blue-100 text-blue-800'
-          }`}>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${order.status === 'PAID' ? 'bg-green-100 text-green-800' :
+              order.status === 'PENDING' ? 'bg-amber-100 text-amber-800' :
+                order.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
+                  'bg-blue-100 text-blue-800'
+            }`}>
             {t('status_label')}: {t(`status_${order.status.toLowerCase()}`)}
           </span>
         </div>
