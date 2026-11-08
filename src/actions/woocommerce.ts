@@ -48,7 +48,7 @@ async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string 
 /**
  * Helper to extract RankMath and Yoast SEO metadata from WooCommerce product/category meta_data
  */
-export function extractRankMathSEO(
+function extractRankMathSEO(
   metaData: any[],
   item: { name?: string; title?: string; description?: string; short_description?: string; price?: string | number },
   storeName: string = 'Lenha & Carvão Silva Dias'
