@@ -94,7 +94,7 @@ async function createChatMessage(sessionId: string, sender: ChatSender, content:
       });
       const settingsMap = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
       const adminEmail = settingsMap['CONTACT_RECEIVER_EMAIL'] || 'cabeliminizenda@gmail.com';
-      const storeUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.gamingbm.com';
+      const storeUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lenhaecarvaosilvadias.com';
       
       const { sendAdminNewChatMessageEmail } = await import('@/lib/mailer');
       sendAdminNewChatMessageEmail(

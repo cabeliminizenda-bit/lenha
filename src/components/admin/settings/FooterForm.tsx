@@ -22,7 +22,7 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
   const [footerSupportEmail, setFooterSupportEmail] = useState(initialSettings.FOOTER_SUPPORT_EMAIL ?? initialSettings.HEADER_SUPPORT_EMAIL ?? 'support@mystore.com');
   const [footerSupportPhone, setFooterSupportPhone] = useState(initialSettings.FOOTER_SUPPORT_PHONE ?? initialSettings.HEADER_SUPPORT_PHONE ?? '+08 9229 8228');
 
-  const [footerCopyright, setFooterCopyright] = useState(initialSettings.FOOTER_COPYRIGHT || '© 2026 My Store. All rights reserved.');
+  const [footerCopyright, setFooterCopyright] = useState(initialSettings.FOOTER_COPYRIGHT || '© 2026 Lenha & Carvão Silva Dias. Todos os direitos reservados.');
   
   const [footerLogoImage, setFooterLogoImage] = useState(initialSettings.FOOTER_LOGO_IMAGE || '');
   const [footerNewsletterTitle, setFooterNewsletterTitle] = useState(initialSettings.FOOTER_NEWSLETTER_TITLE || 'Newsletter');
@@ -235,6 +235,28 @@ export default function FooterForm({ initialSettings }: { initialSettings: Recor
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
               {tSettings('add_new_column') || 'Add New Column'}
             </button>
+          </div>
+        </div>
+
+        {/* Section Copyright */}
+        <div className="pt-6 border-t border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            {tSettings('copyright_section') || 'Texto de Copyright & Barra Inferior'}
+          </h3>
+          <div className="space-y-2 max-w-2xl">
+            <label className="block text-sm font-medium text-gray-700">
+              {tSettings('copyright_label') || 'Texto de Copyright'}
+            </label>
+            <input 
+              type="text" 
+              value={footerCopyright} 
+              onChange={(e) => setFooterCopyright(e.target.value)} 
+              placeholder="© 2026 Lenha & Carvão Silva Dias. Todos os direitos reservados."
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium text-gray-800 shadow-sm"
+            />
+            <p className="text-xs text-gray-500">
+              Este texto é apresentado na barra inferior do rodapé em todas as páginas públicas da loja.
+            </p>
           </div>
         </div>
       </div>
