@@ -10,3 +10,4 @@ async function printPage() {
 }
 
 printPage().catch(console.error).finally(() => prisma.$disconnect());
+

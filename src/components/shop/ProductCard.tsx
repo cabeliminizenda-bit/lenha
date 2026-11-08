@@ -55,7 +55,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
     if (product.type === 'variable') {
       e.preventDefault();
       e.stopPropagation();
-      router.push(`/product/${product.slug}`);
+      router.push(`/produto/${product.slug}`);
       return;
     }
     e.preventDefault();
@@ -121,7 +121,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
   if (view === 'list') {
     return (
       <div
-        onClick={() => router.push(`/product/${product.slug}`)}
+        onClick={() => router.push(`/produto/${product.slug}`)}
         className="group flex flex-col sm:flex-row bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
         style={borderColor ? { borderColor } : {}}
       >
@@ -163,7 +163,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
           <h3 className="text-lg font-bold text-gray-900 mb-2 transition-colors">
             <Link
-              href={`/product/${product.slug}`}
+              href={`/produto/${product.slug}`}
               className="hover:text-orange-600"
               onClick={(e) => e.stopPropagation()}
             >
@@ -209,7 +209,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
   return (
     <div
-      onClick={() => router.push(`/product/${product.slug}`)}
+      onClick={() => router.push(`/produto/${product.slug}`)}
       className="group flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       style={borderColor ? { borderColor } : {}}
     >
@@ -258,7 +258,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
           title={product.title}
         >
           <Link
-            href={`/product/${product.slug}`}
+            href={`/produto/${product.slug}`}
             className="hover:text-orange-600"
             onClick={(e) => e.stopPropagation()}
           >

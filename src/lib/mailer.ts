@@ -792,7 +792,7 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
               </table>
             </td>
             <td style="padding: 15px 0; text-align: right; vertical-align: middle;">
-              <a href="${storeUrl}/product/${item.product?.slug || item.product?.id}" style="background-color: #ea580c; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block;">
+              <a href="${storeUrl}/produto/${item.product?.slug || item.product?.id}" style="background-color: #ea580c; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block;">
                 Bewerten
               </a>
             </td>

@@ -75,7 +75,7 @@ export default function BestDealsCard({
   return (
     <>
       <div 
-        onClick={() => router.push(`/product/${product.slug || product.id}`)}
+        onClick={() => router.push(`/produto/${product.slug || product.id}`)}
         className="flex-none w-[250px] md:w-[300px] p-5 flex flex-col group/card cursor-pointer hover:shadow-lg transition bg-white border rounded-lg snap-start relative"
         style={{ borderColor }}
       >
@@ -132,7 +132,7 @@ export default function BestDealsCard({
         <div className="mt-auto">
           <p className="text-xs text-gray-500 mb-1">{product.category}</p>
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 transition" title={product.title}>
-            <Link href={`/product/${product.slug || product.id}`} className="hover:text-orange-600" onClick={(e) => e.stopPropagation()}>
+            <Link href={`/produto/${product.slug || product.id}`} className="hover:text-orange-600" onClick={(e) => e.stopPropagation()}>
               {product.title}
             </Link>
           </h3>

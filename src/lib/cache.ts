@@ -37,13 +37,17 @@ export const getCachedProductBySlug = async (slug: string) => {
       let decodedSlug = slug;
       try { decodedSlug = decodeURIComponent(slug); } catch (e) {}
 
-      const product = await prisma.product.findFirst({
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(slug);
+
+      let product = await prisma.product.findFirst({
         where: { 
+          isDeleted: false,
           OR: [
             { slug: slug },
             { slug: encodedSlugLower },
             { slug: encodedSlugUpper },
-            { slug: decodedSlug }
+            { slug: decodedSlug },
+            ...(isUuid ? [{ id: slug }] : [])
           ]
         },
         include: {
@@ -59,6 +63,53 @@ export const getCachedProductBySlug = async (slug: string) => {
           }
         }
       });
+
+      // SEO Migration Fallback 1: If not found, check if a product exists with slug matching `${decodedSlug}-*` (suffix appended during WP/WooCommerce import)
+      if (!product) {
+        product = await prisma.product.findFirst({
+          where: {
+            isDeleted: false,
+            slug: {
+              startsWith: `${decodedSlug}-`
+            }
+          },
+          include: {
+            categories: true,
+            Product_ForceSales_A: true,
+            Product_SaleTogether_A: true,
+            brand: true,
+            tags: true,
+            reviews: {
+              where: { isApproved: true },
+              orderBy: { createdAt: 'desc' },
+              include: { user: { select: { email: true } } }
+            }
+          }
+        });
+      }
+
+      // SEO Migration Fallback 2: If not found and input slug ends with numeric suffix (e.g. `-481`), check without suffix
+      if (!product && /-\d+$/.test(decodedSlug)) {
+        const strippedSlug = decodedSlug.replace(/-\d+$/, '');
+        product = await prisma.product.findFirst({
+          where: {
+            isDeleted: false,
+            slug: strippedSlug
+          },
+          include: {
+            categories: true,
+            Product_ForceSales_A: true,
+            Product_SaleTogether_A: true,
+            brand: true,
+            tags: true,
+            reviews: {
+              where: { isApproved: true },
+              orderBy: { createdAt: 'desc' },
+              include: { user: { select: { email: true } } }
+            }
+          }
+        });
+      }
 
       if (!product) return null;
 

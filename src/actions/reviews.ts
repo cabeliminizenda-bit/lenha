@@ -65,6 +65,7 @@ export async function submitReview(productId: string, rating: number, comment: s
       }
     });
 
+    revalidatePath(`/produto/[slug]`, 'page');
     revalidatePath(`/product/[slug]`, 'page');
     revalidatePath(`/account/reviews`);
     
@@ -87,6 +88,7 @@ export async function toggleReviewApproval(reviewId: string, isApproved: boolean
   });
 
   revalidatePath('/admin/reviews');
+  revalidatePath(`/produto/[slug]`, 'page');
   revalidatePath(`/product/[slug]`, 'page');
 }
 
@@ -106,6 +108,7 @@ export async function updateReview(reviewId: string, rating: number, comment: st
   });
 
   revalidatePath('/admin/reviews');
+  revalidatePath(`/produto/[slug]`, 'page');
   revalidatePath(`/product/[slug]`, 'page');
 }
 
@@ -118,5 +121,6 @@ export async function deleteReview(reviewId: string) {
   });
 
   revalidatePath('/admin/reviews');
+  revalidatePath(`/produto/[slug]`, 'page');
   revalidatePath(`/product/[slug]`, 'page');
 }

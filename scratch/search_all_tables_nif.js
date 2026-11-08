@@ -20,3 +20,4 @@ async function searchAllTablesForNif() {
 }
 
 searchAllTablesForNif().catch(console.error).finally(() => prisma.$disconnect());
+

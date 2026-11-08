@@ -19,3 +19,4 @@ async function checkAll() {
 }
 
 checkAll().catch(console.error).finally(() => prisma.$disconnect());
+

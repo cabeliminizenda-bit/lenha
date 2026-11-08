@@ -33,3 +33,4 @@ async function addAlias() {
 }
 
 addAlias().catch(console.error).finally(() => prisma.$disconnect());
+

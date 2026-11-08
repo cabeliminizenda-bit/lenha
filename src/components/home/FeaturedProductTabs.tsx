@@ -623,7 +623,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                   <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider block">
                     {prod.categoryName || 'Soluções Térmicas'}
                   </span>
-                  <Link href={`/product/${prod.slug}`}>
+                  <Link href={`/produto/${prod.slug}`}>
                     <h4 className="font-bold text-stone-900 text-sm mt-1 line-clamp-2 min-h-[40px] group-hover:text-red-600 transition-colors">
                       {prod.title}
                     </h4>
