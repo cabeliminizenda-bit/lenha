@@ -875,7 +875,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                     }`}
                 >
                   <span className="text-lg">🔥</span>
-                  <span>Cheminées & Fogões</span>
+                  <span>Recuperadores & Fogões</span>
                 </button>
 
                 <button

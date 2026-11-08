@@ -62,15 +62,15 @@ export default function CategoryExplorer({ categories }: CategoryExplorerProps) 
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {defaultCategories.map((cat, idx) => (
           <Link
             key={idx}
             href={cat.href}
-            className="group relative bg-white rounded-2xl border border-stone-200/90 p-4 hover:border-red-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col items-center text-center overflow-hidden"
+            className="group relative bg-white rounded-2xl border border-stone-200/90 p-3 sm:p-4 hover:border-red-500 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col items-center text-center overflow-hidden"
           >
             {/* Real Product Image Container */}
-            <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center p-2 mb-3 group-hover:bg-red-50/30 group-hover:border-red-200 transition-colors">
+            <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl bg-stone-50 border border-stone-100 flex items-center justify-center p-1.5 sm:p-2 mb-2 sm:mb-3 group-hover:bg-red-50/30 group-hover:border-red-200 transition-colors">
               <Image
                 src={cat.image}
                 alt={cat.name}

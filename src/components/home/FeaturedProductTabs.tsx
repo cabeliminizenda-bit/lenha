@@ -554,15 +554,15 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
             </button>
           )}
 
-          {/* Product Cards Track: Exactly 4 products per view on desktop (lg), 2 on tablet (sm), 1 on mobile */}
+          {/* Product Cards Track: Exactly 4 products per view on desktop (lg), 2 on tablet (sm), peek-swipe on mobile */}
           <div
             ref={sliderRef}
-            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-3 pt-1 px-0.5"
+            className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory no-scrollbar pb-3 pt-1 px-1"
           >
             {filteredProducts.map((prod) => (
               <div
                 key={prod.id}
-                className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] shrink-0 snap-start bg-white rounded-2xl border border-stone-200 hover:border-red-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-4 flex flex-col justify-between group"
+                className="w-[84vw] max-w-[320px] sm:max-w-none sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] shrink-0 snap-start bg-white rounded-2xl border border-stone-200 hover:border-red-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-3.5 sm:p-4 flex flex-col justify-between group"
               >
                 <div>
                   {/* Image & Badges Container */}

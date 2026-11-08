@@ -423,15 +423,15 @@ export default function Header({
           {/* Red Cart Box with White Badge */}
           <div 
             onClick={() => cartStore.setIsOpen(true)}
-            className="relative flex items-center bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-md px-4 py-2.5 cursor-pointer transition shadow-sm h-11 select-none"
+            className="relative flex items-center bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-md px-3 sm:px-4 py-2 cursor-pointer transition shadow-sm h-10 sm:h-11 select-none shrink-0"
           >
             {/* Counter Bubble */}
-            <span className="absolute -top-2.5 left-5 bg-stone-900 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+            <span className="absolute -top-2 left-4 sm:left-5 bg-stone-900 text-white text-[11px] sm:text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
               {mounted ? cartItems : 0}
             </span>
 
             {/* Trash/Bag icon */}
-            <div className="mr-3 flex items-center justify-center">
+            <div className="mr-1.5 sm:mr-3 flex items-center justify-center">
               <svg 
                 className="w-5 h-5 text-white" 
                 viewBox="0 0 64 64" 
@@ -461,7 +461,7 @@ export default function Header({
             </div>
 
             {/* Price & Caret */}
-            <div className="flex items-center space-x-1 font-bold text-sm md:text-base">
+            <div className="hidden sm:flex items-center space-x-1 font-bold text-sm md:text-base">
               <span>{mounted ? <Price amount={cartTotal} showTax={false} /> : <Price amount={0} showTax={false} />}</span>
               <svg className="w-3.5 h-3.5 ml-1 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -602,6 +602,8 @@ export default function Header({
       <MobileBottomNav 
         onSearchClick={() => setIsMobileSearchOpen(true)}
         onLoginClick={() => setIsLoginModalOpen(true)}
+        userRole={actualUserRole}
+        onCartClick={() => cartStore.setIsOpen(true)}
       />
 
       <MobileSearchOverlay 

@@ -180,7 +180,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 flex flex-col">
       
-      <main className="flex-grow pb-20">
+      <main className="flex-grow pb-28 lg:pb-20">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -217,14 +217,14 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           }}
         />
         {/* Breadcrumb */}
-        <div className="bg-gray-50 border-b border-gray-200 mb-10">
-          <div className="max-w-7xl mx-auto px-5 py-4 text-sm text-gray-500 flex items-center gap-2 flex-wrap">
-            <Link href="/" className="hover:text-orange-600 transition">{t('home')}</Link>
+        <div className="bg-gray-50 border-b border-gray-200 mb-4 sm:mb-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm text-gray-500 flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            <Link href="/" className="hover:text-red-600 transition">{t('home')}</Link>
             <span className="text-gray-300">/</span>
             {primaryCat ? (
               <Link 
                 href={primaryCatPath || `/product-category/${primaryCat.slug || primaryCat.id}`}
-                className="hover:text-orange-600 transition"
+                className="hover:text-red-600 transition"
               >
                 {primaryCat.name}
               </Link>
@@ -232,11 +232,11 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               <span>{t('category')}</span>
             )}
             <span className="text-gray-300">/</span>
-            <span className="text-gray-900 font-medium">{product.title}</span>
+            <span className="text-gray-900 font-medium truncate max-w-[200px] sm:max-w-none">{product.title}</span>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-10">
           <div id="cart-notification-portal"></div>
           <div className="flex flex-col lg:flex-row gap-12">
             <ProductPageClient

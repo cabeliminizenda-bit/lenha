@@ -351,18 +351,18 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
 
             {/* Mini Trust Badges */}
             {isTrustBadgesVisible && (
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-stone-800 text-xs text-stone-300 max-w-lg">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-5 sm:pt-6 border-t border-stone-800 text-xs text-stone-300 max-w-lg">
                 <div className="space-y-0.5">
-                  <span className="block text-white font-bold text-sm tracking-wide">{badge1Title}</span>
-                  <span className="text-[11px] text-stone-400">{badge1Subtitle}</span>
+                  <span className="block text-white font-bold text-xs sm:text-sm tracking-wide">{badge1Title}</span>
+                  <span className="text-[10px] sm:text-[11px] text-stone-400">{badge1Subtitle}</span>
                 </div>
-                <div className="space-y-0.5 border-l border-stone-800 pl-4">
-                  <span className="block text-white font-bold text-sm tracking-wide">{badge2Title}</span>
-                  <span className="text-[11px] text-stone-400">{badge2Subtitle}</span>
+                <div className="space-y-0.5 border-l border-stone-800 pl-2 sm:pl-4">
+                  <span className="block text-white font-bold text-xs sm:text-sm tracking-wide">{badge2Title}</span>
+                  <span className="text-[10px] sm:text-[11px] text-stone-400">{badge2Subtitle}</span>
                 </div>
-                <div className="space-y-0.5 border-l border-stone-800 pl-4">
-                  <span className="block text-white font-bold text-sm tracking-wide">{badge3Title}</span>
-                  <span className="text-[11px] text-stone-400">{badge3Subtitle}</span>
+                <div className="space-y-0.5 border-l border-stone-800 pl-2 sm:pl-4">
+                  <span className="block text-white font-bold text-xs sm:text-sm tracking-wide">{badge3Title}</span>
+                  <span className="text-[10px] sm:text-[11px] text-stone-400">{badge3Subtitle}</span>
                 </div>
               </div>
             )}
@@ -375,7 +375,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
-              <div className="relative bg-gradient-to-b from-stone-900/95 via-stone-850/95 to-stone-950/95 border border-stone-700/70 rounded-3xl p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
+              <div className="relative bg-gradient-to-b from-stone-900/95 via-stone-850/95 to-stone-950/95 border border-stone-700/70 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-xl transition-all duration-300">
 
                 {/* Card Top Bar: Badge + Navigation Controls */}
                 <div className="flex items-center justify-between mb-3.5">

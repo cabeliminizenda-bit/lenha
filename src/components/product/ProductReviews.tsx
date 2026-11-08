@@ -59,23 +59,23 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
   };
 
   return (
-    <div className="mt-20">
+    <div className="mt-10 sm:mt-16">
       <div className="flex justify-center gap-2 mb-0 relative z-10">
         <button 
           onClick={() => setActiveTab('desc')}
-          className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'desc' ? 'bg-red-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
+          className={`px-5 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-t-lg transition-colors cursor-pointer ${activeTab === 'desc' ? 'bg-red-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
         >
           {t('description_tab')}
         </button>
         <button 
           onClick={() => setActiveTab('reviews')}
-          className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'reviews' ? 'bg-red-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
+          className={`px-5 sm:px-8 py-2.5 sm:py-3 text-xs sm:text-sm font-bold rounded-t-lg transition-colors cursor-pointer ${activeTab === 'reviews' ? 'bg-red-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
         >
           {t('reviews_tab', { count: reviews.length })}
         </button>
       </div>
 
-      <div className="w-full border border-gray-200 rounded-b-lg rounded-tl-lg rounded-tr-lg p-6 sm:p-10 bg-[#fafafa]">
+      <div className="w-full border border-gray-200 rounded-b-xl rounded-tl-xl rounded-tr-xl p-4 sm:p-8 bg-[#fafafa]">
         {activeTab === 'desc' ? (
           <div className="text-sm text-gray-700 leading-relaxed space-y-6">
             {description ? (

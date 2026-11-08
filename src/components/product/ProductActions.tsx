@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -39,10 +39,24 @@ export default function ProductActions({ product, enableBuyNow = false, onVariat
   const [wishlistedItemName, setWishlistedItemName] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [selectedSaleTogether, setSelectedSaleTogether] = useState<string[]>([]);
+  const actionButtonsRef = useRef<HTMLDivElement>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const t = useTranslations('Product');
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!actionButtonsRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickyBar(!entry.isIntersecting && entry.boundingClientRect.top < 0);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(actionButtonsRef.current);
+    return () => observer.disconnect();
   }, []);
   
   const cartStore = useCartStore();
@@ -288,22 +302,22 @@ export default function ProductActions({ product, enableBuyNow = false, onVariat
       </div>
 
       {/* Actions (Quantity + Cart + Buy) */}
-      <div className="flex flex-col gap-4 mb-6">
+      <div ref={actionButtonsRef} className="flex flex-col gap-4 mb-6">
         <div className="flex gap-4 w-full">
           {/* Qty */}
           <div className="flex border border-gray-300 rounded-md overflow-hidden bg-gray-50 w-32 shrink-0">
-            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2 text-gray-600 hover:bg-gray-200 font-bold">-</button>
+            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-4 py-2 text-gray-600 hover:bg-gray-200 font-bold cursor-pointer">-</button>
             <input type="text" value={quantity} readOnly className="w-full text-center bg-transparent font-semibold border-x border-gray-300" />
-            <button onClick={() => setQuantity(quantity + 1)} className="px-4 py-2 text-gray-600 hover:bg-gray-200 font-bold">+</button>
+            <button onClick={() => setQuantity(quantity + 1)} className="px-4 py-2 text-gray-600 hover:bg-gray-200 font-bold cursor-pointer">+</button>
           </div>
           
           <button 
             onClick={handleAddToCart}
             disabled={isVariable && !currentVariation}
-            className={`flex-1 font-semibold rounded-md transition shadow-sm py-3 px-4 ${
+            className={`flex-1 font-semibold rounded-md transition shadow-sm py-3 px-4 cursor-pointer ${
               (isVariable && !currentVariation)
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-[#0f172a] hover:bg-[#1e293b] text-white'
+                : 'bg-red-600 hover:bg-red-700 active:scale-98 text-white'
             }`}
           >
             {(isVariable && !currentVariation) ? t('select_options_btn') : t('add_to_cart')}
@@ -313,7 +327,7 @@ export default function ProductActions({ product, enableBuyNow = false, onVariat
         {enableBuyNow && (
           <button 
             onClick={handleBuyNow}
-            className="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold rounded-md transition shadow-sm py-3"
+            className="w-full bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold rounded-md transition shadow-sm py-3 cursor-pointer"
           >
             {t('buy_now')}
           </button>
@@ -375,6 +389,45 @@ export default function ProductActions({ product, enableBuyNow = false, onVariat
           {t('ask_question')}
         </button>
       </div>
+
+      {/* Mobile Sticky Bottom Add-to-Cart Bar */}
+      {showStickyBar && (
+        <aside 
+          aria-label="Ações rápidas de compra"
+          className="lg:hidden fixed bottom-[52px] left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 z-50 p-2.5 px-4 shadow-[0_-4px_15px_rgba(0,0,0,0.1)] flex items-center justify-between gap-3 animate-in slide-in-from-bottom duration-200 pb-safe"
+        >
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            {product.images?.[0] && (
+              <div className="w-10 h-10 rounded-lg bg-stone-100 overflow-hidden shrink-0 border border-stone-200 relative">
+                <Image
+                  src={currentVariation?.image || product.images[0]}
+                  alt={product.title}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain p-0.5"
+                />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-stone-900 truncate leading-tight">{product.title}</p>
+              <p className="text-xs font-black text-red-600">{formatPrice(currentPrice)}</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={isVariable && !currentVariation}
+            className={`font-extrabold text-xs py-2.5 px-4 rounded-xl shrink-0 shadow-md transition-all cursor-pointer ${
+              isVariable && !currentVariation
+                ? 'bg-stone-300 text-stone-500 cursor-not-allowed'
+                : 'bg-red-600 hover:bg-red-700 active:scale-95 text-white'
+            }`}
+          >
+            {(isVariable && !currentVariation) ? t('select_options_btn') : t('add_to_cart')}
+          </button>
+        </aside>
+      )}
     </div>
   );
 }

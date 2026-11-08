@@ -96,14 +96,14 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
                   {[1, 2, 3, 4, 5].map(i => <Star key={i} filled={i <= Math.round(avgRating)} />)}
                 </div>
                 <span className="ml-1 text-gray-600">
-                  {t?.customer_reviews ?? `${reviews.length} avis`}
+                  {t?.customer_reviews ?? `${reviews.length} avaliações`}
                 </span>
               </div>
               <span className="border-l border-gray-300 h-4"></span>
             </>
           )}
           <span>
-            {t?.sold ?? 'Vendu'} <span className="font-semibold text-gray-900">24</span>
+            {t?.sold ?? 'Vendido'} <span className="font-semibold text-gray-900">24</span>
           </span>
         </div>
 
@@ -117,26 +117,26 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
         />
 
         {/* Méta */}
-        <div className="space-y-2 text-sm">
+        <div className="space-y-2 text-sm pt-4 border-t border-gray-100">
           <p>
-            <span className="font-semibold text-gray-900">{t?.sku ?? 'SKU :'} </span>
+            <span className="font-semibold text-gray-900">{t?.sku ?? 'Ref / SKU:'} </span>
             {product.id.split('-')[0].toUpperCase()}
           </p>
           <p>
-            <span className="font-semibold text-gray-900">{t?.categories ?? 'Catégories :'} </span>
+            <span className="font-semibold text-gray-900">{t?.categories ?? 'Categorias:'} </span>
             {product.categories && product.categories.length > 0
               ? product.categories.map((c: any, index: number) => (
                   <span key={c.id}>
-                    <Link href={`/product-category/${c.slug || c.id}`} className="hover:text-orange-600 hover:underline transition-colors">
+                    <Link href={`/product-category/${c.slug || c.id}`} className="hover:text-red-600 hover:underline transition-colors">
                       {c.name}
                     </Link>
                     {index < product.categories!.length - 1 ? ', ' : ''}
                   </span>
                 ))
-              : (t?.uncategorized ?? 'Non catégorisé')}
+              : (t?.uncategorized ?? 'Sem categoria')}
           </p>
           {product.brand && !product.brand.logo && (
-            <p><span className="font-semibold text-gray-900">{t?.brand ?? 'Marque :'} </span>{product.brand.name}</p>
+            <p><span className="font-semibold text-gray-900">{t?.brand ?? 'Marca:'} </span>{product.brand.name}</p>
           )}
           {product.tags && product.tags.length > 0 && (
             <p>
