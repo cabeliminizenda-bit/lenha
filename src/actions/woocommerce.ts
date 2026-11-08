@@ -658,16 +658,17 @@ async function processAndSaveWcProducts(
           try {
             const secureUrl = await uploadImageFromUrlToCloudinary(wcImg.src);
             if (secureUrl) {
+              const imgAlt = wcImg.alt ? unescapeHtml(wcImg.alt) : decodedTitle;
               await prisma.media.upsert({
                 where: { url: secureUrl },
                 update: {
-                  title: wcImg.name || wcImg.title || null,
-                  altText: wcImg.alt || null,
+                  title: decodedTitle,
+                  altText: imgAlt,
                 },
                 create: {
                   url: secureUrl,
-                  title: wcImg.name || wcImg.title || null,
-                  altText: wcImg.alt || null,
+                  title: decodedTitle,
+                  altText: imgAlt,
                 }
               });
               return secureUrl;
@@ -740,16 +741,19 @@ async function processAndSaveWcProducts(
                     const secureUrl = await uploadImageFromUrlToCloudinary(wcVar.image.src);
                     if (secureUrl) {
                       varImage = secureUrl;
+                      const varOptions = Object.values(attrMap).filter(Boolean).join(', ');
+                      const varTitle = `${decodedTitle}${varOptions ? ` (${varOptions})` : ''}`;
+                      const varAlt = wcVar.image.alt ? unescapeHtml(wcVar.image.alt) : varTitle;
                       await prisma.media.upsert({
                         where: { url: secureUrl },
                         update: {
-                          title: wcVar.image.name || wcVar.image.title || null,
-                          altText: wcVar.image.alt || null,
+                          title: varTitle,
+                          altText: varAlt,
                         },
                         create: {
                           url: secureUrl,
-                          title: wcVar.image.name || wcVar.image.title || null,
-                          altText: wcVar.image.alt || null,
+                          title: varTitle,
+                          altText: varAlt,
                         }
                       });
                     }

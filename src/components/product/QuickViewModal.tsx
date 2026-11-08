@@ -84,6 +84,7 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
             {product.images && product.images.length > 0 ? (
               <Image width={800} height={800} src={product.images[activeImage]} 
                 alt={product.title} 
+                title={product.title}
                 className="w-full h-full object-contain p-4" />
             ) : (
               <div className="text-6xl text-gray-300">🛍️</div>
@@ -99,7 +100,7 @@ export default function QuickViewModal({ isOpen, onClose, product }: QuickViewMo
                   onClick={() => setActiveImage(idx)}
                   className={`w-16 h-16 flex-shrink-0 rounded-md border-2 overflow-hidden bg-white ${activeImage === idx ? 'border-orange-500' : 'border-gray-200 hover:border-gray-300'}`}
                 >
-                  <Image width={800} height={800} src={img} alt="" className="w-full h-full object-contain p-1" />
+                  <Image width={800} height={800} src={img} alt={`${product.title} - Miniatura ${idx + 1}`} title={`${product.title} - Miniatura ${idx + 1}`} className="w-full h-full object-contain p-1" />
                 </button>
               ))}
             </div>
