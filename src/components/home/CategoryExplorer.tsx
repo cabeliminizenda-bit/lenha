@@ -48,16 +48,16 @@ const defaultCategories = [
 export default function CategoryExplorer({ categories }: CategoryExplorerProps) {
   return (
     <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex items-end justify-between mb-8">
-        <div>
-          <span className="text-red-600 font-bold text-xs uppercase tracking-wider block">Catálogo Oficial</span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">Explore por Categoria</h2>
+      <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
+        <div className="min-w-0">
+          <span className="text-red-600 font-bold text-[11px] sm:text-xs uppercase tracking-wider block">Catálogo Oficial</span>
+          <h2 className="text-[17px] sm:text-2xl lg:text-3xl font-extrabold text-stone-900 tracking-tight leading-tight whitespace-nowrap sm:whitespace-normal">Explore por Categoria</h2>
         </div>
         <Link 
           href="/shop" 
-          className="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 flex items-center gap-1.5 transition-colors group"
+          className="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 flex items-center gap-1 shrink-0 transition-colors group pb-0.5"
         >
-          <span>Ver Todas as Categorias</span>
+          <span>Ver Todas</span>
           <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
         </Link>
       </div>
