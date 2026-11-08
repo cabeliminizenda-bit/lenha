@@ -21,7 +21,7 @@ async function uploadImageFromUrlToCloudinary(imageUrl: string): Promise<string 
   try {
     const response = await fetch(imageUrl);
     if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
-    
+
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
@@ -314,17 +314,17 @@ export async function fetchWooCommerceCategoriesList(url: string, consumerKey: s
  * Fetch remote products list for individual selection (supports search & pagination)
  */
 export async function fetchWooCommerceProductsList(
-  url: string, 
-  consumerKey: string, 
-  consumerSecret: string, 
-  search: string = '', 
-  page: number = 1, 
+  url: string,
+  consumerKey: string,
+  consumerSecret: string,
+  search: string = '',
+  page: number = 1,
   categoryFilter?: number
 ) {
   await requireAdmin();
   const baseUrl = url.replace(/\/$/, '');
   let apiUrl = `${baseUrl}/wp-json/wc/v3/products?per_page=20&page=${page}`;
-  
+
   if (search) {
     apiUrl += `&search=${encodeURIComponent(search)}`;
   }
@@ -388,8 +388,8 @@ export async function fetchWooCommerceProductsList(
  * If categoryIds is provided, only those categories (and their parent hierarchy) are imported.
  */
 export async function importWooCommerceCategories(
-  url: string, 
-  consumerKey: string, 
+  url: string,
+  consumerKey: string,
   consumerSecret: string,
   categoryIds?: number[]
 ) {
@@ -508,8 +508,8 @@ export async function importWooCommerceCategories(
  * Gets the total number of products to import (optionally filtered by categories)
  */
 export async function countWooCommerceProducts(
-  url: string, 
-  consumerKey: string, 
+  url: string,
+  consumerKey: string,
   consumerSecret: string,
   categoryIds?: number[]
 ) {
@@ -551,9 +551,9 @@ export async function countWooCommerceProducts(
  * Helper to process and import an array of WooCommerce product objects into Prisma
  */
 async function processAndSaveWcProducts(
-  products: any[], 
-  apiUrl: string, 
-  consumerKey: string, 
+  products: any[],
+  apiUrl: string,
+  consumerKey: string,
   consumerSecret: string,
   allowedCategoryIds?: number[]
 ): Promise<ProcessWcProductsResult> {
@@ -577,7 +577,7 @@ async function processAndSaveWcProducts(
       // Check if product with same title or slug already exists on destination site
       const baseSlug = wcProduct.slug || slugify(decodedTitle);
       const existingProduct = await prisma.product.findFirst({
-        where: { 
+        where: {
           OR: [
             { title: decodedTitle },
             { title: rawTitle },
@@ -633,10 +633,10 @@ async function processAndSaveWcProducts(
         brandName = wcProduct.brands[0].name;
         brandSlug = wcProduct.brands[0].slug;
       } else if (wcProduct.attributes && Array.isArray(wcProduct.attributes)) {
-        const brandAttr = wcProduct.attributes.find((a: any) => 
-          a.name.toLowerCase() === 'brand' || 
-          a.name.toLowerCase() === 'marque' || 
-          a.name.toLowerCase() === 'brands' || 
+        const brandAttr = wcProduct.attributes.find((a: any) =>
+          a.name.toLowerCase() === 'brand' ||
+          a.name.toLowerCase() === 'marque' ||
+          a.name.toLowerCase() === 'brands' ||
           a.name.toLowerCase() === 'marques'
         );
         if (brandAttr && brandAttr.options && brandAttr.options.length > 0) {
@@ -827,7 +827,7 @@ async function processAndSaveWcProducts(
                 isApproved: true,
                 createdAt: new Date(r.date_created)
               }));
-            
+
             if (reviewsToInsert.length > 0) {
               await prisma.review.createMany({
                 data: reviewsToInsert
@@ -871,10 +871,10 @@ async function processAndSaveWcProducts(
 }
 
 export async function importWooCommerceProductsBatch(
-  url: string, 
-  consumerKey: string, 
-  consumerSecret: string, 
-  page: number = 1, 
+  url: string,
+  consumerKey: string,
+  consumerSecret: string,
+  page: number = 1,
   perPage: number = 5,
   categoryIds?: number[]
 ) {
@@ -916,7 +916,7 @@ export async function importWooCommerceProductsBatch(
       const t = await getTranslations('AdminProducts');
       throw new Error(t('woo_import_parse_error'));
     }
-    
+
     if (!Array.isArray(products) || products.length === 0) {
       return { success: true, count: 0, successCount: 0, alreadyExistsCount: 0, failedCount: 0, results: [] };
     }
@@ -925,13 +925,13 @@ export async function importWooCommerceProductsBatch(
 
     revalidatePath('/admin/products');
     revalidatePath('/');
-    
+
     const { updateTag } = await import('next/cache');
     updateTag('products');
     updateTag('categories');
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       count: batchResult.importedCount,
       successCount: batchResult.importedCount,
       alreadyExistsCount: batchResult.alreadyExistsCount,
@@ -949,9 +949,9 @@ export async function importWooCommerceProductsBatch(
  * Import specific product IDs directly
  */
 export async function importWooCommerceSelectedProducts(
-  url: string, 
-  consumerKey: string, 
-  consumerSecret: string, 
+  url: string,
+  consumerKey: string,
+  consumerSecret: string,
   productIds: number[]
 ) {
   await requireAdmin();
@@ -1004,8 +1004,8 @@ export async function importWooCommerceSelectedProducts(
     updateTag('products');
     updateTag('categories');
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       count: totalImported,
       successCount: totalImported,
       alreadyExistsCount: totalAlreadyExists,
@@ -1056,7 +1056,7 @@ export async function importWooCommerceOrders(
 
       for (const wcOrder of orders) {
         const customerEmail = wcOrder.billing?.email || `customer-${wcOrder.customer_id || wcOrder.id}@lenhaecarvaosilvadias.com`;
-        
+
         let user = await prisma.user.findUnique({
           where: { email: customerEmail }
         });
@@ -1304,7 +1304,7 @@ export async function importWordPressArticles(
         const slug = wpPost.slug || slugify(title);
         const content = wpPost.content?.rendered || '';
         const excerpt = unescapeHtml(wpPost.excerpt?.rendered || '');
-        
+
         let imageUrl: string | null = null;
         const mediaSource = wpPost._embedded?.['wp:featuredmedia']?.[0]?.source_url;
         if (mediaSource) {
