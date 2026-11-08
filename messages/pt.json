@@ -247,7 +247,7 @@
     "payment_fallback_suggestion": "Pode concluir a sua encomenda através de {method}.",
     "continue_with_fallback": "Continuar com {method}",
     "privacy_policy_msg_1": "Os seus dados pessoais serão utilizados para processar a sua encomenda e apoiar a sua experiência no site, conforme descrito na nossa ",
-    "privacy_policy_link": "Política de Privacidade (RGPD)",
+    "privacy_policy_link": "Política de Privacidade",
     "privacy_policy_msg_2": ".",
     "processing": "A processar encomenda...",
     "place_order": "Finalizar Encomenda",

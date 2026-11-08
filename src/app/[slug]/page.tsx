@@ -41,10 +41,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 const LEGAL_NAV = [
   { slug: 'devolucoes', label: 'Devoluções & Reembolso', icon: '🔄' },
   { slug: 'termos-e-condicoes', label: 'Termos & Condições', icon: '📜' },
-  { slug: 'privacidade', label: 'Privacidade & RGPD', icon: '🔒' },
+  { slug: 'privacidade', label: 'Privacidade', icon: '🔒' },
   { slug: 'expedicao', label: 'Expedição & Entrega', icon: '🚚' },
   { slug: 'politica-de-garantia', label: 'Garantia', icon: '🛡️' },
-  { slug: 'politica-de-faturacao', label: 'Faturação & NIF', icon: '🧾' },
+  { slug: 'politica-de-faturacao', label: 'Faturação', icon: '🧾' },
 ];
 
 export default async function CustomPage({ params }: { params: Promise<{ slug: string }> }) {

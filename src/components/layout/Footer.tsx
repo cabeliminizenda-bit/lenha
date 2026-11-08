@@ -158,7 +158,7 @@ export default function Footer({
                   <li><Link href="/devolucoes" className="hover:text-red-400 transition">Política de Devolução</Link></li>
                   <li><Link href="/expedicao" className="hover:text-red-400 transition">Expedição e Entrega</Link></li>
                   <li><Link href="/termos-e-condicoes" className="hover:text-red-400 transition">Termos e Condições</Link></li>
-                  <li><Link href="/privacidade" className="hover:text-red-400 transition">Privacidade (RGPD)</Link></li>
+                  <li><Link href="/privacidade" className="hover:text-red-400 transition">Política de Privacidade</Link></li>
                   <li><Link href={`/${contactSlug}`} className="hover:text-red-400 transition">Contacte-nos</Link></li>
                 </ul>
               </div>
