@@ -1418,7 +1418,8 @@
     "title": "Wir schätzen Ihre Privatsphäre",
     "message": "Wir verwenden Cookies, um Ihr Surferlebnis zu verbessern, personalisierte Inhalte bereitzustellen und unseren Datenverkehr zu analysieren. Wenn Sie auf \"Alle akzeptieren\" klicken, stimmen Sie der Verwendung von Cookies zu.",
     "accept": "Alle akzeptieren",
-    "decline": "Ablehnen"
+    "decline": "Ablehnen",
+    "privacy_policy": "Datenschutzerklärung"
   },
   "Countries": {
     "Afghanistan": "Afghanistan",

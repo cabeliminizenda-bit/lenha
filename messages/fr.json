@@ -1420,7 +1420,8 @@
     "title": "Nous respectons votre vie privée",
     "message": "Nous utilisons des cookies pour améliorer votre expérience de navigation, diffuser des publicités ou des contenus personnalisés et analyser notre trafic. En cliquant sur \"Tout accepter\", vous consentez à notre utilisation des cookies.",
     "accept": "Tout accepter",
-    "decline": "Refuser"
+    "decline": "Refuser",
+    "privacy_policy": "Politique de confidentialité"
   },
   "Countries": {
     "Afghanistan": "Afghanistan",

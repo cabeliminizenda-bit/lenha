@@ -61,20 +61,22 @@ export default async function HeatingGuideBlogs() {
       <div className="max-w-7xl mx-auto px-4">
         
         {/* Header Section */}
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <span className="text-red-600 font-bold text-xs uppercase tracking-wider block">
+        <div className="flex items-end justify-between gap-3 mb-6 sm:mb-8">
+          <div className="min-w-0">
+            <span className="text-red-600 font-bold text-[11px] sm:text-xs uppercase tracking-wider block">
               Dicas & Artigos
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-stone-900">
+            <h2 className="text-[17px] sm:text-2xl lg:text-3xl font-extrabold text-stone-900 tracking-tight leading-tight whitespace-nowrap sm:whitespace-normal">
               Guia de Aquecimento Eficiente
             </h2>
           </div>
           <Link 
             href="/blog" 
-            className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 transition-colors"
+            className="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 flex items-center gap-1 shrink-0 transition-colors group pb-0.5"
           >
-            Ver Todos os Artigos &rarr;
+            <span>Ver todos</span>
+            <span className="hidden sm:inline">artigos</span>
+            <span className="group-hover:translate-x-0.5 transition-transform">&rarr;</span>
           </Link>
         </div>
 

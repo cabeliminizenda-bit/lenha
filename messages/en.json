@@ -824,11 +824,9 @@
     "first_name": "First Name",
     "last_name": "Last Name",
     "phone": "Phone",
-    "country": "Country",
     "street_1": "Street Address (Line 1)",
     "street_2": "Street Address (Line 2 - Optional)",
     "postal_code": "Postal Code",
-    "city": "City",
     "shipping_address_title": "Shipping Address",
     "shipping_different_checkbox": "Shipping address is different from billing",
     "company_optional": "Company (Optional)",
@@ -1420,7 +1418,8 @@
     "title": "We value your privacy",
     "message": "We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies.",
     "accept": "Accept All",
-    "decline": "Decline"
+    "decline": "Decline",
+    "privacy_policy": "Privacy Policy"
   },
   "Countries": {
     "Afghanistan": "Afghanistan",

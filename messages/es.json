@@ -824,11 +824,9 @@
     "first_name": "Nombre",
     "last_name": "Apellidos",
     "phone": "Teléfono",
-    "country": "País",
     "street_1": "Dirección (Línea 1)",
     "street_2": "Dirección (Línea 2 - Opcional)",
     "postal_code": "Código postal",
-    "city": "Ciudad",
     "shipping_address_title": "Dirección de entrega",
     "shipping_different_checkbox": "La dirección de entrega es diferente a la de facturación",
     "company_optional": "Empresa (Opcional)",
@@ -1420,7 +1418,8 @@
     "title": "Respetamos su privacidad",
     "message": "Utilizamos cookies para mejorar su experiencia de navegación, mostrar anuncios o contenido personalizado y analizar nuestro tráfico. Al hacer clic en \"Aceptar todo\", usted acepta nuestro uso de cookies.",
     "accept": "Aceptar todo",
-    "decline": "Rechazar"
+    "decline": "Rechazar",
+    "privacy_policy": "Política de privacidad"
   },
   "Countries": {
     "Afghanistan": "Afganistán",
