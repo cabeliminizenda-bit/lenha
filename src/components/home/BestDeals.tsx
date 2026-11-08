@@ -65,6 +65,8 @@ export default async function BestDeals({ config }: { config?: any }) {
       slug: p.slug,
       imageUrl: p.images[0],
       category: p.categories && p.categories.length > 0 ? p.categories[0].name : 'N/A',
+      categories: p.categories || [],
+      categorySlug: p.categories && p.categories.length > 0 ? p.categories[0].slug : undefined,
       title: p.title,
       rating: ratingCount > 0 ? Math.round(avgRating) : 0,
       ratingText: ratingCount > 0 ? `(${avgRating.toFixed(2)})` : '',

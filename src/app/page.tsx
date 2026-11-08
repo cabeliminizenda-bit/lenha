@@ -53,6 +53,7 @@ export default async function Home() {
       discountLabel: p.discountLabel || (p.compareAtPrice && p.compareAtPrice > p.price ? `-${Math.round(((p.compareAtPrice - p.price) / p.compareAtPrice) * 100)}%` : null),
       categorySlug: p.categories[0]?.slug || '',
       categoryName: p.categories[0]?.name || '',
+      categories: p.categories.map(c => ({ name: c.name, slug: c.slug || '' })),
       allCategories: p.categories.map(c => `${c.name} ${c.slug}`).join(' ')
     }));
 

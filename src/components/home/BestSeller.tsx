@@ -1,3 +1,4 @@
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
@@ -106,11 +107,25 @@ const BigCard = ({
           )}
         </Link>
         <div className="mt-auto">
-          <p className="text-xs text-gray-500 mb-1 z-20 relative">
-            <Link href={(p as any).categorySlug ? `/product-category/${(p as any).categorySlug}` : '/shop'} className="hover:text-orange-600 hover:underline">
-              {category}
-            </Link>
-          </p>
+          <div className="text-xs text-gray-500 mb-1 z-20 relative">
+            {(p as any).categories && (p as any).categories.length > 0 ? (
+              (p as any).categories.map((c: any, idx: number) => (
+                <React.Fragment key={c.slug || c.id || idx}>
+                  <Link
+                    href={`/product-category/${c.slug || c.id}`}
+                    className="hover:text-orange-600 hover:underline transition-colors"
+                  >
+                    {c.name}
+                  </Link>
+                  {idx < (p as any).categories.length - 1 && <span className="text-gray-400">, </span>}
+                </React.Fragment>
+              ))
+            ) : (
+              <Link href={(p as any).categorySlug ? `/product-category/${(p as any).categorySlug}` : '/shop'} className="hover:text-orange-600 hover:underline">
+                {category}
+              </Link>
+            )}
+          </div>
           <Link href={linkUrl} className="cursor-pointer">
             <h3 className="text-base font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-orange-600 transition">
               {title}
@@ -172,6 +187,7 @@ export default async function BestSeller({ config }: { config?: any }) {
       id: p.id,
       slug: p.slug,
       imageUrl: p.images[0],
+      categories: p.categories || [],
       category: p.categories && p.categories.length > 0 ? p.categories[0].name : 'N/A',
       categorySlug: p.categories && p.categories.length > 0 ? p.categories[0].slug : '',
       title: p.title,

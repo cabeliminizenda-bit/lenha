@@ -18,6 +18,7 @@ export interface ProductItem {
   categorySlug?: string;
   categoryName?: string;
   allCategories?: string;
+  categories?: { name: string; slug: string }[];
 }
 
 interface FeaturedProductTabsProps {
@@ -179,6 +180,7 @@ function ProductCardImage({
     <Image
       src={src}
       alt={alt}
+      title={title}
       fill
       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
       unoptimized={src.startsWith('http')}
@@ -610,19 +612,46 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                     </div>
 
                     {/* Resilient Product Image */}
-                    <ProductCardImage
-                      src={prod.images && prod.images[0] ? prod.images[0] : undefined}
-                      alt={prod.title}
-                      categorySlug={prod.categorySlug}
-                      title={prod.title}
-                      categoryName={prod.categoryName}
-                    />
+                    <Link href={`/produto/${prod.slug}`} className="w-full h-full block">
+                      <ProductCardImage
+                        src={prod.images && prod.images[0] ? prod.images[0] : undefined}
+                        alt={prod.title}
+                        categorySlug={prod.categorySlug}
+                        title={prod.title}
+                        categoryName={prod.categoryName}
+                      />
+                    </Link>
                   </div>
 
                   {/* Category & Title */}
-                  <span className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider block">
-                    {prod.categoryName || 'Soluções Térmicas'}
-                  </span>
+                  <div className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider mb-1 flex flex-wrap items-center gap-1 z-20 relative">
+                    {prod.categories && prod.categories.length > 0 ? (
+                      prod.categories.map((cat, idx) => (
+                        <React.Fragment key={cat.slug || idx}>
+                          <Link
+                            href={`/product-category/${cat.slug}`}
+                            className="hover:text-red-600 hover:underline transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {cat.name}
+                          </Link>
+                          {idx < prod.categories!.length - 1 && (
+                            <span className="text-stone-300 font-normal">,</span>
+                          )}
+                        </React.Fragment>
+                      ))
+                    ) : prod.categorySlug ? (
+                      <Link
+                        href={`/product-category/${prod.categorySlug}`}
+                        className="hover:text-red-600 hover:underline transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {prod.categoryName || 'Soluções Térmicas'}
+                      </Link>
+                    ) : (
+                      <span>{prod.categoryName || 'Soluções Térmicas'}</span>
+                    )}
+                  </div>
                   <Link href={`/produto/${prod.slug}`}>
                     <h4 className="font-bold text-stone-900 text-sm mt-1 line-clamp-2 min-h-[40px] group-hover:text-red-600 transition-colors">
                       {prod.title}

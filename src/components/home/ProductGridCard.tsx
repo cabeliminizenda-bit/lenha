@@ -1,4 +1,5 @@
 'use client';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -7,13 +8,12 @@ import Price from '@/components/Price';
 import { useCartStore } from '@/store/cartStore';
 import { useWishlistStore } from '@/store/wishlistStore';
 import QuickViewModal from '@/components/product/QuickViewModal';
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 
 const Star = ({ filled = true }: { filled?: boolean }) => (
-  <svg 
-    className={`w-3.5 h-3.5 ${filled ? 'text-orange-600' : 'text-gray-300'}`} 
-    fill="currentColor" 
+  <svg
+    className={`w-3.5 h-3.5 ${filled ? 'text-orange-600' : 'text-gray-300'}`}
+    fill="currentColor"
     viewBox="0 0 20 20"
   >
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -46,7 +46,7 @@ export default function ProductGridCard({
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const isWishlisted = wishlistStore.hasItem(product.id);
   const image = product.images && product.images.length > 0 ? product.images[0] : '';
-  
+
   const reviews = product.reviews || [];
   const ratingCount = reviews.length;
   const avgRating = ratingCount > 0 ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / ratingCount : 0;
@@ -195,15 +195,30 @@ export default function ProductGridCard({
       {/* Content Container */}
       <div className="p-4 flex flex-col flex-1">
         <div className="flex-1 flex flex-col">
-          <p className="text-xs text-gray-500 font-medium mb-1 truncate">
-            {product.categories && product.categories.length > 0 ? product.categories.map((c: any) => c.name).join(', ') : 'General'}
-          </p>
+          <div className="text-xs text-gray-500 font-medium mb-1 truncate z-20 relative">
+            {product.categories && product.categories.length > 0 ? (
+              product.categories.map((c: any, idx: number) => (
+                <React.Fragment key={c.slug || c.id || idx}>
+                  <Link
+                    href={`/product-category/${c.slug || c.id}`}
+                    className="hover:text-orange-600 hover:underline transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {c.name}
+                  </Link>
+                  {idx < product.categories.length - 1 && <span className="text-gray-400">, </span>}
+                </React.Fragment>
+              ))
+            ) : (
+              <span>General</span>
+            )}
+          </div>
           <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-2 transition" title={product.title}>
             <Link href={`/produto/${product.slug}`} className="hover:text-orange-700" onClick={(e) => e.stopPropagation()}>
               {product.title}
             </Link>
           </h3>
-          
+
           {ratingCount > 0 && (
             <div className="flex items-center gap-1 mb-1">
               <div className="flex">
@@ -251,10 +266,10 @@ export default function ProductGridCard({
         )}
       </div>
 
-      <QuickViewModal 
-        isOpen={isQuickViewOpen} 
-        onClose={() => setIsQuickViewOpen(false)} 
-        product={product} 
+      <QuickViewModal
+        isOpen={isQuickViewOpen}
+        onClose={() => setIsQuickViewOpen(false)}
+        product={product}
       />
     </div>
   );
