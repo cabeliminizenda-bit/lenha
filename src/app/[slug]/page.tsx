@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
-  
+
   const contactSettings = await getContactSettings();
   if (resolvedParams.slug === contactSettings.slug) {
     return { title: contactSettings.title };
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const { data: page } = await getPageBySlug(resolvedParams.slug);
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvão Silva Dias";
-  
+
   if (!page || !page.isPublished) {
     return {
       title: `Page not found - ${storeName}`,
@@ -62,15 +62,15 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
   }
 
   const currentSlug = resolvedParams.slug;
-  const isLegalSlug = LEGAL_NAV.some(item => 
-    item.slug === currentSlug || 
+  const isLegalSlug = LEGAL_NAV.some(item =>
+    item.slug === currentSlug ||
     (currentSlug.startsWith('politica-de-') && item.slug.includes(currentSlug.replace('politica-de-', '')))
   ) || ['condicoes-gerais-de-venda', 'notas-legais'].includes(currentSlug);
 
   return (
     <div className="min-h-screen bg-stone-50/60 flex flex-col py-8 sm:py-12">
-      <main className="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+      <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs text-stone-500 mb-6 font-medium overflow-x-auto whitespace-nowrap">
           <Link href="/" className="hover:text-red-600 transition-colors">Início</Link>
@@ -85,9 +85,9 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
         </nav>
 
         {/* Hero Header Card */}
-        <div className="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-stone-800 mb-8 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-stone-900 via-stone-900 to-stone-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl border border-stone-800 mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10 max-w-3xl">
+          <div className="relative z-10 max-w-4xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/20 border border-red-500/30 text-red-400 font-bold text-xs uppercase tracking-wider mb-4">
               <span>{isLegalSlug ? '⚖️' : '📄'}</span>
               <span>{isLegalSlug ? 'Termos Oficiais & Transparência Silva Dias' : 'Informações Oficiais'}</span>
@@ -104,9 +104,9 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
         {/* Legal Quick Nav Bar */}
         {isLegalSlug && (
           <div className="mb-8">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
               {LEGAL_NAV.map((item) => {
-                const isActive = currentSlug === item.slug || 
+                const isActive = currentSlug === item.slug ||
                   (currentSlug === 'politica-de-devolucao-e-reembolso' && item.slug === 'devolucoes') ||
                   (currentSlug === 'condicoes-gerais-de-venda' && item.slug === 'termos-e-condicoes') ||
                   (currentSlug === 'politica-de-privacidade' && item.slug === 'privacidade') ||
@@ -117,13 +117,13 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
                   <Link
                     key={item.slug}
                     href={`/${item.slug}`}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all shadow-sm ${
+                    className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all shadow-sm ${
                       isActive
                         ? 'bg-red-600 text-white shadow-red-600/30 ring-2 ring-red-400/50'
-                        : 'bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/80'
+                        : 'bg-white text-stone-700 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/90'
                     }`}
                   >
-                    <span>{item.icon}</span>
+                    <span className="text-base">{item.icon}</span>
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -135,45 +135,49 @@ export default async function CustomPage({ params }: { params: Promise<{ slug: s
         {/* Main Content Container */}
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm p-6 sm:p-10 mb-10">
           {/* Desktop Content */}
-          <SafeHTML 
+          <SafeHTML
             html={page.desktopContent || ''}
             className="hidden md:block w-full prose max-w-none text-stone-700 prose-headings:text-stone-900 prose-headings:font-bold prose-strong:text-stone-900 prose-a:text-red-600 hover:prose-a:underline"
           />
-          
+
           {/* Mobile Content */}
-          <SafeHTML 
+          <SafeHTML
             html={page.mobileContent || (page.desktopContent || '')}
             className="block md:hidden w-full prose max-w-none text-stone-700 prose-headings:text-stone-900 prose-headings:font-bold prose-strong:text-stone-900 prose-a:text-red-600 hover:prose-a:underline"
           />
         </div>
 
         {/* Support & Legal Assistance Card */}
-        <div className="bg-gradient-to-r from-stone-900 to-stone-850 rounded-3xl p-6 sm:p-8 text-white border border-stone-800 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="text-xs font-bold uppercase tracking-wider text-red-400">
-              Apoio ao Cliente & Faturação
+        <div className="bg-gradient-to-r from-stone-900 via-stone-900 to-stone-950 rounded-3xl p-6 sm:p-8 text-white border border-stone-800 shadow-xl flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 text-center lg:text-left flex-1">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-red-400">
+              <span>💬</span> Apoio ao Cliente & Faturação
             </span>
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl sm:text-2xl font-bold text-white">
               Dúvidas sobre Devoluções, Garantias ou Faturas?
             </h3>
-            <p className="text-stone-300 text-xs sm:text-sm max-w-xl">
+            <p className="text-stone-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
               A nossa equipa em Braga está disponível para prestar esclarecimentos imediatos sobre qualquer procedimento ou encomenda.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto shrink-0">
             <a
               href="mailto:cabeliminizenda@gmail.com"
-              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs sm:text-sm text-center shadow-lg shadow-red-600/30 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm whitespace-nowrap shadow-lg shadow-red-600/30 transition-all flex items-center justify-center gap-2.5 shrink-0"
             >
-              <span>✉️</span>
+              <svg className="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
               <span>Enviar E-mail</span>
             </a>
             <Link
               href="/contactos"
-              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-white font-medium text-xs sm:text-sm text-center border border-stone-700 transition flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-white font-semibold text-sm whitespace-nowrap border border-stone-700 transition-all flex items-center justify-center gap-2.5 shrink-0"
             >
-              <span>📞</span>
+              <svg className="w-4 h-4 shrink-0 text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
               <span>Página de Contactos</span>
             </Link>
           </div>

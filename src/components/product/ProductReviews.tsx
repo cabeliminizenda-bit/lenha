@@ -63,15 +63,15 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
       <div className="flex justify-center gap-2 mb-0 relative z-10">
         <button 
           onClick={() => setActiveTab('desc')}
-          className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'desc' ? 'bg-orange-600 text-white' : 'bg-orange-50 text-orange-700 hover:bg-orange-100'}`}
+          className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'desc' ? 'bg-red-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
         >
           {t('description_tab')}
         </button>
         <button 
           onClick={() => setActiveTab('reviews')}
-          className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'reviews' ? 'bg-orange-600 text-white' : 'bg-orange-50 text-orange-700 hover:bg-orange-100'}`}
+          className={`px-8 py-3 text-sm font-bold rounded-t-lg transition-colors ${activeTab === 'reviews' ? 'bg-red-600 text-white' : 'bg-stone-100 text-stone-700 hover:bg-stone-200'}`}
         >
-          {t('reviews_tab')}
+          {t('reviews_tab', { count: reviews.length })}
         </button>
       </div>
 
@@ -93,7 +93,9 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
           <div className="space-y-10">
             {/* Liste des avis */}
             <div>
-              <h3 className="text-sm font-bold mb-2 text-gray-900">{t('reviews_tab')}</h3>
+              <h3 className="text-base font-bold mb-2 text-gray-900">
+                {t('customer_reviews_title')} {reviews.length > 0 ? `(${reviews.length})` : ''}
+              </h3>
               {reviews.length === 0 ? (
                 <p className="text-gray-500 text-xs">{t('no_reviews_yet')}</p>
               ) : (
@@ -160,7 +162,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                       value={comment}
                       onChange={e => setComment(e.target.value)}
                       rows={5}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-gray-700 bg-white"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-red-500 focus:border-red-500 outline-none text-sm text-gray-700 bg-white"
                       placeholder={t('your_review_placeholder')}
                     ></textarea>
                   </div>
@@ -170,12 +172,12 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                     <input 
                       type="text" 
                       placeholder={t('name_placeholder')} 
-                      className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-gray-700 bg-white"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-red-500 focus:border-red-500 outline-none text-sm text-gray-700 bg-white"
                     />
                     <input 
                       type="email" 
                       placeholder={t('email_placeholder')} 
-                      className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-orange-500 focus:border-orange-500 outline-none text-sm text-gray-700 bg-white"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-sm focus:ring-red-500 focus:border-red-500 outline-none text-sm text-gray-700 bg-white"
                     />
                   </div>
 
@@ -184,7 +186,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                     <input 
                       type="checkbox" 
                       id="save-info" 
-                      className="mt-1 w-3.5 h-3.5 text-orange-700 border-gray-300 rounded-sm focus:ring-orange-500"
+                      className="mt-1 w-3.5 h-3.5 text-red-600 border-gray-300 rounded-sm focus:ring-red-500"
                     />
                     <label htmlFor="save-info" className="text-[11px] text-gray-600 font-medium">
                       {t('save_info')}
@@ -196,7 +198,7 @@ export default function ProductReviews({ productId, productTitle, reviews, descr
                     <button 
                       type="submit" 
                       disabled={loading}
-                      className="bg-orange-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-orange-700 disabled:opacity-50 transition-colors text-sm"
+                      className="bg-red-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors text-sm"
                     >
                       {loading ? t('sending') : t('submit_review')}
                     </button>
