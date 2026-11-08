@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { getContactSettings } from '@/actions/contactSettings';
 
 import { SITE_URL } from '@/lib/site';
+import { getCategoryCanonicalPath } from '@/lib/categories';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -81,19 +82,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // 4. Dynamic categories
+  // 4. Dynamic categories (Option B: Hierarchical root paths like /combustiveis/lenha-e-pellets)
   const categories = await prisma.category.findMany({
-    select: { slug: true },
+    select: { id: true, name: true, slug: true, parentId: true, metaTitle: true, metaDescription: true, metaKeywords: true },
   });
 
-  const categoryPages = categories
-    .filter(c => c.slug)
-    .map((category) => ({
-      url: `${baseUrl}/product-category/${category.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    }));
+  const categoryPages = await Promise.all(
+    categories
+      .filter(c => c.slug)
+      .map(async (category) => ({
+        url: `${baseUrl}${await getCategoryCanonicalPath(category, categories)}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+      }))
+  );
 
   // 5. CMS Pages
   const pages = await prisma.page.findMany({

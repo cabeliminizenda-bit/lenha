@@ -43,6 +43,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: '/categoria-produto/:path*',
+        destination: '/product-category/:path*',
+        permanent: true,
+      },
+      {
         source: '/etiquette-produit/:path*',
         destination: '/shop',
         permanent: true,
