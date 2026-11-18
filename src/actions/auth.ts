@@ -9,14 +9,14 @@ export async function loginUser(formData: FormData) {
   const ip = await getClientIp();
   const rl = await checkRateLimit(`login_${ip}`, 5, 300); // 5 attempts per 5 mins
   if (!rl.success) {
-    return { error: 'Trop de tentatives de connexion. Veuillez patienter 5 minutes.' };
+    return { error: 'Demasiadas tentativas de início de sessão. Por favor, aguarde 5 minutos.' };
   }
 
   const email = String(formData.get('email') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
 
   if (!email || !password) {
-    return { error: 'L\'email et le mot de passe sont requis.' };
+    return { error: 'O e-mail e a palavra-passe são obrigatórios.' };
   }
 
   const supabase = await createClient();
@@ -27,7 +27,7 @@ export async function loginUser(formData: FormData) {
   });
 
   if (error || !signInData.user) {
-    return { error: 'Identifiants incorrects.' };
+    return { error: 'Credenciais incorretas.' };
   }
 
   // Once authenticated with verified password/email:
@@ -83,7 +83,7 @@ export async function registerUser(formData: FormData) {
   const ip = await getClientIp();
   const rl = await checkRateLimit(`register_${ip}`, 5, 1800); // 5 registrations per 30 mins
   if (!rl.success) {
-    return { error: 'Trop de tentatives d’inscription. Veuillez patienter plus tard.' };
+    return { error: 'Demasiadas tentativas de registo. Por favor, tente novamente mais tarde.' };
   }
 
   const username = String(formData.get('username') || '').trim();
@@ -91,11 +91,11 @@ export async function registerUser(formData: FormData) {
   const password = String(formData.get('password') || '');
 
   if (!email || !password || !username) {
-    return { error: 'Tous les champs sont requis.' };
+    return { error: 'Todos os campos são obrigatórios.' };
   }
 
   if (password.length < 8) {
-    return { error: 'Le mot de passe doit comporter au moins 8 caractères.' };
+    return { error: 'A palavra-passe deve conter pelo menos 8 carateres.' };
   }
 
   const supabase = await createClient();
@@ -114,9 +114,9 @@ export async function registerUser(formData: FormData) {
     console.warn('[Register] Supabase signup error:', error.message);
     // Generic sanitized error to avoid account enumeration
     if (error.message.toLowerCase().includes('already registered')) {
-      return { error: 'Un compte existe déjà avec cette adresse e-mail ou les données sont invalides.' };
+      return { error: 'Já existe uma conta associada a este endereço de e-mail ou os dados são inválidos.' };
     }
-    return { error: 'Erreur lors de l’inscription. Veuillez vérifier vos informations.' };
+    return { error: 'Erro ao registar a conta. Por favor, verifique os seus dados.' };
   }
 
   if (data.user) {
@@ -147,7 +147,7 @@ export async function registerUser(formData: FormData) {
   revalidatePath('/', 'layout');
   
   if (!data.session) {
-    return { success: true, message: "Inscription réussie ! Veuillez vérifier vos e-mails pour confirmer votre compte avant de vous connecter." };
+    return { success: true, message: "Registo concluído com sucesso! Por favor, verifique a sua caixa de correio para confirmar a sua conta antes de iniciar sessão." };
   }
   
   return { success: true };
@@ -164,24 +164,24 @@ export async function setupAdmin(formData: FormData) {
   const ip = await getClientIp();
   const rl = await checkRateLimit(`setup_admin_${ip}`, 3, 3600); // 3 attempts per hour
   if (!rl.success) {
-    return { error: 'Trop de tentatives de configuration. Accès restreint.' };
+    return { error: 'Demasiadas tentativas de configuração. Acesso restrito.' };
   }
 
   const email = String(formData.get('email') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
 
   if (!email || !password) {
-    return { error: 'Tous les champs sont requis.' };
+    return { error: 'Todos os campos são obrigatórios.' };
   }
 
   if (password.length < 12) {
-    return { error: 'Le mot de passe administrateur doit comporter au moins 12 caractères.' };
+    return { error: 'A palavra-passe de administrador deve conter pelo menos 12 carateres.' };
   }
 
   // Atomically check that there is no existing admin
   const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
   if (adminCount > 0) {
-    return { error: 'Un administrateur existe déjà. L\'initialisation est verrouillée.' };
+    return { error: 'Já existe um administrador configurado. A inicialização está bloqueada.' };
   }
 
   const supabase = await createClient();
@@ -195,14 +195,14 @@ export async function setupAdmin(formData: FormData) {
 
   if (error) {
     console.error('[setupAdmin] Supabase error:', error.message);
-    return { error: 'Erreur lors de la création du compte administrateur.' };
+    return { error: 'Erro ao criar a conta de administrador.' };
   }
 
   if (data.user) {
     // Re-verify no other admin was created concurrently
     const recheckCount = await prisma.user.count({ where: { role: 'ADMIN' } });
     if (recheckCount > 0) {
-      return { error: 'Un administrateur a déjà été configuré.' };
+      return { error: 'Já foi configurado um administrador.' };
     }
 
     await prisma.user.upsert({
@@ -224,14 +224,14 @@ export async function loginAdmin(formData: FormData) {
   const ip = await getClientIp();
   const rl = await checkRateLimit(`login_admin_${ip}`, 5, 900); // 5 attempts per 15 mins
   if (!rl.success) {
-    return { error: 'Trop de tentatives de connexion administrateur. Accès temporairement suspendu.' };
+    return { error: 'Demasiadas tentativas de início de sessão. Acesso temporariamente suspenso.' };
   }
 
   const email = String(formData.get('email') || '').trim().toLowerCase();
   const password = String(formData.get('password') || '');
 
   if (!email || !password) {
-    return { error: 'L\'email et le mot de passe sont requis.' };
+    return { error: 'O e-mail e a palavra-passe são obrigatórios.' };
   }
 
   const supabase = await createClient();
@@ -241,14 +241,14 @@ export async function loginAdmin(formData: FormData) {
   });
 
   if (error) {
-    return { error: 'Identifiants incorrects.' };
+    return { error: 'Credenciais incorretas.' };
   }
 
   if (data.user) {
     const user = await prisma.user.findUnique({ where: { id: data.user.id } });
     if (!user || user.role !== 'ADMIN') {
       await supabase.auth.signOut({ scope: 'global' });
-      return { error: 'Accès refusé. Vous n’êtes pas administrateur.' };
+      return { error: 'Acesso negado. Não tem privilégios de administrador.' };
     }
   }
 

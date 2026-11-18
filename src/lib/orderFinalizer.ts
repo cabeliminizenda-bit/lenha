@@ -65,7 +65,9 @@ export async function finalizeOrder(orderId: string) {
       (acc, s) => ({ ...acc, [s.key]: s.value }),
       {} as Record<string, string>
     );
-    const adminEmail = settingsMap['CONTACT_RECEIVER_EMAIL'] || 'cabeliminizenda@gmail.com';
+
+    const { getAdminNotificationEmail } = await import('@/lib/mailer');
+    const adminEmail = await getAdminNotificationEmail();
 
     // 3. Send emails (non-blocking)
     try {

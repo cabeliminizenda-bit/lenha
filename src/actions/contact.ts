@@ -38,14 +38,14 @@ export async function submitContactMessage(formData: FormData) {
       return { error: t('fields_too_long') };
     }
 
-    const contactSettings = await getContactSettings();
-    const receiverEmail = contactSettings.formRecipient;
+    const { sendEmail, getAdminNotificationEmail } = await import('@/lib/mailer');
+    const receiverEmail = await getAdminNotificationEmail();
 
     // Send email to the configured admin/receiver (HTML échappé)
     try {
-      const { sendEmail } = await import('@/lib/mailer');
       await sendEmail({
         to: receiverEmail,
+        replyTo: email,
         subject: subject ? `Nova Mensagem: "${escapeHtml(subject)}"` : `Nova Mensagem de ${escapeHtml(name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
@@ -104,7 +104,19 @@ export async function submitNewsletter(formData: FormData) {
     const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
 
     try {
-      const { sendEmail } = await import('@/lib/mailer');
+      const { sendEmail, sendAdminNewsletterNotification, sendNewsletterWelcomeEmail } = await import('@/lib/mailer');
+      
+      // 1. Notifica imediatamente o Administrador da nova subscrição
+      sendAdminNewsletterNotification(email, ip).catch(err => {
+        console.error('[NEWSLETTER] Falha ao notificar admin:', err);
+      });
+
+      // 2. Envia o e-mail de boas-vindas com o cupão exclusivo de 10% (WELCOME10)
+      sendNewsletterWelcomeEmail(email).catch(err => {
+        console.error('[NEWSLETTER] Falha ao enviar cupão de boas-vindas:', err);
+      });
+
+      // 3. Envia o e-mail de confirmação / opt-in
       await sendEmail({
         to: email,
         subject: `Confirme a sua subscrição na Newsletter - Lenha & Carvão Silva Dias`,

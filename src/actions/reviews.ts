@@ -27,7 +27,7 @@ export async function submitReview(productId: string, rating: number, comment: s
 
   const cleanComment = String(comment || '').trim();
   if (cleanComment.length < 3 || cleanComment.length > 2000) {
-    return { error: "Votre avis doit comporter entre 3 et 2000 caractères." };
+    return { error: "A sua avaliação deve conter entre 3 e 2000 carateres." };
   }
 
   // Check product existence
@@ -36,7 +36,7 @@ export async function submitReview(productId: string, rating: number, comment: s
     select: { id: true, slug: true },
   });
   if (!product) {
-    return { error: "Produit introuvable." };
+    return { error: "Artigo não encontrado." };
   }
 
   // Prevent spamming multiple reviews on the same product within 1 hour
@@ -48,11 +48,11 @@ export async function submitReview(productId: string, rating: number, comment: s
     },
   });
   if (recentReview) {
-    return { error: "Vous avez déjà soumis un avis récemment pour ce produit." };
+    return { error: "Já submeteu uma avaliação recente para este artigo." };
   }
 
   try {
-    const reviewerName = user.email ? user.email.split('@')[0] : 'Client';
+    const reviewerName = user.email ? user.email.split('@')[0] : 'Cliente';
 
     await prisma.review.create({
       data: {
@@ -66,13 +66,12 @@ export async function submitReview(productId: string, rating: number, comment: s
     });
 
     revalidatePath(`/product/[slug]`, 'page');
-    revalidatePath(`/product/[slug]`, 'page');
     revalidatePath(`/account/reviews`);
     
     return { success: true };
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'avis:", error);
-    return { error: "Une erreur s'est produite lors de l'enregistrement de votre avis." };
+    console.error("Erro ao adicionar avaliação:", error);
+    return { error: "Ocorreu um erro ao registar a sua avaliação." };
   }
 }
 

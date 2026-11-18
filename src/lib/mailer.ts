@@ -1139,7 +1139,99 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
   }
 }
 
-// 9. Supervision Live Admin Alert Email
+// Helper to retrieve the active administrator notification email
+export async function getAdminNotificationEmail(): Promise<string> {
+  try {
+    const adminUser = await prisma.user.findFirst({
+      where: { role: 'ADMIN' },
+      select: { email: true }
+    });
+    const settingsDb = await prisma.setting.findMany({
+      where: { key: { in: ['CONTACT_RECEIVER_EMAIL', 'CONTACT_FORM_RECIPIENT', 'ADMIN_EMAIL'] } }
+    });
+    const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+    const configuredReceiver = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['CONTACT_FORM_RECIPIENT'] || sMap['ADMIN_EMAIL'];
+    if (configuredReceiver && !configuredReceiver.includes('@lenhaecarvaosilvadias.com')) {
+      return configuredReceiver;
+    }
+    return adminUser?.email || configuredReceiver || 'cabeliminizenda@gmail.com';
+  } catch {
+    return 'cabeliminizenda@gmail.com';
+  }
+}
+
+// 9. Admin Notification on Newsletter Subscription
+export async function sendAdminNewsletterNotification(subscriberEmail: string, ip?: string) {
+  try {
+    const adminEmail = await getAdminNotificationEmail();
+    const { logo, storeName, storeAddress } = await getTransporter().catch(() => ({
+      logo: '',
+      storeName: 'Lenha & Carvão Silva Dias',
+      storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
+    }));
+
+    const logoHtml = logo
+      ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 40px;"></div>`
+      : `<div style="font-size: 18px; font-weight: bold; color: #ea580c; margin-bottom: 20px;">${escapeHtml(storeName)}</div>`;
+
+    const nowPT = new Date().toLocaleString('pt-PT', { timeZone: 'Europe/Lisbon' });
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.6; padding: 25px; background: #ffffff;">
+        ${logoHtml}
+        <h1 style="font-size: 20px; color: #0f172a; margin-top: 0; margin-bottom: 12px;">
+          📬 Nova Subscrição na Newsletter
+        </h1>
+        <p style="font-size: 14px; color: #475569;">
+          Um novo cliente acabou de subscrever a newsletter no website de <strong>${escapeHtml(storeName)}</strong>.
+        </p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 25px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <tr>
+            <td style="padding: 12px 16px; font-size: 13px; font-weight: bold; width: 130px; color: #64748b;">E-mail do Cliente:</td>
+            <td style="padding: 12px 16px; font-size: 14px;">
+              <a href="mailto:${escapeHtml(subscriberEmail)}" style="color: #ea580c; text-decoration: none; font-weight: 600;">${escapeHtml(subscriberEmail)}</a>
+            </td>
+          </tr>
+          <tr style="border-top: 1px solid #e2e8f0;">
+            <td style="padding: 12px 16px; font-size: 13px; font-weight: bold; color: #64748b;">Data e Hora:</td>
+            <td style="padding: 12px 16px; font-size: 13px; color: #1e293b;">
+              ${nowPT}
+            </td>
+          </tr>
+          ${ip ? `
+          <tr style="border-top: 1px solid #e2e8f0;">
+            <td style="padding: 12px 16px; font-size: 13px; font-weight: bold; color: #64748b;">Endereço IP:</td>
+            <td style="padding: 12px 16px; font-size: 13px; color: #64748b; font-family: monospace;">
+              ${escapeHtml(ip)}
+            </td>
+          </tr>` : ''}
+        </table>
+
+        <div style="background-color: #fff7ed; border-left: 4px solid #ea580c; padding: 12px 16px; border-radius: 0 6px 6px 0; margin-bottom: 25px;">
+          <p style="margin: 0; font-size: 13px; color: #9a3412;">
+            O cliente foi direcionado para a página de confirmação e recebeu o e-mail de boas-vindas com o cupão exclusivo de 10% de desconto (<strong>WELCOME10</strong>).
+          </p>
+        </div>
+
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; font-size: 11px; color: #94a3b8;">
+          <strong style="color: #64748b;">${escapeHtml(storeName)}</strong><br/>
+          ${escapeHtml(storeAddress)}
+        </div>
+      </div>
+    `;
+
+    return sendEmail({
+      to: adminEmail,
+      subject: `📬 [Newsletter] Nova subscrição de ${subscriberEmail}`,
+      html,
+    });
+  } catch (err) {
+    console.error('Falha ao enviar notificação de newsletter para o administrador:', err);
+  }
+}
+
+// 10. Supervision Live Admin Alert Email
 export async function sendAdminAlertEmail({
   title,
   message,
@@ -1150,11 +1242,7 @@ export async function sendAdminAlertEmail({
   details?: Record<string, any>;
 }) {
   try {
-    const settingsDb = await prisma.setting.findMany({
-      where: { key: { in: ['CONTACT_RECEIVER_EMAIL', 'SMTP_USER'] } }
-    });
-    const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-    const recipient = sMap['CONTACT_RECEIVER_EMAIL'] || sMap['SMTP_USER'] || 'cabeliminizenda@gmail.com';
+    const recipient = await getAdminNotificationEmail();
 
     let detailsHtml = '';
     if (details && Object.keys(details).length > 0) {

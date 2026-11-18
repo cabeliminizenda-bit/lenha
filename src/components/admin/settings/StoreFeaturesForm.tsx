@@ -10,7 +10,7 @@ export default function StoreFeaturesForm({ initialSettings }: { initialSettings
   
   const [enableBuyNow, setEnableBuyNow] = useState(initialSettings.ENABLE_BUY_NOW_BUTTON === 'true');
   const [contactReceiverEmail, setContactReceiverEmail] = useState(initialSettings.CONTACT_RECEIVER_EMAIL || 'cabeliminizenda@gmail.com');
-  const [newsletterSuccessMessage, setNewsletterSuccessMessage] = useState(initialSettings.NEWSLETTER_SUCCESS_MESSAGE || 'Thank you for subscribing to our newsletter!');
+  const [newsletterSuccessMessage, setNewsletterSuccessMessage] = useState(initialSettings.NEWSLETTER_SUCCESS_MESSAGE || 'Obrigado por subscrever a nossa newsletter!');
   
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');

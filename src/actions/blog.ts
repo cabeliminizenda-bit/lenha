@@ -228,7 +228,7 @@ export async function addComment(articleId: string, data: any) {
     return { success: true };
   } catch (error: any) {
     console.error('Comment submission error:', error);
-    return { error: 'Une erreur est survenue lors de l’envoi de votre commentaire.' };
+    return { error: 'Ocorreu um erro ao enviar o seu comentário.' };
   }
 }
 

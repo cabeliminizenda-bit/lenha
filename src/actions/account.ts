@@ -9,7 +9,7 @@ export async function updateAccountDetails(formData: FormData) {
   const ip = await getClientIp();
   const rl = await checkRateLimit(`account_update_${ip}`, 10, 600); // 10 updates per 10 min
   if (!rl.success) {
-    return { error: 'Trop de requêtes. Veuillez patienter un instant.' };
+    return { error: 'Demasiados pedidos. Por favor, aguarde um momento.' };
   }
 
   const firstName = String(formData.get('firstName') || '').trim().slice(0, 100);
@@ -23,7 +23,7 @@ export async function updateAccountDetails(formData: FormData) {
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return { error: 'You must be logged in.' };
+    return { error: 'Deve iniciar sessão para continuar.' };
   }
 
   const updates: any = {
@@ -37,17 +37,17 @@ export async function updateAccountDetails(formData: FormData) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (email && email !== user.email) {
     if (!emailRegex.test(email) || email.length > 254) {
-      return { error: 'Adresse e-mail invalide.' };
+      return { error: 'Endereço de e-mail inválido.' };
     }
     updates.email = email;
   }
 
   if (newPassword || confirmPassword) {
     if (newPassword !== confirmPassword) {
-      return { error: 'Les nouveaux mots de passe ne correspondent pas.' };
+      return { error: 'As novas palavras-passe não coincidem.' };
     }
     if (!newPassword || newPassword.length < 8) {
-      return { error: 'Password must be at least 8 characters long.' };
+      return { error: 'A palavra-passe deve ter pelo menos 8 carateres.' };
     }
     updates.password = newPassword;
   }
@@ -56,7 +56,7 @@ export async function updateAccountDetails(formData: FormData) {
 
   if (updateError) {
     console.warn('[Account] Supabase updateUser error:', updateError.message);
-    return { error: 'Erreur lors de la mise à jour du compte. Veuillez vérifier vos informations.' };
+    return { error: 'Erro ao atualizar a conta. Por favor, verifique as suas informações.' };
   }
 
   // Sync Prisma user if email was changed
@@ -72,5 +72,5 @@ export async function updateAccountDetails(formData: FormData) {
   }
 
   revalidatePath('/account/details');
-  return { success: true, message: 'Account details updated successfully.' };
+  return { success: true, message: 'Dados da conta atualizados com sucesso.' };
 }

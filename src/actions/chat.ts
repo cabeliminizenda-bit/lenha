@@ -94,14 +94,10 @@ async function createChatMessage(sessionId: string, sender: ChatSender, content:
   if (sender === ChatSender.CUSTOMER) {
     // Notify Admin via Email
     try {
-      const allSettings = await prisma.setting.findMany({
-        where: { key: { in: ['CONTACT_RECEIVER_EMAIL'] } }
-      });
-      const settingsMap = allSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-      const adminEmail = settingsMap['CONTACT_RECEIVER_EMAIL'] || 'cabeliminizenda@gmail.com';
+      const { sendAdminNewChatMessageEmail, getAdminNotificationEmail } = await import('@/lib/mailer');
+      const adminEmail = await getAdminNotificationEmail();
       const storeUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lenhaecarvaosilvadias.com';
 
-      const { sendAdminNewChatMessageEmail } = await import('@/lib/mailer');
       sendAdminNewChatMessageEmail(
         updatedSession.guestName || 'Visitante',
         updatedSession.guestEmail,

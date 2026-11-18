@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { getSettings } from '@/actions/settings';
-import { sendEmail, sendNewsletterWelcomeEmail } from '@/lib/mailer';
+import { sendEmail, sendNewsletterWelcomeEmail, getAdminNotificationEmail } from '@/lib/mailer';
 import { escapeHtml } from '@/lib/security';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
@@ -57,8 +56,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${baseUrl}/thank-you?newsletter=confirmed`);
     }
 
-    const settings = await getSettings();
-    const receiverEmail = settings.CONTACT_RECEIVER_EMAIL || 'cabeliminizenda@gmail.com';
+    const receiverEmail = await getAdminNotificationEmail();
     const storeName = process.env.NEXT_PUBLIC_STORE_NAME || 'Lenha & Carvão Silva Dias';
 
     // 1. Send notification to admin

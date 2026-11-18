@@ -13,11 +13,11 @@ export async function validateCoupon(code: string, customerEmail?: string) {
     const ip = await getClientIp();
     const rl = await checkRateLimit(`coupon_${ip}`, 10, 60); // 10 attempts per minute
     if (!rl.success) {
-      return { error: "Trop de tentatives de code promo. Veuillez patienter un instant." };
+      return { error: "Demasiadas tentativas de validação de cupão. Por favor, aguarde um momento." };
     }
 
     if (!code || typeof code !== 'string' || code.trim().length === 0 || code.length > 50) {
-      return { error: "Code promo invalide." };
+      return { error: "Código de cupão inválido." };
     }
     const cleanCode = code.trim().toUpperCase();
     const coupon = await prisma.coupon.findUnique({
@@ -25,11 +25,11 @@ export async function validateCoupon(code: string, customerEmail?: string) {
     });
 
     if (!coupon) {
-      return { error: "Invalid coupon code." };
+      return { error: "Código de cupão inválido." };
     }
 
     if (!coupon.isActive) {
-      return { error: "This coupon code is no longer active." };
+      return { error: "Este código de cupão já não se encontra ativo." };
     }
 
     // Special verification for welcome voucher (single use per customer)
@@ -59,7 +59,7 @@ export async function validateCoupon(code: string, customerEmail?: string) {
     };
   } catch (error) {
     console.error("Coupon validation error:", error);
-    return { error: "Error validating the coupon code." };
+    return { error: "Erro ao validar o código do cupão." };
   }
 }
 
@@ -69,7 +69,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     const ip = await getClientIp();
     const rl = await checkRateLimit(`checkout_${ip}`, 10, 60); // 10 checkouts per min
     if (!rl.success) {
-      return { error: "Too many checkout requests. Please wait a moment." };
+      return { error: "Demasiados pedidos de encomenda. Por favor, aguarde um momento." };
     }
 
     const email = String(formData.get('email') || '').trim().toLowerCase();
@@ -84,18 +84,18 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
 
     // ===== INPUT VALIDATION (never trust the client) =====
     if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return { error: "Please provide a valid email address." };
+      return { error: "Por favor, indique um endereço de e-mail válido." };
     }
 
     if (!(ALLOWED_PAYMENT_METHODS as readonly string[]).includes(paymentMethod)) {
-      return { error: "Invalid payment method." };
+      return { error: "Método de pagamento inválido." };
     }
 
     if (!Array.isArray(cartItems) || cartItems.length === 0) {
-      return { error: "Your cart is empty." };
+      return { error: "O seu carrinho está vazio." };
     }
     if (cartItems.length > MAX_CART_LINES) {
-      return { error: "Too many items in cart." };
+      return { error: "Demasiados artigos no carrinho." };
     }
 
     // Validate shippingMethodId is a valid UUID to prevent Prisma P2023 errors
@@ -104,17 +104,17 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     for (const item of cartItems) {
       const qty = Number(item?.quantity);
       if (!item || typeof item.productId !== 'string' || !uuidRegex.test(item.productId)) {
-        return { error: "Invalid product in cart. Please refresh your cart." };
+        return { error: "Artigo inválido no carrinho. Por favor, atualize o seu carrinho." };
       }
       // SECURITY: negative / fractional / huge quantities would alter the total
       if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY_PER_LINE) {
-        return { error: "Invalid quantity in cart." };
+        return { error: "Quantidade inválida no carrinho." };
       }
       item.quantity = qty;
     }
 
     if (!shippingMethodId || !uuidRegex.test(shippingMethodId)) {
-      return { error: "Invalid shipping method. Please refresh the page." };
+      return { error: "Método de envio inválido. Por favor, atualize a página." };
     }
 
     // Check that the selected payment method is enabled by the admin
@@ -124,7 +124,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     const flagMap = Object.fromEntries(paymentFlags.map(s => [s.key, s.value]));
     const flagKey = paymentMethod === 'BANK_TRANSFER' ? 'ENABLE_BANK_TRANSFER' : `ENABLE_${paymentMethod}`;
     if (flagMap[flagKey] === 'false') {
-      return { error: "This payment method is not available." };
+      return { error: "Este método de pagamento não se encontra disponível." };
     }
 
     const validZone = await prisma.shippingZone.findFirst({
@@ -133,11 +133,11 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     });
 
     if (!validZone) {
-      return { error: "This shipping zone is not currently covered." };
+      return { error: "Esta zona de entrega não é atualmente abrangida." };
     }
 
     if (!validZone.methods || validZone.methods.length === 0) {
-      return { error: "Invalid shipping method." };
+      return { error: "Método de envio inválido." };
     }
 
     const shippingRate = validZone.methods[0].rate;
@@ -157,7 +157,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     for (const item of cartItems) {
       const dbProduct = productMap.get(item.productId);
       if (!dbProduct) {
-        return { error: `A product in your cart is no longer available. Please refresh your cart.` };
+        return { error: `Um dos artigos no seu carrinho já não se encontra disponível. Por favor, atualize o carrinho.` };
       }
 
       let itemPrice = dbProduct.price;
@@ -324,7 +324,7 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
           type: 'SYSTEM',
           message: JSON.stringify({
             key: 'gateway_not_configured',
-            gateway: 'Stripe (Carte)',
+            gateway: 'Stripe (Cartão)',
             email,
             amount: `${verifiedTotal} €`
           }),
@@ -530,6 +530,6 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
 
   } catch (error: any) {
     console.error("Checkout error:", error);
-    return { error: "Une erreur est survenue lors de la commande." };
+    return { error: "Ocorreu um erro ao processar a sua encomenda." };
   }
 }
