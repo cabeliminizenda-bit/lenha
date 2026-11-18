@@ -111,7 +111,7 @@ export async function submitNewsletter(formData: FormData) {
             <h1 style="font-size: 22px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">Por favor, confirme a sua subscrição</h1>
             <p style="font-size: 14px; color: #333; margin-bottom: 20px;">Agradecemos o seu interesse na newsletter da <strong>Lenha & Carvão Silva Dias</strong>! Por favor, clique no botão abaixo para confirmar a sua subscrição:</p>
             <p style="text-align: center; margin: 30px 0;">
-              <a href="${confirmUrl}" style="background-color: #ea580c; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Confirmar Subscrição</a>
+              <a href="${confirmUrl}" style="background-color: #dc2626; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Confirmar Subscrição</a>
             </p>
             <p style="font-size: 12px; color: #666; margin-top: 25px;">Se não solicitou esta subscrição, por favor ignore esta mensagem.</p>
           </div>

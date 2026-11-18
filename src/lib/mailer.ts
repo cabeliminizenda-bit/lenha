@@ -1073,36 +1073,36 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
     
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 25px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 48px;"></div>`
-      : `<div style="font-size: 20px; font-weight: bold; color: #ea580c; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;
+      : `<div style="font-size: 20px; font-weight: bold; color: #dc2626; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1e293b; line-height: 1.6; padding: 25px; background: #ffffff;">
         ${logoHtml}
         <h1 style="font-size: 22px; color: #0f172a; margin-top: 0; margin-bottom: 12px;">
-          🎁 Bem-vindo(a)! Receba 25 € de desconto na sua próxima compra
+          🎁 Bem-vindo(a)! Receba 10% de desconto na sua próxima compra
         </h1>
         
         <p style="font-size: 14px; color: #475569; margin-bottom: 16px;">
-          É com imensa satisfação que lhe damos as boas-vindas à nossa newsletter! 🌿
+          É com imensa satisfação que lhe damos as boas-vindas à nossa comunidade! 🌿
         </p>
         <p style="font-size: 14px; color: #475569; margin-bottom: 25px;">
-          Como presente de boas-vindas, oferecemos-lhe <strong>25 € de desconto imediato</strong> para utilizar na sua próxima encomenda de pellets, lenha, salamandras ou climatização!
+          Como presente especial de boas-vindas, oferecemos-lhe <strong>10% de desconto imediato</strong> para utilizar na sua próxima encomenda de pellets, lenha, salamandras ou recuperadores de calor!
         </p>
         
-        <div style="background-color: #fff7ed; border: 2px dashed #ea580c; padding: 22px; text-align: center; border-radius: 8px; margin-bottom: 25px;">
-          <p style="margin: 0; font-size: 13px; color: #c2410c; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
+        <div style="background-color: #fef2f2; border: 2px dashed #dc2626; padding: 22px; text-align: center; border-radius: 8px; margin-bottom: 25px;">
+          <p style="margin: 0; font-size: 13px; color: #991b1b; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">
             O seu código promocional exclusivo:
           </p>
-          <p style="margin: 10px 0 0 0; font-size: 26px; font-weight: 800; color: #ea580c; letter-spacing: 3px; font-family: monospace;">
-            🏷️ BH874XP
+          <p style="margin: 10px 0 0 0; font-size: 26px; font-weight: 800; color: #dc2626; letter-spacing: 3px; font-family: monospace;">
+            🏷️ WELCOME10
           </p>
         </div>
         
         <p style="font-size: 13px; color: #64748b; margin-bottom: 25px; text-align: center;">
-          Insira o código no checkout da sua encomenda — sem valor mínimo de compra! 🛒
+          Insira o código no checkout da sua encomenda para usufruir do desconto! 🛒
         </p>
         
-        <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 12px; color: #0f172a; border-bottom: 2px solid #ea580c; padding-bottom: 6px;">
+        <h3 style="font-size: 15px; font-weight: bold; margin-bottom: 12px; color: #0f172a; border-bottom: 2px solid #dc2626; padding-bottom: 6px;">
           Vantagens Exclusivas da Newsletter Silva Dias:
         </h3>
         <ul style="font-size: 13px; color: #475569; padding-left: 20px; margin-bottom: 25px; line-height: 1.8;">
@@ -1112,13 +1112,13 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
         </ul>
         
         <div style="text-align: center; margin: 35px 0;">
-          <a href="https://lenhaecarvaosilvadias.com/shop" style="background-color: #ea580c; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">
+          <a href="https://lenhaecarvaosilvadias.com/shop" style="background-color: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; display: inline-block;">
             Explorar Produtos na Loja
           </a>
         </div>
         
         <div style="text-align: center; margin-top: 35px; margin-bottom: 25px; font-size: 13px; color: #475569;">
-          <p style="font-weight: bold; color: #ea580c; margin-bottom: 4px;">🔥 A Equipa de Lenha & Carvão Silva Dias</p>
+          <p style="font-weight: bold; color: #dc2626; margin-bottom: 4px;">🔥 A Equipa de Lenha & Carvão Silva Dias</p>
           <p style="margin-top: 0; font-size: 12px; color: #64748b;">Contacto: ${storeEmail}</p>
         </div>
         
@@ -1131,7 +1131,7 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
 
     return sendEmail({
       to: userEmail,
-      subject: `Bem-vindo(a) à Silva Dias! O seu voucher de 25 € de desconto 🎁`,
+      subject: `Bem-vindo(a) à Silva Dias! O seu cupão de 10% de desconto 🎁`,
       html
     });
   } catch (e) {

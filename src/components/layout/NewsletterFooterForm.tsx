@@ -8,7 +8,7 @@ interface Props {
   placeholder?: string;
 }
 
-export default function NewsletterFooterForm({ placeholder = 'Geben Sie Ihre Email ein' }: Props) {
+export default function NewsletterFooterForm({ placeholder = 'Introduza o seu e-mail' }: Props) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -48,7 +48,7 @@ export default function NewsletterFooterForm({ placeholder = 'Geben Sie Ihre Ema
           type="submit"
           disabled={isPending}
           className="bg-[#fbbf24] hover:bg-yellow-500 text-gray-900 px-4 py-3 rounded-r-sm transition flex items-center justify-center disabled:opacity-60"
-          aria-label="S'inscrire à la newsletter"
+          aria-label="Subscrever a newsletter"
         >
           {isPending ? (
             <svg className="w-5 h-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

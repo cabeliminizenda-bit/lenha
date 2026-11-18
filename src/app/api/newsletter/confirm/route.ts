@@ -74,9 +74,9 @@ export async function GET(request: Request) {
     // 2. Send welcome email to client
     await sendNewsletterWelcomeEmail(email).catch(console.error);
 
-    // 3. Redirect back to site with a success message
+    // 3. Redirect back to dedicated Thank You page with confirmed status
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com';
-    return NextResponse.redirect(`${baseUrl}/?newsletter=success`);
+    return NextResponse.redirect(`${baseUrl}/thank-you?newsletter=confirmed`);
   } catch (err) {
     console.error('Confirm newsletter error:', err);
     return new NextResponse('Internal server error', { status: 500 });
