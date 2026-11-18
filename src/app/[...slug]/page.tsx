@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import Link from 'next/link';
 import { getPageBySlug } from '@/actions/pages';
 import SafeHTML from '@/components/SafeHTML';
@@ -259,20 +259,23 @@ export default async function CatchAllPage({
     }
   }
 
-  // 2. Category matching (e.g. /combustiveis, /combustiveis/lenha-e-pellets)
+  // 2. Category matching: redirect legacy root-level stripped category URLs to canonical /categoria-de-produto/...
   const category = await getCategoryByPathSegments(slug);
   if (category) {
+    const canonicalPath = await getCategoryCanonicalPath(category);
     const resolvedSearchParams = await searchParams;
-    const activeCategory = resolvedSearchParams.category !== undefined 
-      ? resolvedSearchParams.category 
-      : (category.slug || category.id);
-
-    const newSearchParams = Promise.resolve({
-      ...resolvedSearchParams,
-      category: activeCategory
-    });
-
-    return <ShopPage searchParams={newSearchParams} />;
+    const queryParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(resolvedSearchParams)) {
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach(v => queryParams.append(key, v));
+        } else {
+          queryParams.append(key, value);
+        }
+      }
+    }
+    const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    permanentRedirect(`${canonicalPath}${queryString}`);
   }
 
   // 3. Fallback: Page not found

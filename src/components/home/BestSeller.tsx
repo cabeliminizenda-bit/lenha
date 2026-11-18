@@ -112,7 +112,7 @@ const BigCard = ({
               (p as any).categories.map((c: any, idx: number) => (
                 <React.Fragment key={c.slug || c.id || idx}>
                   <Link
-                    href={`/product-category/${c.slug || c.id}`}
+                    href={`/categoria-de-produto/${c.slug || c.id}`}
                     className="hover:text-orange-600 hover:underline transition-colors"
                   >
                     {c.name}
@@ -121,7 +121,7 @@ const BigCard = ({
                 </React.Fragment>
               ))
             ) : (
-              <Link href={(p as any).categorySlug ? `/product-category/${(p as any).categorySlug}` : '/shop'} className="hover:text-orange-600 hover:underline">
+              <Link href={(p as any).categorySlug ? `/categoria-de-produto/${(p as any).categorySlug}` : '/shop'} className="hover:text-orange-600 hover:underline">
                 {category}
               </Link>
             )}
@@ -203,7 +203,7 @@ export default async function BestSeller({ config }: { config?: any }) {
     };
   }) : [];
 
-  const seeAllUrl = config?.seeAllUrl || (categoryId ? `/product-category/${categoryId}` : '/best-seller');
+  const seeAllUrl = config?.seeAllUrl || (categoryId ? `/categoria-de-produto/${categoryId}` : '/best-seller');
 
   const bigProduct1 = displayProducts[0];
   const bigProduct2 = displayProducts[5];
@@ -246,7 +246,7 @@ export default async function BestSeller({ config }: { config?: any }) {
             rating={bigProduct1?.rating || 0}
             ratingText={bigProduct1?.ratingText || ''}
             imageUrl={bigProduct1?.imageUrl}
-            linkUrl={bigProduct1 ? `/produto/${bigProduct1.slug}` : '#'}
+            linkUrl={bigProduct1 ? `/product/${bigProduct1.slug}` : '#'}
             borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
           />
         </div>
@@ -265,7 +265,7 @@ export default async function BestSeller({ config }: { config?: any }) {
                 rating={p?.rating || 0}
                 ratingText={p?.ratingText || ''}
                 imageUrl={p?.imageUrl}
-                linkUrl={p ? `/produto/${p.slug}` : '#'}
+                linkUrl={p ? `/product/${p.slug}` : '#'}
                 borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
               />
             );
@@ -283,7 +283,7 @@ export default async function BestSeller({ config }: { config?: any }) {
             rating={bigProduct2?.rating || 0}
             ratingText={bigProduct2?.ratingText || ''}
             imageUrl={bigProduct2?.imageUrl}
-            linkUrl={bigProduct2 ? `/produto/${bigProduct2.slug}` : '#'}
+            linkUrl={bigProduct2 ? `/product/${bigProduct2.slug}` : '#'}
             borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
           />
         </div>
@@ -302,7 +302,7 @@ export default async function BestSeller({ config }: { config?: any }) {
                 rating={p?.rating || 0}
                 ratingText={p?.ratingText || ''}
                 imageUrl={p?.imageUrl}
-                linkUrl={p ? `/produto/${p.slug}` : '#'}
+                linkUrl={p ? `/product/${p.slug}` : '#'}
                 borderColor={settings.BESTSELLER_CARD_BORDER_COLOR}
               />
             );

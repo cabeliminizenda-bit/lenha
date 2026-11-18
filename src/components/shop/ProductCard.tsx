@@ -55,7 +55,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
     if (product.type === 'variable') {
       e.preventDefault();
       e.stopPropagation();
-      router.push(`/produto/${product.slug}`);
+      router.push(`/product/${product.slug}`);
       return;
     }
     e.preventDefault();
@@ -121,7 +121,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
   if (view === 'list') {
     return (
       <div
-        onClick={() => router.push(`/produto/${product.slug}`)}
+        onClick={() => router.push(`/product/${product.slug}`)}
         className="group flex flex-col sm:flex-row bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
         style={borderColor ? { borderColor } : {}}
       >
@@ -153,7 +153,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
             {product.categories && product.categories.length > 0 ? (
               product.categories.map((c, idx) => (
                 <span key={idx}>
-                  <Link href={`/product-category/${c.slug}`} className="hover:text-orange-600 hover:underline" onClick={(e) => e.stopPropagation()}>
+                  <Link href={`/categoria-de-produto/${c.slug}`} className="hover:text-orange-600 hover:underline" onClick={(e) => e.stopPropagation()}>
                     {c.name}
                   </Link>
                   {idx < product.categories!.length - 1 ? ', ' : ''}
@@ -164,7 +164,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
           <h3 className="text-lg font-bold text-gray-900 mb-2 transition-colors">
             <Link
-              href={`/produto/${product.slug}`}
+              href={`/product/${product.slug}`}
               className="hover:text-orange-600"
               onClick={(e) => e.stopPropagation()}
             >
@@ -210,7 +210,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
 
   return (
     <div
-      onClick={() => router.push(`/produto/${product.slug}`)}
+      onClick={() => router.push(`/product/${product.slug}`)}
       className="group flex flex-col h-full bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       style={borderColor ? { borderColor } : {}}
     >
@@ -245,7 +245,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
           {product.categories && product.categories.length > 0 ? (
             product.categories.map((c, idx) => (
               <span key={idx}>
-                <Link href={`/product-category/${c.slug}`} className="hover:text-orange-600 hover:underline" onClick={(e) => e.stopPropagation()}>
+                <Link href={`/categoria-de-produto/${c.slug}`} className="hover:text-orange-600 hover:underline" onClick={(e) => e.stopPropagation()}>
                   {c.name}
                 </Link>
                 {idx < product.categories!.length - 1 ? ', ' : ''}
@@ -260,7 +260,7 @@ export default function ProductCard({ product, view = 'grid', cardStyle = 'desig
           title={product.title}
         >
           <Link
-            href={`/produto/${product.slug}`}
+            href={`/product/${product.slug}`}
             className="hover:text-orange-600"
             onClick={(e) => e.stopPropagation()}
           >

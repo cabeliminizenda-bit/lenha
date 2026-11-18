@@ -38,13 +38,18 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: '/categorie-produit/:path*',
-        destination: '/product-category/:path*',
+        source: '/product-category/:path*',
+        destination: '/categoria-de-produto/:path*',
         permanent: true,
       },
       {
         source: '/categoria-produto/:path*',
-        destination: '/product-category/:path*',
+        destination: '/categoria-de-produto/:path*',
+        permanent: true,
+      },
+      {
+        source: '/categorie-produit/:path*',
+        destination: '/categoria-de-produto/:path*',
         permanent: true,
       },
       {
@@ -53,13 +58,13 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: '/product/:path*',
-        destination: '/produto/:path*',
+        source: '/produto/:path*',
+        destination: '/product/:path*',
         permanent: true,
       },
       {
         source: '/produit/:path*',
-        destination: '/produto/:path*',
+        destination: '/product/:path*',
         permanent: true,
       },
       {

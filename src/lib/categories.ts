@@ -30,18 +30,24 @@ export const getCachedAllCategories = unstable_cache(
 );
 
 /**
- * Computes the full hierarchical path for a category (RankMath Strip Category Base style)
- * e.g. /combustiveis/lenha-e-pellets
+ * Computes the canonical path for a category matching the original WooCommerce URL structure:
+ * /categoria-de-produto/slug or /categoria-de-produto/parent/child
  */
 export async function getCategoryCanonicalPath(
-  category: { id: string; slug: string | null; parentId: string | null },
+  category: { id: string; slug: string | null; parentId: string | null } | string,
   allCategories?: CategoryWithHierarchy[]
 ): Promise<string> {
   const cats = allCategories || (await getCachedAllCategories());
   const catMap = new Map(cats.map(c => [c.id, c]));
 
-  const segments: string[] = [category.slug || category.id];
-  let currentParentId = category.parentId;
+  const targetCat = typeof category === 'string'
+    ? (catMap.get(category) || cats.find(c => c.slug === category))
+    : category;
+
+  if (!targetCat) return '/categoria-de-produto';
+
+  const segments: string[] = [targetCat.slug || targetCat.id];
+  let currentParentId = targetCat.parentId;
 
   while (currentParentId && catMap.has(currentParentId)) {
     const parent = catMap.get(currentParentId)!;
@@ -51,7 +57,7 @@ export async function getCategoryCanonicalPath(
     currentParentId = parent.parentId;
   }
 
-  return `/${segments.join('/')}`;
+  return `/categoria-de-produto/${segments.join('/')}`;
 }
 
 /**

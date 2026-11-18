@@ -85,7 +85,7 @@ export default function MobileBottomNav({
         href="/shop" 
         aria-label="Catálogo da Loja"
         className={`flex flex-col items-center justify-center py-1 px-2 min-w-[56px] transition-colors ${
-          pathname.startsWith('/shop') || pathname.startsWith('/product-category') ? 'text-red-500 font-bold' : 'hover:text-white'
+          pathname.startsWith('/shop') || pathname.startsWith('/categoria-de-produto') ? 'text-red-500 font-bold' : 'hover:text-white'
         }`}
       >
         <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

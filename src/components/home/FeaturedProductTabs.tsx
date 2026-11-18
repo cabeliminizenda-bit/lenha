@@ -612,7 +612,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                     </div>
 
                     {/* Resilient Product Image */}
-                    <Link href={`/produto/${prod.slug}`} className="w-full h-full block">
+                    <Link href={`/product/${prod.slug}`} className="w-full h-full block">
                       <ProductCardImage
                         src={prod.images && prod.images[0] ? prod.images[0] : undefined}
                         alt={prod.title}
@@ -629,7 +629,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       prod.categories.map((cat, idx) => (
                         <React.Fragment key={cat.slug || idx}>
                           <Link
-                            href={`/product-category/${cat.slug}`}
+                            href={`/categoria-de-produto/${cat.slug}`}
                             className="hover:text-red-600 hover:underline transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -642,7 +642,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       ))
                     ) : prod.categorySlug ? (
                       <Link
-                        href={`/product-category/${prod.categorySlug}`}
+                        href={`/categoria-de-produto/${prod.categorySlug}`}
                         className="hover:text-red-600 hover:underline transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -652,7 +652,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       <span>{prod.categoryName || 'Soluções Térmicas'}</span>
                     )}
                   </div>
-                  <Link href={`/produto/${prod.slug}`}>
+                  <Link href={`/product/${prod.slug}`}>
                     <h4 className="font-bold text-stone-900 text-sm mt-1 line-clamp-2 min-h-[40px] group-hover:text-red-600 transition-colors">
                       {prod.title}
                     </h4>

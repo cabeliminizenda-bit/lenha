@@ -61,7 +61,7 @@ export default async function ProductGrid({ config }: ProductGridProps) {
   };
 
   // Priority: custom seeAllUrl from config > category-based URL > /search
-  const seeAllUrl = (config as any).seeAllUrl || (categoryId ? `/product-category/${categoryId}` : '/shop');
+  const seeAllUrl = (config as any).seeAllUrl || (categoryId ? `/categoria-de-produto/${categoryId}` : '/shop');
 
   return (
     <section className={`max-w-7xl mx-auto px-4 w-full py-12 font-sans${(config as any)?.hideMobile ? ' hidden sm:block' : ''}`}>

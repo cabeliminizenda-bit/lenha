@@ -344,7 +344,7 @@ export default function Header({
                     {searchResults.map((product) => (
                       <li key={product.id}>
                         <Link 
-                          href={`/produto/${product.slug}`} 
+                          href={`/product/${product.slug}`} 
                           onClick={() => {
                             setShowSearchResults(false);
                             setSearchQuery('');
@@ -507,7 +507,7 @@ export default function Header({
                   categories.map((cat) => (
                     <Link 
                       key={cat.id} 
-                      href={`/product-category/${cat.slug || cat.id}`}
+                      href={`/categoria-de-produto/${cat.slug || cat.id}`}
                       className={`flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 transition ${!cat.parentId ? 'font-bold text-stone-900 text-xs bg-stone-50/60' : 'text-stone-600 pl-8 text-xs'}`}
                       onClick={() => setIsBottomCategoryOpen(false)}
                     >
@@ -530,7 +530,7 @@ export default function Header({
                   ].map((cat, idx) => (
                     <Link
                       key={idx}
-                      href={`/product-category/${cat.slug}`}
+                      href={`/categoria-de-produto/${cat.slug}`}
                       className="flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 text-stone-800 text-xs font-semibold transition"
                       onClick={() => setIsBottomCategoryOpen(false)}
                     >

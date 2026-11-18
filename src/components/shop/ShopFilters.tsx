@@ -37,9 +37,9 @@ export default function ShopFilters({
   const searchParams = useSearchParams();
   const t = useTranslations('Shop');
 
-  // Detect category from URL path if on /product-category/[slug]
-  const pathCategorySlug = pathname.includes('/product-category/')
-    ? decodeURIComponent(pathname.split('/product-category/')[1]?.split('/')[0]?.split('?')[0] || '')
+  // Detect category from URL path if on /categoria-de-produto/[slug]
+  const pathCategorySlug = pathname.includes('/categoria-de-produto/')
+    ? decodeURIComponent(pathname.split('/categoria-de-produto/')[1]?.split('/')[0]?.split('?')[0] || '')
     : null;
 
   // States
@@ -133,9 +133,9 @@ export default function ShopFilters({
 
     if (cats.length === 1) {
       const singleCat = cats[0];
-      if (pathname.includes('/product-category/')) {
-        // Stay on / navigate to /product-category/[slug]
-        targetPath = `/product-category/${encodeURIComponent(singleCat)}`;
+      if (pathname.includes('/categoria-de-produto/')) {
+        // Stay on / navigate to /categoria-de-produto/[slug]
+        targetPath = `/categoria-de-produto/${encodeURIComponent(singleCat)}`;
       } else {
         // Stay on /shop?category=[slug]
         targetPath = '/shop';
@@ -208,7 +208,7 @@ export default function ShopFilters({
 
   const handleResetFilters = () => {
     if (pathCategorySlug) {
-      router.push(`/product-category/${encodeURIComponent(pathCategorySlug)}`, { scroll: false });
+      router.push(`/categoria-de-produto/${encodeURIComponent(pathCategorySlug)}`, { scroll: false });
     } else {
       router.push('/shop', { scroll: false });
     }

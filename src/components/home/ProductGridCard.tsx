@@ -82,7 +82,7 @@ export default function ProductGridCard({
   };
 
   const navigateToProduct = () => {
-    router.push(`/produto/${product.slug}`);
+    router.push(`/product/${product.slug}`);
   };
 
   return (
@@ -200,7 +200,7 @@ export default function ProductGridCard({
               product.categories.map((c: any, idx: number) => (
                 <React.Fragment key={c.slug || c.id || idx}>
                   <Link
-                    href={`/product-category/${c.slug || c.id}`}
+                    href={`/categoria-de-produto/${c.slug || c.id}`}
                     className="hover:text-orange-600 hover:underline transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -214,7 +214,7 @@ export default function ProductGridCard({
             )}
           </div>
           <h3 className="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 mb-2 transition" title={product.title}>
-            <Link href={`/produto/${product.slug}`} className="hover:text-orange-700" onClick={(e) => e.stopPropagation()}>
+            <Link href={`/product/${product.slug}`} className="hover:text-orange-700" onClick={(e) => e.stopPropagation()}>
               {product.title}
             </Link>
           </h3>

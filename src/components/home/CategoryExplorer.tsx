@@ -9,37 +9,37 @@ interface CategoryExplorerProps {
 const defaultCategories = [
   {
     name: 'Pellets & Lenha',
-    href: '/combustiveis/lenha-e-pellets',
+    href: '/categoria-de-produto/lenha-e-pellets',
     image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069048/lenha/woocommerce-import/nhemnuopqbcehe1hoozw.jpg',
     desc: 'Sacos e Paletes',
   },
   {
     name: 'Salamandras',
-    href: '/climatizacao-e-aquecimento/aquecimento',
+    href: '/categoria-de-produto/salamandras-a-pellets',
     image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069203/lenha/woocommerce-import/qhwl2c5m9cgimm6d4h34.png',
     desc: 'Pellets & Lenha',
   },
   {
     name: 'Recuperadores',
-    href: '/climatizacao-e-aquecimento/aquecimento/recuperadores-de-calor',
+    href: '/categoria-de-produto/recuperadores-de-calor',
     image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069415/lenha/woocommerce-import/qxcim4xcgcybajcmvyoi.jpg',
     desc: 'Ventilados e Água',
   },
   {
     name: 'Fogões a Lenha',
-    href: '/climatizacao-e-aquecimento/aquecimento/fogoes-a-lenha',
+    href: '/categoria-de-produto/fogoes-a-lenha',
     image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069833/lenha/woocommerce-import/hmjs3dcsvzmgv9kjx5f7.jpg',
     desc: 'Com e Sem Forno',
   },
   {
     name: 'Climatização',
-    href: '/climatizacao-e-aquecimento/climatizacao',
+    href: '/categoria-de-produto/climatizacao',
     image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794070333/lenha/woocommerce-import/n0iwcssan0fegayxblwq.jpg',
     desc: 'Ar Condicionado A+++',
   },
   {
     name: 'Termoacumuladores',
-    href: '/termoacumulador',
+    href: '/categoria-de-produto/termoacumulador',
     image: 'https://res.cloudinary.com/t7r98hdh/image/upload/v1794069015/lenha/woocommerce-import/zsmfez6eutldwuudylk2.jpg',
     desc: 'Água Quente Sanitária',
   },

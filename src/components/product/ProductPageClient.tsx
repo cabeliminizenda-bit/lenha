@@ -127,7 +127,7 @@ export default function ProductPageClient({ product, enableBuyNow = false, store
             {product.categories && product.categories.length > 0
               ? product.categories.map((c: any, index: number) => (
                   <span key={c.id}>
-                    <Link href={`/product-category/${c.slug || c.id}`} className="hover:text-red-600 hover:underline transition-colors">
+                    <Link href={`/categoria-de-produto/${c.slug || c.id}`} className="hover:text-red-600 hover:underline transition-colors">
                       {c.name}
                     </Link>
                     {index < product.categories!.length - 1 ? ', ' : ''}

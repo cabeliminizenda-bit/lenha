@@ -219,7 +219,7 @@ export default function Footer({
                   {categories && categories.length > 0 ? (
                     categories.slice(0, 7).map((cat) => (
                       <li key={cat.id}>
-                        <Link href={`/product-category/${cat.slug || cat.id}`} className="hover:text-red-400 transition">
+                        <Link href={`/categoria-de-produto/${cat.slug || cat.id}`} className="hover:text-red-400 transition">
                           {cat.name}
                         </Link>
                       </li>

@@ -75,7 +75,7 @@ export default function BestDealsCard({
   return (
     <>
       <div
-        onClick={() => router.push(`/produto/${product.slug || product.id}`)}
+        onClick={() => router.push(`/product/${product.slug || product.id}`)}
         className="flex-none w-[250px] md:w-[300px] p-5 flex flex-col group/card cursor-pointer hover:shadow-lg transition bg-white border rounded-lg snap-start relative"
         style={{ borderColor }}
       >
@@ -102,8 +102,8 @@ export default function BestDealsCard({
               type="button"
               onClick={handleToggleWishlist}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md cursor-pointer ${isWishlisted
-                ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
-                : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
+                  ? 'bg-red-600 text-white shadow-red-500/30 ring-2 ring-red-400'
+                  : 'bg-white/95 text-stone-700 hover:bg-red-600 hover:text-white border border-stone-200/80 hover:border-red-600'
                 }`}
               title={isWishlisted ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
               aria-label="Wishlist"
@@ -134,7 +134,7 @@ export default function BestDealsCard({
               product.categories.map((c: any, idx: number) => (
                 <React.Fragment key={c.slug || c.id || idx}>
                   <Link
-                    href={`/product-category/${c.slug || c.id}`}
+                    href={`/categoria-de-produto/${c.slug || c.id}`}
                     className="hover:text-orange-600 hover:underline transition-colors"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -145,7 +145,7 @@ export default function BestDealsCard({
               ))
             ) : product.categorySlug ? (
               <Link
-                href={`/product-category/${product.categorySlug}`}
+                href={`/categoria-de-produto/${product.categorySlug}`}
                 className="hover:text-orange-600 hover:underline transition-colors"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -156,7 +156,7 @@ export default function BestDealsCard({
             )}
           </div>
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 transition" title={product.title}>
-            <Link href={`/produto/${product.slug || product.id}`} className="hover:text-orange-600" onClick={(e) => e.stopPropagation()}>
+            <Link href={`/product/${product.slug || product.id}`} className="hover:text-orange-600" onClick={(e) => e.stopPropagation()}>
               {product.title}
             </Link>
           </h3>

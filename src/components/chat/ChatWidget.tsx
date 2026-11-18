@@ -155,12 +155,12 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
   }
 
   return (
-    <div className={`fixed bottom-24 lg:bottom-6 right-6 z-50 font-sans ${visibilityClasses}`}>
+    <div className={`fixed bottom-20 lg:bottom-6 left-4 sm:left-6 z-50 font-sans ${visibilityClasses}`}>
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           aria-label={t('open_chat') || "Open Chat"}
-          className="bg-orange-600 hover:bg-orange-700 text-white rounded-full p-4 shadow-lg transition-transform hover:scale-105 flex items-center justify-center"
+          className="bg-red-600 hover:bg-red-700 text-white rounded-full p-4 shadow-lg transition-transform hover:scale-105 flex items-center justify-center cursor-pointer"
         >
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
         </button>
@@ -169,21 +169,21 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
       {isOpen && (
         <div className="bg-white w-80 sm:w-96 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-100" style={{ height: '500px', maxHeight: '80vh' }}>
           {/* Header */}
-          <div className="bg-orange-600 p-4 text-white flex justify-between items-center">
+          <div className="bg-red-600 p-4 text-white flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-orange-400">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center overflow-hidden border-2 border-red-400">
                 {storeIcon ? (
                   <img src={storeIcon} alt={storeName || "Store"} className="w-full h-full object-contain" />
                 ) : (
-                  <span className="text-orange-700 font-bold text-xl">{storeName.charAt(0)}</span>
+                  <span className="text-red-700 font-bold text-xl">{storeName.charAt(0)}</span>
                 )}
               </div>
               <div>
                 <h3 className="font-bold leading-tight">{storeName}</h3>
-                <p className="text-xs text-orange-200">{t('we_reply_quickly')}</p>
+                <p className="text-xs text-red-100">{t('we_reply_quickly')}</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-orange-100 hover:text-white transition">
+            <button onClick={() => setIsOpen(false)} className="text-red-100 hover:text-white transition">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
@@ -200,7 +200,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
                   placeholder={t('your_name')}
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 text-sm"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-red-500 text-sm"
                 />
                 <input
                   type="email"
@@ -208,11 +208,11 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
                   placeholder={t('your_email')}
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-500 text-sm"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-red-500 text-sm"
                 />
                 <button
                   type="submit"
-                  className="w-full bg-orange-600 text-white font-semibold py-2 rounded-md hover:bg-orange-700 transition mt-2"
+                  className="w-full bg-red-600 text-white font-semibold py-2 rounded-md hover:bg-red-700 transition mt-2"
                 >
                   {t('start_chat')}
                 </button>
@@ -232,7 +232,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
                   return (
                     <div key={msg.id} className={`flex flex-col ${isCustomer ? 'items-end' : 'items-start'}`}>
                       <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
-                        isCustomer ? 'bg-orange-600 text-white rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
+                        isCustomer ? 'bg-red-600 text-white rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
                       }`}>
                         {msg.content}
                       </div>
@@ -253,12 +253,12 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder={t('your_message')}
-                    className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+                    className="flex-1 bg-gray-50 border border-gray-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
                   />
                   <button
                     type="submit"
                     disabled={!newMessage.trim()}
-                    className="bg-orange-600 text-white p-2 rounded-full hover:bg-orange-700 disabled:opacity-50 disabled:hover:bg-orange-600 transition flex items-center justify-center"
+                    className="bg-red-600 text-white p-2 rounded-full hover:bg-red-700 disabled:opacity-50 disabled:hover:bg-red-600 transition flex items-center justify-center"
                   >
                     <svg className="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
                   </button>

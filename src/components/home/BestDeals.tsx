@@ -76,7 +76,7 @@ export default async function BestDeals({ config }: { config?: any }) {
     };
   });
 
-  const seeAllUrl = config?.seeAllUrl || (categoryId ? `/product-category/${categoryId}` : '/deals');
+  const seeAllUrl = config?.seeAllUrl || (categoryId ? `/categoria-de-produto/${categoryId}` : '/deals');
 
   return (
     <section className={`max-w-7xl mx-auto px-4 w-full py-12 font-sans${config?.hideMobile ? ' hidden sm:block' : ''}`}>

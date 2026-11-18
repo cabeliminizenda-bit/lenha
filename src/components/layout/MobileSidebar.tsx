@@ -91,26 +91,26 @@ export default function MobileSidebar({
   return (
     <div className="fixed inset-0 z-[100] flex lg:hidden">
       {/* Overlay backdrop */}
-      <div 
-        className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm transition-opacity" 
+      <div
+        className="absolute inset-0 bg-stone-950/70 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
-      
+
       {/* Sidebar Panel */}
       <div className="relative w-[86%] max-w-sm bg-white h-full shadow-2xl flex flex-col overflow-y-auto animate-in slide-in-from-left duration-300 z-10">
-        
+
         {/* Top Header: Logo + Close Button */}
         <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50/70">
           <Link href="/" onClick={onClose} className="block">
             {logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? (
-              <Image 
-                src={logoImage} 
-                alt="Silva Dias" 
-                width={190} 
-                height={60} 
-                className="object-contain" 
-                style={{ width: 'auto', height: `${logoHeight}px` }} 
+              <Image
+                src={logoImage}
+                alt="Silva Dias"
+                width={190}
+                height={60}
+                className="object-contain"
+                style={{ width: 'auto', height: `${logoHeight}px` }}
               />
             ) : (
               <div className="flex items-center gap-2.5">
@@ -123,7 +123,7 @@ export default function MobileSidebar({
             )}
           </Link>
 
-          <button 
+          <button
             type="button"
             onClick={onClose}
             aria-label="Fechar menu"
@@ -175,7 +175,7 @@ export default function MobileSidebar({
           <ul className="space-y-1 pb-3">
             {/* 1. Início */}
             <li>
-              <Link 
+              <Link
                 href="/"
                 onClick={onClose}
                 className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
@@ -187,7 +187,7 @@ export default function MobileSidebar({
 
             {/* 2. Categorias de Produtos Accordion */}
             <li>
-              <button 
+              <button
                 type="button"
                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
                 className="w-full flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-900 bg-stone-100/90 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors cursor-pointer mt-1"
@@ -205,8 +205,8 @@ export default function MobileSidebar({
                 <ul className="mt-1 ml-2 space-y-1 border-l-2 border-red-500/30 pl-2 py-1">
                   {displayCategories.map((cat: any, idx: number) => (
                     <li key={cat.id || idx}>
-                      <Link 
-                        href={`/product-category/${cat.slug || cat.id}`}
+                      <Link
+                        href={`/categoria-de-produto/${cat.slug || cat.id}`}
                         onClick={onClose}
                         className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-stone-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
@@ -227,7 +227,7 @@ export default function MobileSidebar({
             {/* 3. The rest of the main menu defined for Desktop */}
             {otherDesktopLinks.map((link, idx) => (
               <li key={`desktop-menu-${idx}`}>
-                <Link 
+                <Link
                   href={link.url}
                   onClick={onClose}
                   className="flex items-center justify-between px-3.5 py-2.5 text-sm font-bold text-stone-800 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
@@ -244,7 +244,7 @@ export default function MobileSidebar({
         {hasAnyContact && (
           <div className="p-4 bg-stone-50 border-t border-stone-200 mt-auto text-xs space-y-2.5">
             <p className="font-bold text-stone-900 uppercase tracking-wider text-[11px]">Apoio ao Cliente</p>
-            
+
             {hasPhone && (
               <a href={`tel:${contactPhone.replace(/\s+/g, '')}`} className="flex items-center gap-2 text-stone-600 hover:text-red-600 transition">
                 <svg className="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
