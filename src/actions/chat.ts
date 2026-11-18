@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 import { ChatSender, ChatSessionStatus } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
-import { checkRateLimit } from '@/lib/rateLimit';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 // UUID validation helper
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -15,6 +15,11 @@ const MAX_EMAIL_LENGTH = 254;
 
 // Client actions
 export async function getOrCreateSession(guestId: string, guestName?: string, guestEmail?: string) {
+  const ip = await getClientIp();
+  const rl = await checkRateLimit(`chat_session_${ip}`, 10, 300); // 10 session creations per 5 mins per IP
+  if (!rl.success) {
+    throw new Error('Too many requests. Please wait a moment.');
+  }
   // Validate guestId format
   if (!guestId || !UUID_REGEX.test(guestId)) {
     throw new Error('Invalid guest identifier.');
@@ -151,6 +156,12 @@ async function getOwnedSession(sessionId: string, guestId: string) {
  * (previously the client could choose ADMIN and impersonate support).
  */
 export async function sendMessage(sessionId: string, guestId: string, content: string) {
+  const ip = await getClientIp();
+  const rlIp = await checkRateLimit(`chat_msg_ip_${ip}`, 20, 60); // 20 messages per min per IP
+  if (!rlIp.success) {
+    throw new Error('Too many messages sent. Please wait a moment.');
+  }
+
   const rl = await checkRateLimit(`chat_${guestId}`, 10, 60); // 10 messages per min
   if (!rl.success) {
     throw new Error('Too many messages sent. Please wait a moment.');

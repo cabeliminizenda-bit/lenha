@@ -3,10 +3,12 @@ import { createCoupon } from '@/actions/admin';
 import CouponTable from '@/components/admin/CouponTable';
 import AdminPagination from '@/components/admin/AdminPagination';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function CouponsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminCoupons');
   const resolvedParams = await searchParams;
   const page = parseInt(resolvedParams.page || '1', 10);

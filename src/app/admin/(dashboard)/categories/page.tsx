@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 import CategoryTable from '@/components/admin/CategoryTable';
 import CategoryCreateForm from '@/components/admin/CategoryCreateForm';
 import AdminPagination from '@/components/admin/AdminPagination';
@@ -7,6 +8,7 @@ import AdminPagination from '@/components/admin/AdminPagination';
 export const dynamic = 'force-dynamic';
 
 export default async function CategoriesPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminCategories');
   const resolvedParams = await searchParams;
   const page = parseInt(resolvedParams.page || '1', 10);

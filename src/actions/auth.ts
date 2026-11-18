@@ -46,20 +46,30 @@ export async function loginUser(formData: FormData) {
         }
       });
     } else if (existingUser.id !== signInData.user.id && existingUser.role !== 'ADMIN') {
-      // Safe transaction after verified credentials: link guest orders to registered account
-      await prisma.$transaction([
-        prisma.order.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
-        prisma.review.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
-        prisma.notification.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
-        prisma.user.delete({ where: { id: existingUser.id } }),
-        prisma.user.create({
-          data: {
-            id: signInData.user.id,
-            email: signInData.user.email || email,
-            role: 'CUSTOMER'
-          }
-        })
-      ]);
+      // SECURITY: Only link guest orders if the user's email has been verified/confirmed
+      const isEmailConfirmed = Boolean(
+        signInData.user.email_confirmed_at || 
+        (signInData.user as any).confirmed_at
+      );
+
+      if (isEmailConfirmed) {
+        // Safe transaction after verified credentials: link guest orders to registered account
+        await prisma.$transaction([
+          prisma.order.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
+          prisma.review.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
+          prisma.notification.updateMany({ where: { userId: existingUser.id }, data: { userId: signInData.user.id } }),
+          prisma.user.delete({ where: { id: existingUser.id } }),
+          prisma.user.create({
+            data: {
+              id: signInData.user.id,
+              email: signInData.user.email || email,
+              role: 'CUSTOMER'
+            }
+          })
+        ]);
+      } else {
+        console.warn(`[Login] Deferred linking guest orders for ${email}: email not yet confirmed.`);
+      }
     }
   } catch (e) {
     console.error("[Login] Error syncing guest orders on verified login:", e);

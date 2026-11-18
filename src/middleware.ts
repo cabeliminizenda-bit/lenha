@@ -79,6 +79,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (url.pathname.startsWith('/admin') && !url.pathname.startsWith('/admin/login') && !url.pathname.startsWith('/admin/setup')) {
+    const hasSession = request.cookies.getAll().some(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))
+    
+    if (!hasSession) {
+      url.pathname = '/admin/login'
+      return Response.redirect(url)
+    }
+  }
+
   // Set x-pathname to be used by i18n
   response.headers.set('x-pathname', url.pathname)
 

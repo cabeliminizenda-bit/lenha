@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 import ProductForm from '@/components/admin/ProductForm';
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin();
   const { id } = await params;
   
   const product = await prisma.product.findUnique({

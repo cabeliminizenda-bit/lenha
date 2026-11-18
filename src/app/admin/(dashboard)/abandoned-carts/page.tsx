@@ -2,10 +2,12 @@ import { getTranslations } from 'next-intl/server';
 import AbandonedCartTable from '@/components/admin/AbandonedCartTable';
 import AdminPagination from '@/components/admin/AdminPagination';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AbandonedCartsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminAbandonedCarts');
   const resolvedParams = await searchParams;
   const page = parseInt(resolvedParams.page || '1', 10);

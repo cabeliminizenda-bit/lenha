@@ -8,7 +8,7 @@ const ALLOWED_PAYMENT_METHODS = ['STRIPE', 'PAYPAL', 'BANK_TRANSFER'] as const;
 const MAX_CART_LINES = 50;
 const MAX_QTY_PER_LINE = 999;
 
-export async function validateCoupon(code: string) {
+export async function validateCoupon(code: string, customerEmail?: string) {
   try {
     const ip = await getClientIp();
     const rl = await checkRateLimit(`coupon_${ip}`, 10, 60); // 10 attempts per minute
@@ -19,8 +19,9 @@ export async function validateCoupon(code: string) {
     if (!code || typeof code !== 'string' || code.trim().length === 0 || code.length > 50) {
       return { error: "Code promo invalide." };
     }
+    const cleanCode = code.trim().toUpperCase();
     const coupon = await prisma.coupon.findUnique({
-      where: { code: code.toUpperCase() }
+      where: { code: cleanCode }
     });
 
     if (!coupon) {
@@ -29,6 +30,23 @@ export async function validateCoupon(code: string) {
 
     if (!coupon.isActive) {
       return { error: "This coupon code is no longer active." };
+    }
+
+    // Special verification for welcome voucher (single use per customer)
+    if (cleanCode === 'WELCOME10' && customerEmail && customerEmail.includes('@')) {
+      const normalizedEmail = customerEmail.trim().toLowerCase();
+      const priorOrder = await prisma.order.findFirst({
+        where: {
+          OR: [
+            { user: { email: normalizedEmail } },
+            { destinationAddress: { contains: normalizedEmail } }
+          ],
+          destinationAddress: { contains: '"couponCode":"WELCOME10"' }
+        }
+      });
+      if (priorOrder) {
+        return { error: "O código WELCOME10 já foi utilizado neste endereço de e-mail." };
+      }
     }
 
     return { 
@@ -176,13 +194,30 @@ export async function processCheckout(formData: FormData, cartItems: any[], fina
     }
 
     // Apply coupon discount server-side if provided
-    const couponCode = String(formData.get('couponCode') || '').slice(0, 64);
+    const couponCode = String(formData.get('couponCode') || '').trim().slice(0, 64);
     let discountAmount = 0;
     if (couponCode) {
+      const cleanUpperCode = couponCode.toUpperCase();
       const coupon = await prisma.coupon.findUnique({
-        where: { code: couponCode.toUpperCase() },
+        where: { code: cleanUpperCode },
       });
       if (coupon && coupon.isActive) {
+        // Enforce 1-time usage per customer for WELCOME10
+        if (cleanUpperCode === 'WELCOME10') {
+          const priorOrder = await prisma.order.findFirst({
+            where: {
+              OR: [
+                { user: { email } },
+                { destinationAddress: { contains: email } }
+              ],
+              destinationAddress: { contains: '"couponCode":"WELCOME10"' }
+            }
+          });
+          if (priorOrder) {
+            return { error: "O cupão de boas-vindas WELCOME10 é exclusivo para a primeira encomenda e já foi utilizado por este cliente." };
+          }
+        }
+
         if (coupon.type === 'PERCENTAGE') {
           discountAmount = serverCartTotal * (coupon.value / 100);
         } else {

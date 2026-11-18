@@ -3,11 +3,13 @@ import { getDashboardStats } from '@/actions/dashboard';
 import DashboardChart from '@/components/admin/DashboardChart';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 import { formatPriceNumber, defaultCurrencyOptions } from '@/lib/formatPrice';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  await requireAdmin();
   const t = await getTranslations('AdminDashboard');
   const tOrders = await getTranslations('AdminOrders');
   const locale = await getLocale();

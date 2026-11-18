@@ -3,10 +3,12 @@ import BlogTable from '@/components/admin/BlogTable';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export default async function BlogsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminBlogs');
   const resolvedParams = await searchParams;
   const page = parseInt(resolvedParams.page || '1', 10);

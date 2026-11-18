@@ -8,15 +8,28 @@ const HIDDEN_SETTING_KEYS = new Set([
   'CRON_SECRET',
   'SMTP_PASSWORD',
   'SMTP_PASS',
+  'SMTP_USER',
+  'SMTP_HOST',
   'SUPABASE_SERVICE_ROLE_KEY',
   'SETUP_TOKEN',
+  'RESEND_API_KEY',
+  'CLOUDINARY_API_SECRET',
+  'WOOCOMMERCE_CONSUMER_SECRET',
+  'WOOCOMMERCE_CONSUMER_KEY',
 ]);
+
+function isSensitiveKey(key: string): boolean {
+  if (HIDDEN_SETTING_KEYS.has(key)) return true;
+  const upper = key.toUpperCase();
+  if (upper.startsWith('NEXT_PUBLIC_')) return false;
+  return upper.includes('SECRET') || upper.includes('PASSWORD') || upper.endsWith('_PASS');
+}
 
 // Helper to get raw settings (excluding sensitive payment and service credentials)
 async function fetchSettings() {
   const settingsDb = await prisma.setting.findMany();
   return settingsDb
-    .filter(s => !HIDDEN_SETTING_KEYS.has(s.key))
+    .filter(s => !isSensitiveKey(s.key))
     .reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
 }
 

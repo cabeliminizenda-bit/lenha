@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
 import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
@@ -50,7 +51,6 @@ export async function POST(request: Request) {
     }
 
     // Verify webhook signature
-    const Stripe = require('stripe');
     const stripe = new Stripe(stripeSecretSetting.value);
 
     let event;
@@ -102,6 +102,14 @@ export async function POST(request: Request) {
         console.error(`[Stripe Webhook] Session mismatch for order ${orderId}`);
         return NextResponse.json({ error: 'Session mismatch' }, { status: 400 });
       }
+      // SECURITY: verify currency
+      const currencySetting = await prisma.setting.findUnique({ where: { key: 'currency' } });
+      const expectedCurrency = (currencySetting?.value || 'EUR').toLowerCase();
+      if (session.currency && session.currency.toLowerCase() !== expectedCurrency) {
+        console.error(`[Stripe Webhook] Currency mismatch for order ${orderId}: ${session.currency} vs ${expectedCurrency}`);
+        return NextResponse.json({ error: 'Currency mismatch' }, { status: 400 });
+      }
+
       const expectedCents = Math.round(order.total * 100);
       // 2-cent tolerance for per-line rounding differences
       if (typeof session.amount_total === 'number' && session.amount_total < expectedCents - 2) {

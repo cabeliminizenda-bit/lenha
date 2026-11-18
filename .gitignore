@@ -41,6 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 # maintenance/migration scripts (one-off)
+/scratch
 fix_*.js
 add_*_translations.js
 translate*.js

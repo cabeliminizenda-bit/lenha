@@ -5,18 +5,35 @@ import { revalidatePath, updateTag } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/utils/supabase/server';
 
-const SENSITIVE_KEYS = new Set([
+export const SENSITIVE_SETTING_KEYS = new Set([
   'STRIPE_SECRET_KEY',
   'PAYPAL_SECRET',
   'SMTP_PASS',
+  'SMTP_PASSWORD',
+  'SMTP_USER',
+  'SMTP_HOST',
+  'CRON_SECRET',
+  'SETUP_TOKEN',
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'RESEND_API_KEY',
+  'CLOUDINARY_API_SECRET',
+  'WOOCOMMERCE_CONSUMER_SECRET',
+  'WOOCOMMERCE_CONSUMER_KEY',
 ]);
+
+export function isSensitiveSettingKey(key: string): boolean {
+  if (SENSITIVE_SETTING_KEYS.has(key)) return true;
+  const upper = key.toUpperCase();
+  if (upper.startsWith('NEXT_PUBLIC_')) return false;
+  return upper.includes('SECRET') || upper.includes('PASSWORD') || upper.endsWith('_PASS');
+}
 
 /**
  * Fetch settings map.
  *
  * SECURITY: If called without an active ADMIN session, sensitive credentials
- * (Stripe Secret Key, PayPal Secret, SMTP Password) are stripped to prevent
- * unauthorized extraction through Next.js Server Action RPCs.
+ * (Stripe Secret Key, PayPal Secret, SMTP Password/Host/User, Service keys)
+ * are stripped to prevent unauthorized extraction through Next.js Server Action RPCs.
  */
 export async function getSettings() {
   const settings = await prisma.setting.findMany();
@@ -42,12 +59,9 @@ export async function getSettings() {
     }
   }
 
-  // Liste des clés secrètes à ne jamais exposer au public
-  const hiddenKeys = ['STRIPE_SECRET_KEY', 'PAYPAL_SECRET', 'CRON_SECRET', 'SMTP_PASSWORD', 'SMTP_PASS'];
-
   settings.forEach(s => {
-    // Si l'utilisateur est admin, on envoie tout. Sinon, on filtre les clés secrètes.
-    if (isAdmin || (!hiddenKeys.includes(s.key) && !SENSITIVE_KEYS.has(s.key))) {
+    // Si l'utilisateur est admin, on envoie tout. Sinon, on filtre toutes les clés sensibles.
+    if (isAdmin || !isSensitiveSettingKey(s.key)) {
       settingsMap[s.key] = s.value;
     }
   });
@@ -67,7 +81,8 @@ export async function updateSetting(key: string, value: string) {
     updateTag('settings');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message };
+    console.error('[updateSetting] Error:', error);
+    return { error: 'Erreur lors de la mise à jour du paramètre.' };
   }
 }
 
@@ -87,6 +102,7 @@ export async function updateSettingsBatch(settingsMap: Record<string, string>) {
     updateTag('settings');
     return { success: true };
   } catch (error: any) {
-    return { error: error.message };
+    console.error('[updateSettingsBatch] Error:', error);
+    return { error: 'Erreur lors de la mise à jour des paramètres.' };
   }
 }

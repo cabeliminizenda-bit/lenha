@@ -39,13 +39,13 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
 
   useEffect(() => {
     if (!enabled) return;
-    
+
     let id = localStorage.getItem('chat_guest_id');
     if (!id) {
       id = generateId();
       localStorage.setItem('chat_guest_id', id);
     }
-    
+
     if (guestId !== id) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setGuestId(id);
@@ -81,11 +81,11 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestName.trim() || !guestEmail.trim()) return;
-    
+
     localStorage.setItem('chat_guest_name', guestName);
     localStorage.setItem('chat_guest_email', guestEmail);
     setHasRegistered(true);
-    
+
     if (guestId) {
       try {
         const session = await getOrCreateSession(guestId, guestName, guestEmail);
@@ -103,14 +103,14 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
   // Polling for new messages when open
   useEffect(() => {
     if (!isOpen || !sessionId) return;
-    
+
     const interval = setInterval(async () => {
       const msgs = await getSessionMessages(sessionId, guestId as string);
       if (msgs.length > messages.length) {
         setMessages(msgs);
       }
     }, 3000); // Poll every 3 seconds
-    
+
     return () => clearInterval(interval);
   }, [isOpen, sessionId, messages.length]);
 
@@ -121,7 +121,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !sessionId) return;
-    
+
     const tempMsg = {
       id: 'temp-' + Date.now(),
       sessionId,
@@ -129,10 +129,10 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
       content: newMessage,
       createdAt: new Date(),
     } as ChatMessage;
-    
+
     setMessages([...messages, tempMsg]);
     setNewMessage('');
-    
+
     let savedMsg: any = tempMsg;
     try {
       savedMsg = await sendMessage(sessionId, guestId, tempMsg.content);
@@ -231,9 +231,8 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
                   const isCustomer = msg.sender === ChatSender.CUSTOMER;
                   return (
                     <div key={msg.id} className={`flex flex-col ${isCustomer ? 'items-end' : 'items-start'}`}>
-                      <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm shadow-sm ${
-                        isCustomer ? 'bg-red-600 text-white rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
-                      }`}>
+                      <div className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm shadow-sm ${isCustomer ? 'bg-red-600 text-white rounded-br-none' : 'bg-white text-gray-800 border border-gray-100 rounded-bl-none'
+                        }`}>
                         {msg.content}
                       </div>
                       <span className="text-[10px] text-gray-500 mt-1 px-1">

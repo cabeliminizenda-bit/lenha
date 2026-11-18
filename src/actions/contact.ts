@@ -1,7 +1,5 @@
 'use server';
 
-import prisma from '@/lib/prisma';
-import { getSettings } from './settings';
 import { getContactSettings } from './contactSettings';
 import { getTranslations } from 'next-intl/server';
 import { escapeHtml } from '@/lib/security';
@@ -94,7 +92,11 @@ export async function submitNewsletter(formData: FormData) {
       return { error: 'Endereço de e-mail inválido.' };
     }
 
-    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
+    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL;
+    if (!secret) {
+      console.error('[NEWSLETTER] Secret key not configured on server');
+      return { error: 'Ocorreu um erro na configuração do servidor.' };
+    }
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
     const payload = `${email}|${expiry}`;
     const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');

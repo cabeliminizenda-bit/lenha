@@ -53,8 +53,8 @@ export default function CategoryExplorer({ categories }: CategoryExplorerProps) 
           <span className="text-red-600 font-bold text-[11px] sm:text-xs uppercase tracking-wider block">Catálogo Oficial</span>
           <h2 className="text-[17px] sm:text-2xl lg:text-3xl font-extrabold text-stone-900 tracking-tight leading-tight whitespace-nowrap sm:whitespace-normal">Explore por Categoria</h2>
         </div>
-        <Link 
-          href="/shop" 
+        <Link
+          href="/shop"
           className="text-xs sm:text-sm font-bold text-red-600 hover:text-red-700 flex items-center gap-1 shrink-0 transition-colors group pb-0.5"
         >
           <span>Ver Todas</span>

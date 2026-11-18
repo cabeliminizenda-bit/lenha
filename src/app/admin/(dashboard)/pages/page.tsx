@@ -3,11 +3,13 @@ import { deletePage } from '@/actions/pages';
 import AdminPagination from '@/components/admin/AdminPagination';
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 import { getContactSettings } from '@/actions/contactSettings';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPagesList({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminPages');
   const contactSettings = await getContactSettings();
   const resolvedParams = await searchParams;

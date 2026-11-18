@@ -3,10 +3,17 @@ import crypto from 'crypto';
 import { getSettings } from '@/actions/settings';
 import { sendEmail, sendNewsletterWelcomeEmail } from '@/lib/mailer';
 import { escapeHtml } from '@/lib/security';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  const ip = await getClientIp();
+  const rl = await checkRateLimit(`newsletter_confirm_${ip}`, 10, 60);
+  if (!rl.success) {
+    return new NextResponse('Too many requests. Please wait a moment.', { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
 
@@ -27,7 +34,11 @@ export async function GET(request: Request) {
     }
 
     // Strong secret resolution: use dedicated secret or server-side keys
-    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL || 'fallback-newsletter-key';
+    const secret = process.env.NEWSLETTER_SECRET || process.env.NEXTAUTH_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.CRON_SECRET || process.env.DATABASE_URL;
+    if (!secret) {
+      console.error('[Newsletter Confirm] No secret key configured on server');
+      return new NextResponse('Server configuration error', { status: 500 });
+    }
     const payload = `${email}|${expiry}`;
     const expectedSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
 
@@ -36,6 +47,14 @@ export async function GET(request: Request) {
 
     if (expectedBuffer.length !== signatureBuffer.length || !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)) {
       return new NextResponse('Invalid signature', { status: 400 });
+    }
+
+    // Replay protection: each token can only trigger emails once in 24 hours
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com';
+    const replayCheck = await checkRateLimit(`nl_token_${signature.slice(0, 32)}`, 1, 86400);
+    if (!replayCheck.success) {
+      // Token already confirmed; redirect to thank-you without duplicate email dispatch
+      return NextResponse.redirect(`${baseUrl}/thank-you?newsletter=confirmed`);
     }
 
     const settings = await getSettings();
@@ -75,7 +94,6 @@ export async function GET(request: Request) {
     await sendNewsletterWelcomeEmail(email).catch(console.error);
 
     // 3. Redirect back to dedicated Thank You page with confirmed status
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lenhaecarvaosilvadias.com';
     return NextResponse.redirect(`${baseUrl}/thank-you?newsletter=confirmed`);
   } catch (err) {
     console.error('Confirm newsletter error:', err);

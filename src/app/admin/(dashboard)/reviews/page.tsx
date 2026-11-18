@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 import ReviewTable from '@/components/admin/ReviewTable';
 
 export const dynamic = 'force-dynamic';
@@ -7,6 +8,7 @@ import { getTranslations } from 'next-intl/server';
 import AdminPagination from '@/components/admin/AdminPagination';
 
 export default async function AdminReviewsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminReviews');
   const resolvedParams = await searchParams;
   const page = parseInt(resolvedParams.page || '1', 10);

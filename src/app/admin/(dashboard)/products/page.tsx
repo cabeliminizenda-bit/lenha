@@ -6,11 +6,13 @@ import WooCommerceImportModal from '@/components/admin/WooCommerceImportModal';
 import ProductSearchBar from '@/components/admin/ProductSearchBar';
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/auth';
 import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ page?: string; q?: string }> }) {
+  await requireAdmin();
   const t = await getTranslations('AdminProducts');
   const resolvedParams = await searchParams;
   const page = parseInt(resolvedParams.page || '1', 10);

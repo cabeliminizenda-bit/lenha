@@ -52,9 +52,11 @@ export function basicSanitizeHtml(html: string): string {
     ''
   );
 
-  // 3. Remove inline event handlers with any whitespace or slash separator
-  // Handles: onclick=..., /onerror=..., onfocus = "...", etc.
-  out = out.replace(/(?:[\s/]|&NewLine;)+on[a-z0-9_-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>/]+))?/gi, '');
+  // 3. Remove inline event handlers (handles onclick=..., "onerror=..., /onerror=..., onfocus = "...", etc.)
+  out = out.replace(/(?:[\s/"']|&NewLine;|^)on[a-z0-9_-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>/]+))?/gi, (match) => {
+    const first = match.charAt(0);
+    return (first === '"' || first === "'") ? first : ' ';
+  });
 
   // Helper to decode HTML entities and strip whitespace/control chars for protocol checking
   function normalizeUrl(url: string) {
@@ -68,7 +70,7 @@ export function basicSanitizeHtml(html: string): string {
 
   // 4. Neutralise dangerous URL schemes in attributes (href, src, action, etc.)
   out = out.replace(
-    /(?:[\s/])(href|src|action|formaction|xlink:href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
+    /(?:[\s/"'])(href|src|action|formaction|xlink:href)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi,
     (match, attr, qDouble, qSingle, unquoted) => {
       const rawVal = qDouble !== undefined ? qDouble : (qSingle !== undefined ? qSingle : unquoted);
       const normalized = normalizeUrl(rawVal);
@@ -80,7 +82,7 @@ export function basicSanitizeHtml(html: string): string {
   );
 
   // 5. Remove CSS expressions / javascript in style attributes
-  out = out.replace(/(?:[\s/])style\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
+  out = out.replace(/(?:[\s/"'])style\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, (match) => {
     const normalized = normalizeUrl(match);
     if (normalized.includes('expression') || normalized.includes('javascript:') || normalized.includes('behavior:')) {
       return '';
