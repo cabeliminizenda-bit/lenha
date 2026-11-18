@@ -56,14 +56,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ];
 
-  // 2. Produits dynamiques (/product/[slug])
+  // 2. Produits dynamiques (/produto/[slug])
   const products = await prisma.product.findMany({
     where: { isDeleted: false },
     select: { slug: true, updatedAt: true },
   });
 
   const productPages = products.map((product) => ({
-    url: `${baseUrl}/product/${product.slug}`,
+    url: `${baseUrl}/produto/${product.slug}`,
     lastModified: product.updatedAt,
     changeFrequency: 'weekly' as const,
     priority: 0.8,

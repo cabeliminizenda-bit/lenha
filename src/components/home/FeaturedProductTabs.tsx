@@ -612,7 +612,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                     </div>
 
                     {/* Resilient Product Image */}
-                    <Link href={`/product/${prod.slug}`} className="w-full h-full block">
+                    <Link href={`/produto/${prod.slug}`} className="w-full h-full block">
                       <ProductCardImage
                         src={prod.images && prod.images[0] ? prod.images[0] : undefined}
                         alt={prod.title}
@@ -652,7 +652,7 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
                       <span>{prod.categoryName || 'Soluções Térmicas'}</span>
                     )}
                   </div>
-                  <Link href={`/product/${prod.slug}`}>
+                  <Link href={`/produto/${prod.slug}`}>
                     <h4 className="font-bold text-stone-900 text-sm mt-1 line-clamp-2 min-h-[40px] group-hover:text-red-600 transition-colors">
                       {prod.title}
                     </h4>

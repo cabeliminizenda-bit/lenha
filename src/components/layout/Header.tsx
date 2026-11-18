@@ -344,7 +344,7 @@ export default function Header({
                     {searchResults.map((product) => (
                       <li key={product.id}>
                         <Link 
-                          href={`/product/${product.slug}`} 
+                          href={`/produto/${product.slug}`} 
                           onClick={() => {
                             setShowSearchResults(false);
                             setSearchQuery('');
