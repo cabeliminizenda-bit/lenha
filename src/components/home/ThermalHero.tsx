@@ -272,14 +272,19 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* User Background Image with controllable opacity */}
+        {/* User Background Image with controllable opacity - Native Next.js Image with high priority for LCP */}
         {bgImageUrl && (
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-all duration-500 ease-out"
-            style={{
-              backgroundImage: `url('${bgImageUrl}')`,
-              opacity: bgOpacity
-            }}
+          <Image
+            src={bgImageUrl}
+            alt="Lenha & Carvão Silva Dias - Climatização e Biomassa"
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+            quality={80}
+            unoptimized={bgImageUrl.startsWith('http')}
+            className="object-cover object-center pointer-events-none transition-opacity duration-500"
+            style={{ opacity: bgOpacity }}
           />
         )}
 
@@ -299,7 +304,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
                 </span>
-                <span className="text-white font-bold tracking-wide animate-pulse">
+                <span className="text-white font-bold tracking-wide">
                   {campaignBadge}
                 </span>
               </div>
