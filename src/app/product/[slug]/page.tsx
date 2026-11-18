@@ -17,9 +17,9 @@ import Image from "next/image";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  
+
   const product = await getCachedProductBySlug(slug);
-  
+
   const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvão Silva Dias";
 
   if (!product) {
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  
+
   const product = await getCachedProductBySlug(slug);
 
   if (!product) {
@@ -229,7 +229,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <Link href="/" className="hover:text-red-600 transition">{t('home')}</Link>
             <span className="text-gray-300">/</span>
             {primaryCat ? (
-              <Link 
+              <Link
                 href={primaryCatPath || `/categoria-de-produto/${primaryCat.slug || primaryCat.id}`}
                 className="hover:text-red-600 transition"
               >
@@ -265,7 +265,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
 
           {/* Tabs Section (Description & Reviews) */}
-          <ProductReviews 
+          <ProductReviews
             productId={product.id}
             productTitle={product.title}
             reviews={(product as any).reviews || []}
@@ -278,7 +278,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <div className="border-b border-gray-200 pb-4 mb-8">
               <h2 className="text-xl font-bold text-gray-900">{t('related_products')}</h2>
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.length > 0 ? (
                 relatedProducts.map(rp => (
