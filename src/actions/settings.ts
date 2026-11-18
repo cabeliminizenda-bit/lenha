@@ -5,7 +5,7 @@ import { revalidatePath, updateTag } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 import { createClient } from '@/utils/supabase/server';
 
-export const SENSITIVE_SETTING_KEYS = new Set([
+const SENSITIVE_SETTING_KEYS = new Set([
   'STRIPE_SECRET_KEY',
   'PAYPAL_SECRET',
   'SMTP_PASS',
@@ -21,7 +21,7 @@ export const SENSITIVE_SETTING_KEYS = new Set([
   'WOOCOMMERCE_CONSUMER_KEY',
 ]);
 
-export function isSensitiveSettingKey(key: string): boolean {
+function isSensitiveSettingKey(key: string): boolean {
   if (SENSITIVE_SETTING_KEYS.has(key)) return true;
   const upper = key.toUpperCase();
   if (upper.startsWith('NEXT_PUBLIC_')) return false;
@@ -38,7 +38,7 @@ export function isSensitiveSettingKey(key: string): boolean {
 export async function getSettings() {
   const settings = await prisma.setting.findMany();
   const settingsMap: Record<string, string> = {};
-  
+
   let isAdmin = false;
   try {
     const { requireAdmin } = await import('@/lib/auth');
@@ -96,7 +96,7 @@ export async function updateSettingsBatch(settingsMap: Record<string, string>) {
         create: { key, value }
       });
     });
-    
+
     await prisma.$transaction(transactions);
     revalidatePath('/', 'layout');
     updateTag('settings');

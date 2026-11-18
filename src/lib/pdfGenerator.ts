@@ -36,7 +36,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
   let companyName = 'SILVA DIAS – Comércio de Lenha e Carvão, Lda.';
   let companyAddress = 'Alto Almosquia, 2750-000 Cascais – Portugal';
   let companyEmail = 'info@lenhaecarvaosilvadias.com';
-  
+
   try {
     const settingsDb = await prisma.setting.findMany({
       where: {
@@ -55,7 +55,7 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
       }
     });
     const sMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-    
+
     if (sMap.STORE_NAME) storeName = sMap.STORE_NAME;
     else if (sMap.NEXT_PUBLIC_STORE_NAME) storeName = sMap.NEXT_PUBLIC_STORE_NAME;
 
@@ -91,11 +91,11 @@ export async function generateInvoicePDF(order: any): Promise<Buffer> {
     ];
     for (const p of candidatePaths) {
       try {
-        if (fs.existsSync(p)) {
-          logoBuffer = fs.readFileSync(p);
+        if (fs.existsSync(/*turbopackIgnore: true*/ p)) {
+          logoBuffer = fs.readFileSync(/*turbopackIgnore: true*/ p);
           break;
         }
-      } catch {}
+      } catch { }
     }
   }
 
@@ -323,7 +323,7 @@ function generateInvoiceTable(
   doc.font('Helvetica').fontSize(9).fillColor('#334155');
 
   let position = invoiceTableTop + 26;
-  
+
   if (order.orderItems && order.orderItems.length > 0) {
     for (let i = 0; i < order.orderItems.length; i++) {
       const item = order.orderItems[i];
