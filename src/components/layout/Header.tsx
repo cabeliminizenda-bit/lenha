@@ -53,8 +53,8 @@ type HeaderProps = {
   userRole?: 'ADMIN' | 'CUSTOMER' | null;
 };
 
-export default function Header({ 
-  announcement = 'Welcome to My Store', 
+export default function Header({
+  announcement = 'Welcome to My Store',
   logoImage = '',
   headerLogoHeight = '80',
   mobileLogoHeight = '64',
@@ -92,7 +92,7 @@ export default function Header({
   const [mounted, setMounted] = useState(false);
   const cartStore = useCartStore();
   const wishlistStore = useWishlistStore();
-  
+
   const cartItems = cartStore.getTotalItems();
   const cartTotal = cartStore.getTotalPrice();
   const wishlistItems = wishlistStore.items.length;
@@ -101,16 +101,16 @@ export default function Header({
   const [isWishlistDrawerOpen, setIsWishlistDrawerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  
+
   const [actualUserRole, setActualUserRole] = useState<'ADMIN' | 'CUSTOMER' | null>(userRole);
-  
+
   useEffect(() => {
     // Always check if we need to fetch userRole
     getUserRole().then(role => {
       setActualUserRole(role as 'ADMIN' | 'CUSTOMER' | null);
     });
   }, []);
-  
+
   const t = useTranslations('Header');
 
   // Search state
@@ -155,7 +155,7 @@ export default function Header({
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     // Close mobile menu on resize to desktop
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
@@ -163,7 +163,7 @@ export default function Header({
       }
     };
     window.addEventListener("resize", handleResize);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("resize", handleResize);
@@ -237,396 +237,396 @@ export default function Header({
         }
       `}</style>
       <header className="mobile-header-border w-full bg-white border-b border-gray-300 lg:border-gray-200 shadow-sm lg:shadow-none font-sans relative z-50">
-      {/* Top Bar */}
-      <div 
-        className="hidden md:flex justify-between items-center px-4 py-2.5 text-xs border-b border-gray-200 max-w-7xl mx-auto w-full transition-colors text-gray-600"
-        style={{ backgroundColor: topBarBgColor, color: topBarTextColor }}
-      >
-        <div className="flex items-center space-x-2">
-          <span>{announcement || ''}</span>
-        </div>
-        <div className="flex items-center space-x-6 text-xs">
-          {topBarLinks && topBarLinks.length > 0 && (
-            <div className="hidden lg:flex items-center space-x-5">
-              {topBarLinks
-                .filter(link => !link.label.toLowerCase().includes('store') && !link.url.includes('store-locator'))
-                .map(link => {
-                  if (link.label.toLowerCase().includes('order') || link.label.toLowerCase().includes('track') || link.url.includes('order-tracking')) {
-                    return { ...link, label: 'Rastrear Encomenda' };
-                  }
-                  return link;
-                })
-                .map((link, idx) => (
-                  <Link 
-                    key={idx} 
-                    href={link.url} 
-                    className="flex items-center hover:opacity-75 transition font-medium"
-                  >
-                    {renderIcon(link.icon)}
-                    <span>{link.label}</span>
-                  </Link>
-                ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Middle Bar: Logo, Search, User, Wishlist, Cart */}
-      <div className="py-4 px-4 max-w-7xl mx-auto w-full flex flex-nowrap items-center justify-between gap-4 md:gap-8 lg:gap-10">
-        {/* Logo */}
-        <div className="flex-shrink-0 flex items-center">
-          <Link href="/" className="flex items-center">
-            {logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? (
-              <Image 
-                src={logoImage} 
-                alt="Lenha & Carvão Silva Dias" 
-                width={260} 
-                height={75} 
-                className="object-contain custom-logo-height w-auto max-w-[220px] md:max-w-[280px]" 
-                priority 
-              />
-            ) : (
-              <div className="flex items-center gap-3 group">
-                <div className="relative h-11 w-auto shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Image
-                    src="/logo-flame.png"
-                    alt="Lenha & Carvão Silva Dias"
-                    width={51}
-                    height={82}
-                    className="h-10 w-auto object-contain"
-                    priority
-                  />
-                </div>
-                <div>
-                  <span className="font-extrabold text-lg sm:text-xl tracking-tight text-stone-900 block leading-tight">LENHA &amp; CARVÃO</span>
-                  <span className="text-[11px] font-bold tracking-wider text-red-600 uppercase block">SILVA DIAS</span>
-                </div>
-              </div>
-            )}
-          </Link>
-        </div>
-
-        {/* Search Bar */}
-        <div className="hidden lg:flex flex-1 w-full max-w-2xl flex-col relative" ref={searchContainerRef}>
-          <form onSubmit={handleSearchSubmit} className="flex items-center w-full rounded-md border border-gray-300 bg-white h-11 relative z-20 focus-within:border-gray-400 shadow-sm">
-            <input 
-              type="text" 
-              placeholder={searchPlaceholder || t('search_placeholder')} 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => { if (searchQuery.length > 1) setShowSearchResults(true); }}
-              className="flex-1 px-4 h-full outline-none text-sm text-gray-700 placeholder-gray-400 bg-transparent"
-            />
-            
-            <button 
-              type="submit" 
-              aria-label="Search"
-              className="bg-[#DC2626] hover:bg-[#B91C1C] text-white w-12 h-full flex items-center justify-center transition-colors rounded-r-md cursor-pointer flex-shrink-0"
-            >
-              {isSearching ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              )}
-            </button>
-          </form>
-
-          {/* Search Results Dropdown */}
-          {showSearchResults && searchQuery.length > 1 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl rounded-md z-50 overflow-hidden">
-              {isSearching && searchResults.length === 0 ? (
-                <div className="p-4 text-center text-gray-500 text-sm">{t('searching')}</div>
-              ) : searchResults.length > 0 ? (
-                <div>
-                  <ul className="max-h-80 overflow-y-auto py-2">
-                    {searchResults.map((product) => (
-                      <li key={product.id}>
-                        <Link 
-                          href={`/produto/${product.slug}`} 
-                          onClick={() => {
-                            setShowSearchResults(false);
-                            setSearchQuery('');
-                          }}
-                          className="flex items-center px-4 py-2.5 hover:bg-yellow-50 transition border-b border-gray-100 last:border-0"
-                        >
-                          <div className="w-10 h-10 flex-shrink-0 bg-gray-50 rounded overflow-hidden mr-3">
-                            {product.images && product.images.length > 0 ? (
-                              <Image width={100} height={100} src={product.images[0]} alt={product.title} title={product.title} className="w-full h-full object-contain p-1" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-semibold text-gray-900 truncate">{product.title}</h4>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <Price amount={product.price} showTax={false} className="text-red-600 font-bold text-sm" />
-                              {product.compareAtPrice && product.compareAtPrice > product.price && (
-                                <Price amount={product.compareAtPrice} showTax={false} className="text-gray-400 line-through text-xs" />
-                              )}
-                            </div>
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <div className="p-4 text-center text-sm text-gray-500 bg-white">
-                  {t('no_results')} &quot;<span className="font-semibold">{searchQuery}</span>&quot;
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Action Icons: User, Wishlist, Red Cart */}
-        <div className="flex items-center flex-shrink-0 space-x-3 md:space-x-4">
-          {/* User Account Icon */}
-          <button 
-            onClick={() => {
-              if (actualUserRole) {
-                router.push(actualUserRole === 'ADMIN' ? '/admin' : '/account');
-              } else {
-                setIsLoginModalOpen(true);
-              }
-            }}
-            className="hidden sm:flex items-center justify-center w-11 h-11 rounded-md border border-gray-200 text-gray-700 hover:text-gray-900 hover:border-gray-300 transition"
-            title="Account"
-            aria-label="Account"
-          >
-            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </button>
-
-          {/* Wishlist Button */}
-          <button 
-            onClick={() => wishlistStore.setIsOpen(true)}
-            className="hidden sm:flex items-center justify-center w-11 h-11 rounded-md border border-gray-200 text-gray-700 hover:text-gray-900 hover:border-gray-300 transition relative"
-            title="Wishlist"
-            aria-label="Wishlist"
-          >
-            <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            {mounted && wishlistItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[#DC2626] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                {wishlistItems}
-              </span>
-            )}
-          </button>
-
-          {/* Red Cart Box with White Badge */}
-          <div 
-            onClick={() => cartStore.setIsOpen(true)}
-            className="relative flex items-center bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-md px-3 sm:px-4 py-2 cursor-pointer transition shadow-sm h-10 sm:h-11 select-none shrink-0"
-          >
-            {/* Counter Bubble */}
-            <span className="absolute -top-2 left-4 sm:left-5 bg-stone-900 text-white text-[11px] sm:text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-              {mounted ? cartItems : 0}
-            </span>
-
-            {/* Trash/Bag icon */}
-            <div className="mr-1.5 sm:mr-3 flex items-center justify-center">
-              <svg 
-                className="w-5 h-5 text-white" 
-                viewBox="0 0 64 64" 
-                fill="none" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Anses du panier en diagonale */}
-                <path d="M18 10 L30 24" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-                <path d="M46 10 L34 24" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-                
-                {/* Rebord supérieur arrondi du panier */}
-                <rect x="6" y="22" width="52" height="7" rx="3.5" fill="currentColor" />
-                
-                {/* Corps trapézoïdal du panier */}
-                <path 
-                  d="M10 29 L15 54 C15.4 56.2 17.3 58 19.5 58 L44.5 58 C46.7 58 48.6 56.2 49 54 L54 29 Z" 
-                  fill="currentColor" 
-                />
-                
-                {/* Les 5 fentes verticales blanches caractéristiques */}
-                <rect x="18" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
-                <rect x="25" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
-                <rect x="32" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
-                <rect x="39" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
-                <rect x="46" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
-              </svg>
-            </div>
-
-            {/* Price & Caret */}
-            <div className="hidden sm:flex items-center space-x-1 font-bold text-sm md:text-base">
-              <span>{mounted ? <Price amount={cartTotal} showTax={false} /> : <Price amount={0} showTax={false} />}</span>
-              <svg className="w-3.5 h-3.5 ml-1 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+        {/* Top Bar */}
+        <div
+          className="hidden md:flex justify-between items-center px-4 py-2.5 text-xs border-b border-gray-200 max-w-7xl mx-auto w-full transition-colors text-gray-600"
+          style={{ backgroundColor: topBarBgColor, color: topBarTextColor }}
+        >
+          <div className="flex items-center space-x-2">
+            <span>{announcement || ''}</span>
           </div>
-
-          {/* Mobile menu toggle */}
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Menu"
-            className="lg:hidden p-2 text-gray-700 hover:text-gray-900 transition"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Red Navigation Bar (Bottom Bar) */}
-      <div className="hidden lg:block bg-[#DC2626] w-full shadow-inner">
-        <div className="max-w-7xl mx-auto px-4 w-full flex items-center h-12">
-          
-          {/* ALL CATEGORIES BUTTON (Black block on the left) */}
-          <div className="relative shrink-0" ref={bottomCategoryRef}>
-            <button 
-              type="button"
-              onClick={() => setIsBottomCategoryOpen(!isBottomCategoryOpen)}
-              className="bg-black hover:bg-stone-900 text-white px-6 h-12 flex items-center gap-3 font-extrabold text-[13px] tracking-wider uppercase transition-colors shadow-sm cursor-pointer select-none"
-            >
-              <svg className="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <span>CATEGORIAS</span>
-              <svg className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${isBottomCategoryOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {/* Dropdown Menu */}
-            {isBottomCategoryOpen && (
-              <div className="absolute top-full left-0 w-72 bg-white border border-stone-200 shadow-2xl rounded-b-xl z-50 py-2 divide-y divide-stone-100 normal-case font-medium max-h-[75vh] overflow-y-auto">
-                {categories && categories.length > 0 ? (
-                  categories.map((cat) => (
-                    <Link 
-                      key={cat.id} 
-                      href={`/categoria-de-produto/${cat.slug || cat.id}`}
-                      className={`flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 transition ${!cat.parentId ? 'font-bold text-stone-900 text-xs bg-stone-50/60' : 'text-stone-600 pl-8 text-xs'}`}
-                      onClick={() => setIsBottomCategoryOpen(false)}
-                    >
-                      <span>{cat.name}</span>
-                      <svg className="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-                    </Link>
-                  ))
-                ) : (
-                  [
-                    { name: 'Aquecimento', slug: 'aquecimento', icon: '🔥' },
-                    { name: 'Fogões a Lenha', slug: 'fogoes-a-lenha', icon: '🍳' },
-                    { name: 'Lareiras a Lenha', slug: 'lareira-a-lenha', icon: '🪵' },
-                    { name: 'Ar Condicionado', slug: 'ar-condicionado', icon: '❄️' },
-                    { name: 'Climatização', slug: 'climatizacao', icon: '💨' },
-                    { name: 'Desumidificadores', slug: 'desumidificador', icon: '💧' },
-                    { name: 'Pellets & Lenha', slug: 'combustiveis', icon: '🌲' },
-                    { name: 'Fornos a Lenha', slug: 'fornos-a-lenha', icon: '🍕' },
-                    { name: 'Recuperadores de Calor', slug: 'recuperadores-de-calor', icon: '🏠' },
-                    { name: 'Salamandras a Pellets', slug: 'salamandras-a-pellets', icon: '⚡' },
-                  ].map((cat, idx) => (
+          <div className="flex items-center space-x-6 text-xs">
+            {topBarLinks && topBarLinks.length > 0 && (
+              <div className="hidden lg:flex items-center space-x-5">
+                {topBarLinks
+                  .filter(link => !link.label.toLowerCase().includes('store') && !link.url.includes('store-locator'))
+                  .map(link => {
+                    if (link.label.toLowerCase().includes('order') || link.label.toLowerCase().includes('track') || link.url.includes('order-tracking')) {
+                      return { ...link, label: 'Rastrear Encomenda' };
+                    }
+                    return link;
+                  })
+                  .map((link, idx) => (
                     <Link
                       key={idx}
-                      href={`/categoria-de-produto/${cat.slug}`}
-                      className="flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 text-stone-800 text-xs font-semibold transition"
-                      onClick={() => setIsBottomCategoryOpen(false)}
+                      href={link.url}
+                      className="flex items-center hover:opacity-75 transition font-medium"
                     >
-                      <span className="flex items-center gap-2.5">
-                        <span>{cat.icon}</span>
-                        <span>{cat.name}</span>
-                      </span>
-                      <svg className="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                      {renderIcon(link.icon)}
+                      <span>{link.label}</span>
                     </Link>
-                  ))
+                  ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Middle Bar: Logo, Search, User, Wishlist, Cart */}
+        <div className="py-4 px-4 max-w-7xl mx-auto w-full flex flex-nowrap items-center justify-between gap-4 md:gap-8 lg:gap-10">
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" className="flex items-center">
+              {logoImage && logoImage !== '/logo.png' && logoImage !== '/logo.jpg' ? (
+                <Image
+                  src={logoImage}
+                  alt="Lenha & Carvão Silva Dias"
+                  width={260}
+                  height={75}
+                  className="object-contain custom-logo-height w-auto max-w-[220px] md:max-w-[280px]"
+                  priority
+                />
+              ) : (
+                <div className="flex items-center gap-3 group">
+                  <div className="relative h-11 w-auto shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <Image
+                      src="/logo-flame.png"
+                      alt="Lenha & Carvão Silva Dias"
+                      width={51}
+                      height={82}
+                      className="h-10 w-auto object-contain"
+                      priority
+                    />
+                  </div>
+                  <div>
+                    <span className="font-extrabold text-lg sm:text-xl tracking-tight text-stone-900 block leading-tight">LENHA &amp; CARVÃO</span>
+                    <span className="text-[11px] font-bold tracking-wider text-red-600 uppercase block">SILVA DIAS</span>
+                  </div>
+                </div>
+              )}
+            </Link>
+          </div>
+
+          {/* Search Bar */}
+          <div className="hidden lg:flex flex-1 w-full max-w-2xl flex-col relative" ref={searchContainerRef}>
+            <form onSubmit={handleSearchSubmit} className="flex items-center w-full rounded-md border border-gray-300 bg-white h-11 relative z-20 focus-within:border-gray-400 shadow-sm">
+              <input
+                type="text"
+                placeholder={searchPlaceholder || t('search_placeholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => { if (searchQuery.length > 1) setShowSearchResults(true); }}
+                className="flex-1 px-4 h-full outline-none text-sm text-gray-700 placeholder-gray-400 bg-transparent"
+              />
+
+              <button
+                type="submit"
+                aria-label="Search"
+                className="bg-[#DC2626] hover:bg-[#B91C1C] text-white w-12 h-full flex items-center justify-center transition-colors rounded-r-md cursor-pointer flex-shrink-0"
+              >
+                {isSearching ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                )}
+              </button>
+            </form>
+
+            {/* Search Results Dropdown */}
+            {showSearchResults && searchQuery.length > 1 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 shadow-xl rounded-md z-50 overflow-hidden">
+                {isSearching && searchResults.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500 text-sm">{t('searching')}</div>
+                ) : searchResults.length > 0 ? (
+                  <div>
+                    <ul className="max-h-80 overflow-y-auto py-2">
+                      {searchResults.map((product) => (
+                        <li key={product.id}>
+                          <Link
+                            href={`/produto/${product.slug}`}
+                            onClick={() => {
+                              setShowSearchResults(false);
+                              setSearchQuery('');
+                            }}
+                            className="flex items-center px-4 py-2.5 hover:bg-yellow-50 transition border-b border-gray-100 last:border-0"
+                          >
+                            <div className="w-10 h-10 flex-shrink-0 bg-gray-50 rounded overflow-hidden mr-3">
+                              {product.images && product.images.length > 0 ? (
+                                <Image width={100} height={100} src={product.images[0]} alt={product.title} title={product.title} className="w-full h-full object-contain p-1" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 truncate">{product.title}</h4>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <Price amount={product.price} showTax={false} className="text-red-600 font-bold text-sm" />
+                                {product.compareAtPrice && product.compareAtPrice > product.price && (
+                                  <Price amount={product.compareAtPrice} showTax={false} className="text-gray-400 line-through text-xs" />
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-gray-500 bg-white">
+                    {t('no_results')} &quot;<span className="font-semibold">{searchQuery}</span>&quot;
+                  </div>
                 )}
               </div>
             )}
           </div>
 
-          {/* Horizontal Menu Links */}
-          <nav className="flex items-center space-x-1 font-extrabold text-[13px] tracking-wide text-white uppercase ml-3 flex-1 overflow-x-auto no-scrollbar">
-            {menuLinks && menuLinks.length > 0 ? (
-              menuLinks.map((link, idx) => (
-                <div key={idx} className="relative group shrink-0">
-                  <Link 
-                    href={link.url} 
-                    className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white"
-                  >
-                    <span>{link.label}</span>
-                  </Link>
-                </div>
-              ))
-            ) : (
-              <>
-                <Link href="/" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
-                  <span>INÍCIO</span>
-                </Link>
-                <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
-                  <span>SHOP</span>
-                </Link>
-                <Link href="/devolucoes" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
-                  <span>DEVOLUÇÃO E REEMBOLSO</span>
-                </Link>
-                <Link href="/envios-e-entregas" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
-                  <span>EXPEDIÇÃO</span>
-                </Link>
-                <Link href="/contact" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
-                  <span>CONTACTAR NOS</span>
-                </Link>
-              </>
-            )}
-          </nav>
+          {/* Action Icons: User, Wishlist, Red Cart */}
+          <div className="flex items-center flex-shrink-0 space-x-3 md:space-x-4">
+            {/* User Account Icon */}
+            <button
+              onClick={() => {
+                if (actualUserRole) {
+                  router.push(actualUserRole === 'ADMIN' ? '/admin' : '/account');
+                } else {
+                  setIsLoginModalOpen(true);
+                }
+              }}
+              className="hidden sm:flex items-center justify-center w-11 h-11 rounded-md border border-gray-200 text-gray-700 hover:text-gray-900 hover:border-gray-300 transition"
+              title="Account"
+              aria-label="Account"
+            >
+              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+
+            {/* Wishlist Button */}
+            <button
+              onClick={() => wishlistStore.setIsOpen(true)}
+              className="hidden sm:flex items-center justify-center w-11 h-11 rounded-md border border-gray-200 text-gray-700 hover:text-gray-900 hover:border-gray-300 transition relative"
+              title="Wishlist"
+              aria-label="Wishlist"
+            >
+              <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              {mounted && wishlistItems > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 bg-[#DC2626] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                  {wishlistItems}
+                </span>
+              )}
+            </button>
+
+            {/* Red Cart Box with White Badge */}
+            <div
+              onClick={() => cartStore.setIsOpen(true)}
+              className="relative flex items-center bg-[#DC2626] hover:bg-[#B91C1C] text-white rounded-md px-3 sm:px-4 py-2 cursor-pointer transition shadow-sm h-10 sm:h-11 select-none shrink-0"
+            >
+              {/* Counter Bubble */}
+              <span className="absolute -top-2 left-4 sm:left-5 bg-stone-900 text-white text-[11px] sm:text-xs font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+                {mounted ? cartItems : 0}
+              </span>
+
+              {/* Trash/Bag icon */}
+              <div className="mr-1.5 sm:mr-3 flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-white"
+                  viewBox="0 0 64 64"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Anses du panier en diagonale */}
+                  <path d="M18 10 L30 24" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                  <path d="M46 10 L34 24" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+
+                  {/* Rebord supérieur arrondi du panier */}
+                  <rect x="6" y="22" width="52" height="7" rx="3.5" fill="currentColor" />
+
+                  {/* Corps trapézoïdal du panier */}
+                  <path
+                    d="M10 29 L15 54 C15.4 56.2 17.3 58 19.5 58 L44.5 58 C46.7 58 48.6 56.2 49 54 L54 29 Z"
+                    fill="currentColor"
+                  />
+
+                  {/* Les 5 fentes verticales blanches caractéristiques */}
+                  <rect x="18" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                  <rect x="25" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                  <rect x="32" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                  <rect x="39" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                  <rect x="46" y="34" width="3.5" height="18" rx="1.75" fill="#e01b1b" />
+                </svg>
+              </div>
+
+              {/* Price & Caret */}
+              <div className="hidden sm:flex items-center space-x-1 font-bold text-sm md:text-base">
+                <span>{mounted ? <Price amount={cartTotal} showTax={false} /> : <Price amount={0} showTax={false} />}</span>
+                <svg className="w-3.5 h-3.5 ml-1 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menu"
+              className="lg:hidden p-2 text-gray-700 hover:text-gray-900 transition"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+            </button>
+          </div>
         </div>
-      </div>
+
+        {/* Red Navigation Bar (Bottom Bar) */}
+        <div className="hidden lg:block bg-[#DC2626] w-full shadow-inner">
+          <div className="max-w-7xl mx-auto px-4 w-full flex items-center h-12">
+
+            {/* ALL CATEGORIES BUTTON (Black block on the left) */}
+            <div className="relative shrink-0" ref={bottomCategoryRef}>
+              <button
+                type="button"
+                onClick={() => setIsBottomCategoryOpen(!isBottomCategoryOpen)}
+                className="bg-black hover:bg-stone-900 text-white px-6 h-12 flex items-center gap-3 font-extrabold text-[13px] tracking-wider uppercase transition-colors shadow-sm cursor-pointer select-none"
+              >
+                <svg className="w-5 h-5 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span>CATEGORIAS</span>
+                <svg className={`w-3.5 h-3.5 ml-1 transition-transform duration-200 ${isBottomCategoryOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {isBottomCategoryOpen && (
+                <div className="absolute top-full left-0 w-72 bg-white border border-stone-200 shadow-2xl rounded-b-xl z-50 py-2 divide-y divide-stone-100 normal-case font-medium max-h-[75vh] overflow-y-auto">
+                  {categories && categories.length > 0 ? (
+                    categories.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/categoria-de-produto/${cat.slug || cat.id}`}
+                        className={`flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 transition ${!cat.parentId ? 'font-bold text-stone-900 text-xs bg-stone-50/60' : 'text-stone-600 pl-8 text-xs'}`}
+                        onClick={() => setIsBottomCategoryOpen(false)}
+                      >
+                        <span>{cat.name}</span>
+                        <svg className="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      </Link>
+                    ))
+                  ) : (
+                    [
+                      { name: 'Aquecimento', slug: 'aquecimento', icon: '🔥' },
+                      { name: 'Fogões a Lenha', slug: 'fogoes-a-lenha', icon: '🍳' },
+                      { name: 'Lareiras a Lenha', slug: 'lareira-a-lenha', icon: '🪵' },
+                      { name: 'Ar Condicionado', slug: 'ar-condicionado', icon: '❄️' },
+                      { name: 'Climatização', slug: 'climatizacao', icon: '💨' },
+                      { name: 'Desumidificadores', slug: 'desumidificador', icon: '💧' },
+                      { name: 'Pellets & Lenha', slug: 'combustiveis', icon: '🌲' },
+                      { name: 'Fornos a Lenha', slug: 'fornos-a-lenha', icon: '🍕' },
+                      { name: 'Recuperadores de Calor', slug: 'recuperadores-de-calor', icon: '🏠' },
+                      { name: 'Salamandras a Pellets', slug: 'salamandras-a-pellets', icon: '⚡' },
+                    ].map((cat, idx) => (
+                      <Link
+                        key={idx}
+                        href={`/categoria-de-produto/${cat.slug}`}
+                        className="flex items-center justify-between px-5 py-2.5 hover:bg-red-50 hover:text-red-600 text-stone-800 text-xs font-semibold transition"
+                        onClick={() => setIsBottomCategoryOpen(false)}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <span>{cat.icon}</span>
+                          <span>{cat.name}</span>
+                        </span>
+                        <svg className="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Horizontal Menu Links */}
+            <nav className="flex items-center space-x-1 font-extrabold text-[13px] tracking-wide text-white uppercase ml-3 flex-1 overflow-x-auto no-scrollbar">
+              {menuLinks && menuLinks.length > 0 ? (
+                menuLinks.map((link, idx) => (
+                  <div key={idx} className="relative group shrink-0">
+                    <Link
+                      href={link.url}
+                      className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white"
+                    >
+                      <span>{link.label}</span>
+                    </Link>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <Link href="/" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                    <span>INÍCIO</span>
+                  </Link>
+                  <Link href="/shop" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                    <span>SHOP</span>
+                  </Link>
+                  <Link href="/devolucoes" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                    <span>DEVOLUÇÃO E REEMBOLSO</span>
+                  </Link>
+                  <Link href="/envios-e-entregas" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                    <span>EXPEDIÇÃO</span>
+                  </Link>
+                  <Link href="/contact" className="flex items-center px-4 py-3 hover:bg-black/15 rounded transition font-black text-white">
+                    <span>CONTACTAR NOS</span>
+                  </Link>
+                </>
+              )}
+            </nav>
+          </div>
+        </div>
 
 
 
-      <LoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)} 
-      />
-      
-      <CartDrawer 
-        isOpen={cartStore.isOpen}
-        onClose={() => cartStore.setIsOpen(false)}
-      />
+        <LoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+        />
 
-      <WishlistDrawer 
-        isOpen={wishlistStore.isOpen}
-        onClose={() => wishlistStore.setIsOpen(false)}
-      />
+        <CartDrawer
+          isOpen={cartStore.isOpen}
+          onClose={() => cartStore.setIsOpen(false)}
+        />
 
-      <MobileBottomNav 
-        onSearchClick={() => setIsMobileSearchOpen(true)}
-        onLoginClick={() => setIsLoginModalOpen(true)}
-        userRole={actualUserRole}
-        onCartClick={() => cartStore.setIsOpen(true)}
-      />
+        <WishlistDrawer
+          isOpen={wishlistStore.isOpen}
+          onClose={() => wishlistStore.setIsOpen(false)}
+        />
 
-      <MobileSearchOverlay 
-        isOpen={isMobileSearchOpen}
-        onClose={() => setIsMobileSearchOpen(false)}
-        placeholder={searchPlaceholder}
-      />
+        <MobileBottomNav
+          onSearchClick={() => setIsMobileSearchOpen(true)}
+          onLoginClick={() => setIsLoginModalOpen(true)}
+          userRole={actualUserRole}
+          onCartClick={() => cartStore.setIsOpen(true)}
+        />
 
-      <MobileSidebar 
-        isOpen={isMobileMenuOpen}
-        onClose={() => setIsMobileMenuOpen(false)}
-        logoImage={logoImage}
-        logoHeight={mobileLogoHeight}
-        aboutTitle={mobileAboutTitle}
-        aboutDesc={mobileAboutDesc}
-        menuLinks={menuLinks && menuLinks.length > 0 ? menuLinks : mobileMenuLinks}
-        contactAddress={mobileContactAddress}
-        contactPhone={mobileContactPhone}
-        contactEmail={mobileContactEmail}
-        contactWebsite={mobileContactWebsite}
-        categories={categories}
-      />
-    </header>
+        <MobileSearchOverlay
+          isOpen={isMobileSearchOpen}
+          onClose={() => setIsMobileSearchOpen(false)}
+          placeholder={searchPlaceholder}
+        />
+
+        <MobileSidebar
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+          logoImage={logoImage}
+          logoHeight={mobileLogoHeight}
+          aboutTitle={mobileAboutTitle}
+          aboutDesc={mobileAboutDesc}
+          menuLinks={menuLinks && menuLinks.length > 0 ? menuLinks : mobileMenuLinks}
+          contactAddress={mobileContactAddress}
+          contactPhone={mobileContactPhone}
+          contactEmail={mobileContactEmail}
+          contactWebsite={mobileContactWebsite}
+          categories={categories}
+        />
+      </header>
     </>
   );
 }

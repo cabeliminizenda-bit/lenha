@@ -83,7 +83,7 @@ export async function sendEmail({
 }) {
   try {
     const { transporter, from } = await getTransporter();
-    
+
     const info = await transporter.sendMail({
       from,
       to,
@@ -137,7 +137,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
       storeEmail: 'info@lenhaecarvaosilvadias.com',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 25px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 48px; object-contain: contain;"></div>`
       : `<div style="font-size: 20px; font-weight: bold; color: #ea580c; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;
@@ -146,7 +146,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
     if (order.destinationAddress) {
       try {
         metadata = typeof order.destinationAddress === 'string' ? JSON.parse(order.destinationAddress) : order.destinationAddress;
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const subTotal = metadata?.subTotal || order.orderItems?.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) || order.total;
@@ -154,7 +154,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
       ? "Gratuito!"
       : (metadata?.shippingCost ? formatPrice(metadata.shippingCost) : "0,00 €");
     const shippingMethod = metadata?.shippingMethodName ? `(${metadata.shippingMethodName})` : "";
-    
+
     // Addresses
     const b = metadata?.billing || {};
     const s = metadata?.shipping || b;
@@ -162,7 +162,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
     const shippingName = escapeHtml(`${s.firstName || ''} ${s.lastName || ''}`.trim()) || billingName;
     const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
     const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
-    
+
     const paymentMethodStr = formatPaymentMethodPT(order.paymentMethod);
     const orderId = order.id.slice(-6).toUpperCase();
 
@@ -174,14 +174,14 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
         try {
           const imgs = JSON.parse(item.product.images);
           if (imgs.length > 0) imageUrl = imgs[0];
-        } catch(e) {}
+        } catch (e) { }
       }
 
       const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
       const imgTag = safeImageUrl
         ? `<img src="${safeImageUrl}" alt="${escapeHtml(item.product?.title || 'Artigo')}" style="width: 52px; height: 52px; object-fit: contain; border-radius: 6px; border: 1px solid #eee; margin-right: 15px;" />`
         : '';
-      
+
       const sku = item.product?.gtin || item.product?.sku ? `<span style="font-size: 11px; color: #888;">Ref: #${escapeHtml(item.product.gtin || item.product.sku)}</span>` : '';
 
       return `
@@ -210,7 +210,7 @@ export async function sendClientOrderConfirmation(order: any, userEmail: string,
         where: { key: { in: ['BANK_TRANSFER_ACCOUNT_HOLDER', 'BANK_TRANSFER_IBAN', 'BANK_TRANSFER_BIC', 'BANK_TRANSFER_BANK_NAME', 'BANK_TRANSFER_INSTRUCTIONS'] } }
       });
       const settings = dbSettings.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
-      
+
       bankDetailsHtml = `
         <div style="background-color: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 20px; margin-top: 25px; margin-bottom: 25px;">
           <h4 style="margin-top: 0; margin-bottom: 12px; color: #c2410c; font-size: 15px; font-weight: bold;">
@@ -350,7 +350,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
       logo: '',
       storeName: 'Lenha & Carvão Silva Dias'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 40px;"></div>`
       : `<div style="font-size: 18px; font-weight: bold; color: #ea580c; margin-bottom: 20px;">${escapeHtml(storeName)}</div>`;
@@ -359,7 +359,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
     if (order.destinationAddress) {
       try {
         metadata = typeof order.destinationAddress === 'string' ? JSON.parse(order.destinationAddress) : order.destinationAddress;
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const subTotal = metadata?.subTotal || order.orderItems?.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) || order.total;
@@ -367,7 +367,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
       ? "Gratuito!"
       : (metadata?.shippingCost ? formatPrice(metadata.shippingCost) : "0,00 €");
     const shippingMethod = metadata?.shippingMethodName ? `(${metadata.shippingMethodName})` : "";
-    
+
     // Addresses
     const b = metadata?.billing || {};
     const s = metadata?.shipping || b;
@@ -375,7 +375,7 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
     const shippingName = escapeHtml(`${s.firstName || ''} ${s.lastName || ''}`.trim()) || billingName;
     const billingAddressHtml = `${escapeHtml(b.address1 || '')}<br/>${escapeHtml(b.postalCode || '')} ${escapeHtml(b.city || '')}${b.country ? `, ${escapeHtml(b.country)}` : ''}`;
     const shippingAddressHtml = `${escapeHtml(s.address1 || '')}<br/>${escapeHtml(s.postalCode || '')} ${escapeHtml(s.city || '')}${s.country ? `, ${escapeHtml(s.country)}` : ''}`;
-    
+
     const paymentMethodStr = formatPaymentMethodPT(order.paymentMethod);
     const orderId = order.id.slice(-6).toUpperCase();
 
@@ -387,14 +387,14 @@ export async function sendAdminOrderNotification(order: any, adminEmail: string,
         try {
           const imgs = JSON.parse(item.product.images);
           if (imgs.length > 0) imageUrl = imgs[0];
-        } catch(e) {}
+        } catch (e) { }
       }
 
       const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
       const imgTag = safeImageUrl
         ? `<img src="${safeImageUrl}" alt="${escapeHtml(item.product?.title || 'Artigo')}" style="width: 48px; height: 48px; object-fit: contain; border-radius: 4px; margin-right: 12px; border: 1px solid #eee;" />`
         : '';
-      
+
       const sku = item.product?.gtin || item.product?.sku ? `(#${escapeHtml(item.product.gtin || item.product.sku)})` : '';
 
       return `
@@ -522,7 +522,7 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
       storeEmail: 'info@lenhaecarvaosilvadias.com',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 25px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 48px;"></div>`
       : `<div style="font-size: 20px; font-weight: bold; color: #ea580c; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;
@@ -559,7 +559,7 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
     if (order.destinationAddress) {
       try {
         metadata = typeof order.destinationAddress === 'string' ? JSON.parse(order.destinationAddress) : order.destinationAddress;
-      } catch (e) {}
+      } catch (e) { }
     }
 
     const subTotal = metadata?.subTotal || order.orderItems?.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0) || order.total;
@@ -567,7 +567,7 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
       ? "Gratuito!"
       : (metadata?.shippingCost ? formatPrice(metadata.shippingCost) : "0,00 €");
     const shippingMethod = metadata?.shippingMethodName ? `(${metadata.shippingMethodName})` : "";
-    
+
     const b = metadata?.billing || {};
     const s = metadata?.shipping || b;
     const billingName = escapeHtml(`${b.firstName || ''} ${b.lastName || ''}`.trim() || 'Estimado(a) Cliente');
@@ -586,9 +586,9 @@ export async function sendOrderStatusUpdate(order: any, userEmail: string, statu
           try {
             const imgs = JSON.parse(item.product.images);
             if (imgs.length > 0) imageUrl = imgs[0];
-          } catch(e) {}
+          } catch (e) { }
         }
-  
+
         const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
         const imgTag = safeImageUrl
           ? `<img src="${safeImageUrl}" alt="Artigo" style="width: 48px; height: 48px; object-fit: contain; border-radius: 4px; margin-right: 12px; border: 1px solid #eee;" />`
@@ -714,12 +714,12 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
       storeEmail: 'info@lenhaecarvaosilvadias.com',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 25px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 48px;"></div>`
       : `<div style="font-size: 20px; font-weight: bold; color: #ea580c; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;
 
-    const couponMessage = "Utilize o código promocional BH874XP para beneficiar de 25 € de desconto imediato!"; 
+    const couponMessage = "Utilize o código promocional BH874XP para beneficiar de 25 € de desconto imediato!";
 
     let itemsHtml = '';
     if (Array.isArray(cart.cartData) && cart.cartData.length > 0) {
@@ -746,15 +746,15 @@ export async function sendAbandonedCartRecoveryEmail(cart: any, userEmail: strin
           try {
             const parsed = JSON.parse(rawImages);
             if (Array.isArray(parsed) && parsed.length > 0) imageUrl = parsed[0];
-          } catch {}
+          } catch { }
         }
-  
+
         const safeImageUrl = imageUrl && /^https?:\/\//i.test(imageUrl) ? escapeHtml(imageUrl) : '';
         const imgTag = safeImageUrl
           ? `<img src="${safeImageUrl}" alt="Artigo" style="width: 50px; height: 50px; object-fit: contain; border-radius: 4px; margin-right: 15px; border: 1px solid #eee;" />`
           : '';
         const qty = Math.min(Math.max(1, Number(item?.quantity) || 1), 999);
-  
+
         return `
           <tr style="border-bottom: 1px dashed #e2e8f0;">
             <td style="padding: 14px 0;">
@@ -841,7 +841,7 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
       storeName: 'Lenha & Carvão Silva Dias',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 25px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 48px;"></div>`
       : `<div style="font-size: 20px; font-weight: bold; color: #ea580c; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;
@@ -858,13 +858,13 @@ export async function sendReviewRequestEmail(order: any, userEmail: string, user
           try {
             const imgs = JSON.parse(item.product.images);
             if (imgs.length > 0) imageUrl = imgs[0];
-          } catch(e) {}
+          } catch (e) { }
         }
-  
+
         const imgTag = imageUrl
           ? `<img src="${imageUrl}" alt="Artigo" style="width: 50px; height: 50px; object-fit: contain; border-radius: 4px; margin-right: 15px; border: 1px solid #eee;" />`
           : '';
-  
+
         return `
           <tr style="border-bottom: 1px dashed #e2e8f0;">
             <td style="padding: 14px 0;">
@@ -948,7 +948,7 @@ export async function sendLowStockAlertEmail(
       storeName: 'Lenha & Carvão Silva Dias',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 40px;"></div>`
       : `<div style="font-size: 18px; font-weight: bold; color: #ea580c; margin-bottom: 20px;">${escapeHtml(storeName)}</div>`;
@@ -1006,7 +1006,7 @@ export async function sendAdminNewChatMessageEmail(
       storeName: 'Lenha & Carvão Silva Dias',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 20px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 40px;"></div>`
       : `<div style="font-size: 18px; font-weight: bold; color: #ea580c; margin-bottom: 20px;">${escapeHtml(storeName)}</div>`;
@@ -1070,7 +1070,7 @@ export async function sendNewsletterWelcomeEmail(userEmail: string) {
       storeEmail: 'info@lenhaecarvaosilvadias.com',
       storeAddress: 'Alto Almosquia, 2750-000 Cascais – Portugal'
     }));
-    
+
     const logoHtml = logo
       ? `<div style="text-align: left; margin-bottom: 25px;"><img src="${logo}" alt="${escapeHtml(storeName)}" style="max-height: 48px;"></div>`
       : `<div style="font-size: 20px; font-weight: bold; color: #dc2626; margin-bottom: 25px;">${escapeHtml(storeName)}</div>`;

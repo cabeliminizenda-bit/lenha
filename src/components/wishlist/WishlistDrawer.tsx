@@ -32,7 +32,7 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
         setIsLoading(false);
         return;
       }
-      
+
       setIsLoading(true);
       try {
         const fetchedProducts = await getProductsByIds(items);
@@ -43,7 +43,7 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
         setIsLoading(false);
       }
     }
-    
+
     if (isOpen) {
       loadWishlist();
     }
@@ -57,17 +57,16 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
     <>
       {/* Backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] bg-black/50 transition-opacity"
           onClick={onClose}
         />
       )}
 
       {/* Drawer */}
-      <div 
-        className={`fixed top-0 right-0 z-[101] w-full sm:w-[400px] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 right-0 z-[101] w-full sm:w-[400px] h-full bg-white shadow-xl transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
@@ -82,9 +81,9 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
             </div>
             <h2 className="text-xl font-bold text-gray-900">{t('title') || 'My Favorites'}</h2>
           </div>
-          
+
           <div className="flex items-center space-x-3">
-            <button 
+            <button
               onClick={onClose}
               aria-label={t('close') || "Close"}
               className="p-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition"
@@ -100,7 +99,7 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
             <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4">
               <svg className="w-16 h-16 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
               <p>{t('empty') || 'Your wishlist is currently empty.'}</p>
-              <button 
+              <button
                 onClick={onClose}
                 className="mt-4 px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition"
               >
@@ -130,7 +129,7 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
                         <Link href={`/produto/${item.slug}`} onClick={onClose} className="font-semibold text-gray-900 truncate hover:text-orange-700">
                           {item.title}
                         </Link>
-                        <button 
+                        <button
                           onClick={() => toggleItem(item.id)}
                           className="text-gray-500 hover:text-red-500 p-1 flex-shrink-0"
                           title="Remove"
@@ -152,8 +151,8 @@ export default function WishlistDrawer({ isOpen, onClose }: WishlistDrawerProps)
         {/* Footer Actions */}
         {items.length > 0 && (
           <div className="p-4 border-t border-gray-100 bg-gray-50 flex flex-col gap-3">
-            <Link 
-              href="/wishlist" 
+            <Link
+              href="/wishlist"
               onClick={onClose}
               className="w-full block text-center bg-gray-900 text-white py-3 rounded-md font-bold hover:bg-gray-800 transition"
             >
