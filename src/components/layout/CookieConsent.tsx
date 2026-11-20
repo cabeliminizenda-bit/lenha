@@ -61,7 +61,7 @@ export default function CookieConsent() {
       role="dialog"
       aria-live="polite"
       aria-label={t('title')}
-      className="fixed bottom-[68px] sm:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-[80] bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/90 shadow-2xl shadow-stone-900/15 p-4 sm:p-5 transition-transform duration-300"
+      className="fixed bottom-[68px] sm:bottom-6 left-3 right-3 sm:left-6 sm:right-auto sm:max-w-md z-[80] bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/90 shadow-2xl shadow-stone-900/15 p-4 sm:p-5 transition-transform duration-300"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">

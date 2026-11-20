@@ -155,7 +155,7 @@ export default function ChatWidget({ enabled, storeName, storeIcon }: ChatWidget
   }
 
   return (
-    <div className={`fixed bottom-20 lg:bottom-6 left-4 sm:left-6 z-50 font-sans ${visibilityClasses}`}>
+    <div className={`fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-50 font-sans ${visibilityClasses}`}>
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
