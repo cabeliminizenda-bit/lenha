@@ -381,18 +381,21 @@ export default function FeaturedProductTabs({ initialProducts }: FeaturedProduct
     });
   }, [products, activeTab]);
 
-  // Update slider scroll button states
+  // Update slider scroll button states without forced reflow
   const checkScrollState = () => {
     if (!sliderRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-    setCanScrollLeft(scrollLeft > 15);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
+    requestAnimationFrame(() => {
+      if (!sliderRef.current) return;
+      const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
+      setCanScrollLeft(scrollLeft > 15);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 15);
 
-    // Approximate slide index (out of 4 items per view on desktop)
-    const cardWidth = clientWidth / 4;
-    if (cardWidth > 0) {
-      setCurrentSlideIndex(Math.round(scrollLeft / cardWidth));
-    }
+      // Approximate slide index (out of 4 items per view on desktop)
+      const cardWidth = clientWidth / 4;
+      if (cardWidth > 0) {
+        setCurrentSlideIndex(Math.round(scrollLeft / cardWidth));
+      }
+    });
   };
 
   useEffect(() => {

@@ -8,12 +8,15 @@ export default function ProductSliderWrapper({ children }: { children: ReactNode
   useEffect(() => {
     const interval = setInterval(() => {
       if (scrollRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-        if (scrollLeft + clientWidth >= scrollWidth - 10) {
-          scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          scrollRef.current.scrollBy({ left: clientWidth > 600 ? 320 : 266, behavior: 'smooth' });
-        }
+        requestAnimationFrame(() => {
+          if (!scrollRef.current) return;
+          const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+          if (scrollLeft + clientWidth >= scrollWidth - 10) {
+            scrollRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            scrollRef.current.scrollBy({ left: clientWidth > 600 ? 320 : 266, behavior: 'smooth' });
+          }
+        });
       }
     }, 4000); // Autoslide every 4s
 
