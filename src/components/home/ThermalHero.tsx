@@ -283,7 +283,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             sizes="100vw"
             quality={80}
             unoptimized={bgImageUrl.startsWith('http')}
-            className="object-cover object-center pointer-events-none transition-opacity duration-500"
+            className="object-cover object-center pointer-events-none"
             style={{ opacity: bgOpacity }}
           />
         )}
@@ -301,7 +301,6 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             {campaignBadge && (
               <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-red-950/70 border border-red-600/40 rounded-full text-xs backdrop-blur-md shadow-sm">
                 <span className="relative flex h-2.5 w-2.5 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
                 </span>
                 <span className="text-white font-bold tracking-wide">
@@ -313,7 +312,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white drop-shadow-md">
               {titlePrefix && <>{titlePrefix}<br /></>}
               {titleGradient && (
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 to-amber-300">
+                <span className="text-amber-400 font-extrabold">
                   {titleGradient}
                 </span>
               )}

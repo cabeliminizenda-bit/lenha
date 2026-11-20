@@ -10,7 +10,7 @@ import HeatingGuideBlogs from '@/components/home/HeatingGuideBlogs';
 import prisma from '@/lib/prisma';
 import { SectionConfig } from '@/app/admin/(dashboard)/landing/LandingForm';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export default async function Home() {
   const settings = await import('@/lib/cache').then(m => m.getCachedSettings());
