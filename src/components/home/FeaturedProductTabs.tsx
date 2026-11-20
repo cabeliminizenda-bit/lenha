@@ -183,7 +183,6 @@ function ProductCardImage({
       title={title}
       fill
       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-      unoptimized={src.startsWith('http')}
       onError={() => setImgError(true)}
       className="object-contain p-2.5 group-hover:scale-105 transition-transform duration-500"
     />

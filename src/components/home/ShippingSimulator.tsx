@@ -928,7 +928,6 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                         src={activeProduct.image}
                         alt={activeProduct.title}
                         fill
-                        unoptimized={activeProduct.image.startsWith('http')}
                         className="object-contain p-1"
                       />
                     ) : (
@@ -1058,7 +1057,7 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <div className="w-9 h-9 rounded-lg bg-stone-800 shrink-0 relative overflow-hidden flex items-center justify-center">
                                   {p.image ? (
-                                    <Image src={p.image} alt="" fill unoptimized={p.image.startsWith('http')} className="object-contain p-0.5" />
+                                    <Image src={p.image} alt="" fill className="object-contain p-0.5" />
                                   ) : (
                                     <span className="text-sm">
                                       {activeCategory === 'pallets' ? '🪵' : activeCategory === 'fireplaces' ? '🔥' : '❄️'}
@@ -1105,7 +1104,6 @@ export default function ShippingSimulator({ productsData }: ShippingSimulatorPro
                             src={activeProduct.image}
                             alt={activeProduct.title}
                             fill
-                            unoptimized={activeProduct.image.startsWith('http')}
                             className="object-contain p-1"
                           />
                         ) : (

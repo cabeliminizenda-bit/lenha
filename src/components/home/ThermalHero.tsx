@@ -282,7 +282,6 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             fetchPriority="high"
             sizes="100vw"
             quality={80}
-            unoptimized={bgImageUrl.startsWith('http')}
             className="object-cover object-center pointer-events-none"
             style={{ opacity: bgOpacity }}
           />
@@ -442,7 +441,6 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
                           src={currentItem.image}
                           alt={currentItem.title}
                           fill
-                          unoptimized={currentItem.image.startsWith('http')}
                           className={`${showcaseImageFit === 'cover' ? 'object-cover' : 'object-contain p-2'} object-center group-hover/img:scale-105 transition-transform duration-700 z-10`}
                           sizes="(max-width: 768px) 100vw, 500px"
                           priority

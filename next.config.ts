@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
   turbopack: {},
 
   images: {
-    unoptimized: true,
+    loader: 'custom',
+    loaderFile: './src/lib/imageLoader.ts',
     remotePatterns: [
       {
         protocol: 'https',

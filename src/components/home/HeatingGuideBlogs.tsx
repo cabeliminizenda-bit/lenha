@@ -95,7 +95,6 @@ export default async function HeatingGuideBlogs() {
                       alt={art.title} 
                       width={600} 
                       height={400} 
-                      unoptimized={art.image.startsWith('http')}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                     />
                   ) : (
