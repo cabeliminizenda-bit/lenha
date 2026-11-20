@@ -42,14 +42,21 @@ async function getTransporter() {
     throw new Error('Configuração SMTP não encontrada na base de dados.');
   }
 
+  const rawPort = (settings.SMTP_PORT || '465').toString().trim();
+  const port = parseInt(rawPort, 10);
+  const isSecure = port === 465;
+
   const transporter = nodemailer.createTransport({
-    host: settings.SMTP_HOST,
-    port: parseInt(settings.SMTP_PORT || '587', 10),
-    secure: settings.SMTP_PORT === '465',
+    host: settings.SMTP_HOST.trim(),
+    port: port,
+    secure: isSecure,
     auth: {
-      user: settings.SMTP_USER,
-      pass: settings.SMTP_PASS,
+      user: settings.SMTP_USER.trim(),
+      pass: settings.SMTP_PASS.trim(),
     },
+    connectionTimeout: 10000,
+    greetingTimeout: 5000,
+    socketTimeout: 15000,
   });
 
   const storeName = settings.STORE_NAME || settings.NEXT_PUBLIC_STORE_NAME || process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvão Silva Dias";
@@ -57,9 +64,17 @@ async function getTransporter() {
   const storeAddress = settings.CONTACT_ADDRESS || settings.FOOTER_ADDRESS_1 || 'Alto Almosquia, 2750-000 Cascais – Portugal';
   const logo = settings.HEADER_LOGO_IMAGE || settings.STYLE2_LOGO || '';
 
+  // Ensure 'from' is always a valid email address with domain, never bare username like 'resend'
+  let from = (settings.SMTP_FROM || '').trim();
+  if (!from || !from.includes('@')) {
+    from = `"${storeName}" <${storeEmail}>`;
+  }
+
   return {
     transporter,
-    from: settings.SMTP_FROM || `"${storeName}" <${settings.SMTP_USER || 'info@lenhaecarvaosilvadias.com'}>`,
+    apiKey: settings.SMTP_PASS.trim(),
+    host: settings.SMTP_HOST.trim(),
+    from,
     logo,
     storeName,
     storeEmail,
@@ -67,7 +82,61 @@ async function getTransporter() {
   };
 }
 
-// General email sender
+// Helper to send via Resend HTTPS REST API directly (100% reliable on Vercel Serverless)
+async function sendViaResendApi({
+  apiKey,
+  from,
+  to,
+  subject,
+  html,
+  attachments,
+  replyTo,
+}: {
+  apiKey: string;
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+  attachments?: any[];
+  replyTo?: string;
+}) {
+  const payload: any = {
+    from,
+    to: Array.isArray(to) ? to : [to],
+    subject,
+    html,
+  };
+
+  if (replyTo) {
+    payload.reply_to = replyTo;
+  }
+
+  if (attachments && attachments.length > 0) {
+    payload.attachments = attachments.map((att) => ({
+      filename: att.filename,
+      content: Buffer.isBuffer(att.content) ? att.content.toString('base64') : att.content,
+    }));
+  }
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || `Erro da API Resend (${response.status})`);
+  }
+
+  return { success: true as const, messageId: data.id };
+}
+
+// General email sender (Tenta Resend API se chave re_ configurada, com fallback seguro para SMTP)
 export async function sendEmail({
   to,
   subject,
@@ -80,9 +149,29 @@ export async function sendEmail({
   html: string;
   attachments?: any[];
   replyTo?: string;
-}) {
+}): Promise<{ success: true; messageId?: string } | { success: false; error: any }> {
   try {
-    const { transporter, from } = await getTransporter();
+    const { transporter, apiKey, host, from } = await getTransporter();
+
+    // Se o fornecedor for Resend (chave re_ ou host smtp.resend.com), utilizar a API REST HTTPS direta
+    // para garantir latência ultra-baixa e contornar restrições de portas TCP em ambientes Serverless
+    if (apiKey.startsWith('re_') || host.includes('resend.com')) {
+      try {
+        const resendResult = await sendViaResendApi({
+          apiKey,
+          from,
+          to,
+          subject,
+          html,
+          attachments,
+          replyTo,
+        });
+        return resendResult;
+      } catch (apiErr: any) {
+        console.warn('[MAILER] Tentativa via API Resend falhou, tentando fallback SMTP:', apiErr?.message);
+        // Fallback para SMTP normal abaixo se a API der erro
+      }
+    }
 
     const info = await transporter.sendMail({
       from,
@@ -93,10 +182,10 @@ export async function sendEmail({
       attachments,
     });
 
-    return { success: true, messageId: info.messageId };
+    return { success: true as const, messageId: info.messageId };
   } catch (error) {
     console.error("Erro ao enviar e-mail: ", error);
-    return { success: false, error };
+    return { success: false as const, error };
   }
 }
 

@@ -937,7 +937,7 @@ export async function testSmtpConnection(targetEmail: string) {
     });
 
     if (!result.success) {
-      return { success: false, error: (result.error as any)?.message || 'Falha no envio da mensagem de teste.' };
+      return { success: false, error: ((result as any).error as any)?.message || 'Falha no envio da mensagem de teste.' };
     }
 
     return { success: true };

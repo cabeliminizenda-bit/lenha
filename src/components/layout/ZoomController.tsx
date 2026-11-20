@@ -8,7 +8,9 @@ export default function ZoomController() {
     // Évite le reflow forcé (layout thrashing) et préserve l'échelle tactile native
     if (typeof window === 'undefined') return;
     if (window.innerWidth < 1024 || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
-      document.documentElement.style.removeProperty('zoom');
+      if (document.documentElement.style.zoom) {
+        document.documentElement.style.removeProperty('zoom');
+      }
       return;
     }
 

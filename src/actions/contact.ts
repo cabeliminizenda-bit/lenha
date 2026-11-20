@@ -106,33 +106,30 @@ export async function submitNewsletter(formData: FormData) {
     try {
       const { sendEmail, sendAdminNewsletterNotification, sendNewsletterWelcomeEmail } = await import('@/lib/mailer');
       
-      // 1. Notifica imediatamente o Administrador da nova subscrição
-      sendAdminNewsletterNotification(email, ip).catch(err => {
-        console.error('[NEWSLETTER] Falha ao notificar admin:', err);
-      });
-
-      // 2. Envia o e-mail de boas-vindas com o cupão exclusivo de 10% (WELCOME10)
-      sendNewsletterWelcomeEmail(email).catch(err => {
-        console.error('[NEWSLETTER] Falha ao enviar cupão de boas-vindas:', err);
-      });
-
-      // 3. Envia o e-mail de confirmação / opt-in
-      await sendEmail({
-        to: email,
-        subject: `Confirme a sua subscrição na Newsletter - Lenha & Carvão Silva Dias`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
-            <h1 style="font-size: 22px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">Por favor, confirme a sua subscrição</h1>
-            <p style="font-size: 14px; color: #333; margin-bottom: 20px;">Agradecemos o seu interesse na newsletter da <strong>Lenha & Carvão Silva Dias</strong>! Por favor, clique no botão abaixo para confirmar a sua subscrição:</p>
-            <p style="text-align: center; margin: 30px 0;">
-              <a href="${confirmUrl}" style="background-color: #dc2626; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Confirmar Subscrição</a>
-            </p>
-            <p style="font-size: 12px; color: #666; margin-top: 25px;">Se não solicitou esta subscrição, por favor ignore esta mensagem.</p>
-          </div>
-        `,
-      });
+      // Envio simultâneo e com await obrigatório para evitar terminação prematura em funções Serverless (Vercel)
+      await Promise.allSettled([
+        // 1. Notifica imediatamente o Administrador da nova subscrição
+        sendAdminNewsletterNotification(email, ip),
+        // 2. Envia o e-mail de boas-vindas com o cupão exclusivo de 10% (WELCOME10)
+        sendNewsletterWelcomeEmail(email),
+        // 3. Envia o e-mail de confirmação / opt-in
+        sendEmail({
+          to: email,
+          subject: `Confirme a sua subscrição na Newsletter - Lenha & Carvão Silva Dias`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.5; padding: 20px;">
+              <h1 style="font-size: 22px; color: #1a1a1a; margin-top: 0; margin-bottom: 15px;">Por favor, confirme a sua subscrição</h1>
+              <p style="font-size: 14px; color: #333; margin-bottom: 20px;">Agradecemos o seu interesse na newsletter da <strong>Lenha & Carvão Silva Dias</strong>! Por favor, clique no botão abaixo para confirmar a sua subscrição:</p>
+              <p style="text-align: center; margin: 30px 0;">
+                <a href="${confirmUrl}" style="background-color: #dc2626; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Confirmar Subscrição</a>
+              </p>
+              <p style="font-size: 12px; color: #666; margin-top: 25px;">Se não solicitou esta subscrição, por favor ignore esta mensagem.</p>
+            </div>
+          `,
+        })
+      ]);
     } catch (emailErr) {
-      console.error('[NEWSLETTER] Failed to send opt-in email:', emailErr);
+      console.error('[NEWSLETTER] Failed to send newsletter emails:', emailErr);
     }
 
     return { success: true, message: 'Por favor, verifique a sua caixa de correio para confirmar a subscrição.' };

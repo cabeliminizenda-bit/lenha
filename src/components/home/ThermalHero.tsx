@@ -272,7 +272,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 left-1/3 w-80 h-80 bg-orange-600/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* User Background Image with controllable opacity - Native Next.js Image with high priority for LCP */}
+        {/* User Background Image with controllable opacity - Only on desktop to ensure immediate stable LCP on mobile */}
         {bgImageUrl && (
           <Image
             src={bgImageUrl}
@@ -282,7 +282,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             fetchPriority="high"
             sizes="100vw"
             quality={80}
-            className="object-cover object-center pointer-events-none"
+            className="hidden lg:block object-cover object-center pointer-events-none"
             style={{ opacity: bgOpacity }}
           />
         )}
@@ -308,7 +308,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
               </div>
             )}
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white drop-shadow-md">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white">
               {titlePrefix && <>{titlePrefix}<br /></>}
               {titleGradient && (
                 <span className="text-amber-400 font-extrabold">
@@ -318,7 +318,7 @@ export default function ThermalHero({ config, showcaseProducts, isPreview, secti
             </h1>
 
             {description && (
-              <p className="text-stone-200 text-sm sm:text-base max-w-xl leading-relaxed drop-shadow-sm">
+              <p className="text-stone-200 text-sm sm:text-base max-w-xl leading-relaxed">
                 {description}
               </p>
             )}

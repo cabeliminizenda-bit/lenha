@@ -19,6 +19,7 @@ import { SITE_URL } from '@/lib/site';
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
