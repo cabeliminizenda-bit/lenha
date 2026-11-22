@@ -5,7 +5,7 @@ import { SITE_URL } from '@/lib/site';
 import { getCategoryByPathSegments, getCategoryCanonicalPath } from '@/lib/categories';
 import { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export async function generateMetadata({
   params,

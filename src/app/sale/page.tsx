@@ -3,18 +3,29 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function SaleProductsPage() {
   const t = await getTranslations('SaleProducts');
 
   const products = await prisma.product.findMany({
     where: {
-      compareAtPrice: { not: null }
+      compareAtPrice: { not: null },
+      isDeleted: false
     },
-    include: { categories: true, reviews: { select: { rating: true } } },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      price: true,
+      compareAtPrice: true,
+      images: true,
+      discountLabel: true,
+      categories: { select: { name: true, slug: true } },
+      reviews: { select: { rating: true } }
+    },
     orderBy: { updatedAt: 'desc' },
-    take: 50 // Fetch sale products
+    take: 48
   });
 
   return (
