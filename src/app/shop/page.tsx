@@ -37,7 +37,7 @@ export async function generateMetadata({
     if (category) {
       return {
         title: category.metaTitle ? category.metaTitle : `${category.name} | ${storeName}`,
-        description: category.metaDescription || `Kaufen Sie ${category.name} günstig online bei ${storeName}.`,
+        description: category.metaDescription || `Compre ${category.name} online ao melhor preço na ${storeName} com entrega rápida em Portugal.`,
         alternates: {
           canonical: `/shop?category=${category.slug}`,
         },
@@ -46,8 +46,8 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Shop | ${storeName}`,
-    description: 'Entdecken Sie unser großes Sortiment an Kaminöfen, Pelletöfen, Brennholz und Holzbriketts.',
+    title: `Loja | ${storeName}`,
+    description: 'Descubra a nossa vasta gama de salamandras, recuperadores de calor, caldeiras, pellets e lenha com entrega rápida em Portugal.',
     alternates: {
       canonical: '/shop',
     },

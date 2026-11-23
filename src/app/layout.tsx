@@ -28,11 +28,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const settingsDb = await prisma.setting.findMany({
     where: { key: { in: ['FAVICON_IMAGE', 'HOME_META_TITLE', 'HOME_META_DESCRIPTION', 'HEADER_LOGO_IMAGE', 'GOOGLE_SITE_VERIFICATION'] } }
   });
-  
+
   const settingsMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
   const faviconUrl = settingsMap['FAVICON_IMAGE'];
-  const title = settingsMap['HOME_META_TITLE'] || `${storeName} | E-commerce`;
-  const description = settingsMap['HOME_META_DESCRIPTION'] || "Découvrez notre vaste sélection de produits de haute qualité sur notre boutique en ligne complète.";
+  const title = settingsMap['HOME_META_TITLE'] || `${storeName} | Climatização e Biomassa em Portugal`;
+  const description = settingsMap['HOME_META_DESCRIPTION'] || "Especialistas em salamandras a pellets e lenha, recuperadores de calor, caldeiras e biomassa certificada em Portugal.";
   const ogImage = settingsMap['HEADER_LOGO_IMAGE'] || '/logo.jpg';
 
   const baseUrl = SITE_URL;
@@ -82,11 +82,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages();
   const locale = await getLocale();
-  
+
   let userRole: 'ADMIN' | 'CUSTOMER' | null = null;
-  
+
   const settingsMap = await getCachedSettings();
-  
+
   const currencyOptions = {
     currencySymbol: settingsMap.currencySymbol || defaultCurrencyOptions.currencySymbol,
     currencyPosition: (settingsMap.currencyPosition as any) || defaultCurrencyOptions.currencyPosition,
@@ -112,7 +112,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   } catch (e) {
     console.error("Erreur parsing HEADER_MENU_LINKS", e);
   }
-  
+
   const defaultFooterColumns = [
     { title: 'Contact Us', links: [{ label: 'About Us', url: '#' }, { label: 'Contact Us', url: '#' }] },
     { title: 'Account', links: [{ label: 'Shop', url: '#' }, { label: 'Checkout', url: '#' }] }
@@ -122,7 +122,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     if (settingsMap.FOOTER_COLUMNS) {
       footerColumns = JSON.parse(settingsMap.FOOTER_COLUMNS);
     }
-  } catch (e) {}
+  } catch (e) { }
 
   const defaultTopBarLinks = [
     { label: 'Rastrear Encomenda', icon: 'truck', url: '/order-tracking' },
@@ -132,7 +132,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     if (settingsMap.TOP_BAR_LINKS) {
       topBarLinks = JSON.parse(settingsMap.TOP_BAR_LINKS);
     }
-  } catch (e) {}
+  } catch (e) { }
 
   // Remove Store location and ensure Order Tracking is in Portuguese
   topBarLinks = (topBarLinks || [])
@@ -281,11 +281,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               "email": settingsMap.FOOTER_SUPPORT_EMAIL ?? settingsMap.HEADER_SUPPORT_EMAIL,
               "address": {
                 "@type": "PostalAddress",
-                "streetAddress": settingsMap.FOOTER_ADDRESS_1 || '',
-                "addressCountry": settingsMap.STORE_COUNTRY || "DE",
-                "addressLocality": "Langenhagen"
+                "streetAddress": settingsMap.FOOTER_ADDRESS_1 || 'Alto Almosquia, 2750-000 Cascais – Portugal',
+                "addressCountry": settingsMap.STORE_COUNTRY || "PT",
+                "addressLocality": "Cascais"
               },
-              "description": "Ihr zuverlässiger Partner für Kaminholz, Holzpellets und Holzbriketts."
+              "description": "Especialistas em salamandras a pellets e lenha, recuperadores de calor, caldeiras e biomassa em Portugal."
             })
           }}
         />
@@ -297,10 +297,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <StoreLayout settings={storeSettings} userRole={userRole}>
                 <Toaster position="bottom-right" />
                 {children}
-                <DeferredWidgets 
-                  chatEnabled={settingsMap.CHAT_ENABLED !== 'false'} 
-                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'Lenha & Carvao Silva Dias'} 
-                  chatStoreIcon={settingsMap.CHAT_STORE_ICON || settingsMap.HEADER_LOGO_IMAGE || settingsMap.FAVICON_IMAGE || '/logo.png'} 
+                <DeferredWidgets
+                  chatEnabled={settingsMap.CHAT_ENABLED !== 'false'}
+                  chatStoreName={settingsMap.CHAT_STORE_NAME || settingsMap.STORE_NAME || 'Lenha & Carvao Silva Dias'}
+                  chatStoreIcon={settingsMap.CHAT_STORE_ICON || settingsMap.HEADER_LOGO_IMAGE || settingsMap.FAVICON_IMAGE || '/logo.png'}
                 />
               </StoreLayout>
             </CurrencyProvider>
