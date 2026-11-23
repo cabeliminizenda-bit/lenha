@@ -222,7 +222,7 @@ export async function setupAdmin(formData: FormData) {
 
 export async function loginAdmin(formData: FormData) {
   const ip = await getClientIp();
-  const rl = await checkRateLimit(`login_admin_${ip}`, 5, 900); // 5 attempts per 15 mins
+  const rl = await checkRateLimit(`login_admin_${ip}`, 20, 900); // 20 attempts per 15 mins
   if (!rl.success) {
     return { error: 'Demasiadas tentativas de início de sessão. Acesso temporariamente suspenso.' };
   }
@@ -235,17 +235,74 @@ export async function loginAdmin(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword({
+  let { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
+
+  // Auto-sync / recovery: If Supabase Auth fails, verify if this user is the registered ADMIN in Prisma
+  // (Common when Supabase Auth instance was reconnected or users table wasn't migrated into auth.users)
+  if (error) {
+    const dbAdmin = await prisma.user.findFirst({
+      where: {
+        email: { equals: email, mode: 'insensitive' },
+        role: 'ADMIN'
+      }
+    });
+
+    if (dbAdmin) {
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+      if (serviceRoleKey && supabaseUrl) {
+        try {
+          const { createClient: createAdminSupabase } = await import('@supabase/supabase-js');
+          const adminSupabase = createAdminSupabase(supabaseUrl, serviceRoleKey);
+
+          // Check if this email exists in Supabase Auth
+          const { data: { users } } = await adminSupabase.auth.admin.listUsers();
+          const authUser = users?.find(u => u.email?.toLowerCase() === email);
+
+          if (!authUser) {
+            // User exists in Prisma as ADMIN but was never initialized in Supabase Auth
+            // Create user in Supabase Auth with the matching Prisma UUID and the provided password
+            const createRes = await adminSupabase.auth.admin.createUser({
+              id: dbAdmin.id,
+              email: dbAdmin.email,
+              password: password,
+              email_confirm: true,
+              user_metadata: { username: 'Admin' }
+            });
+
+            if (createRes.data?.user) {
+              const retryLogin = await supabase.auth.signInWithPassword({
+                email,
+                password,
+              });
+              data = retryLogin.data;
+              error = retryLogin.error;
+            }
+          }
+        } catch (syncErr) {
+          console.error('[loginAdmin] Auto-sync admin account error:', syncErr);
+        }
+      }
+    }
+  }
 
   if (error) {
     return { error: 'Credenciais incorretas.' };
   }
 
   if (data.user) {
-    const user = await prisma.user.findUnique({ where: { id: data.user.id } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: data.user.id },
+          { email: { equals: data.user.email || email, mode: 'insensitive' } }
+        ]
+      }
+    });
     if (!user || user.role !== 'ADMIN') {
       await supabase.auth.signOut({ scope: 'global' });
       return { error: 'Acesso negado. Não tem privilégios de administrador.' };

@@ -62,8 +62,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Check for active Supabase session cookie
-  const hasSession = request.cookies.getAll().some(c => c.name.startsWith('sb-') && c.name.endsWith('-auth-token'))
+  // 2. Check for active Supabase session cookie (supports both single & chunked .0, .1 cookies)
+  const hasSession = request.cookies.getAll().some(c => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
 
   // Only refresh session via Supabase network call if an auth token actually exists
   // Eliminates 100% of useless Supabase Auth egress on anonymous visitors & web crawlers

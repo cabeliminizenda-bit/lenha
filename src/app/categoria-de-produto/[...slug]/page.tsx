@@ -63,8 +63,8 @@ export default async function CategoriaDeProdutoPage({
   }
 
   const resolvedSearchParams = await searchParams;
-  const activeCategory = resolvedSearchParams.category !== undefined 
-    ? resolvedSearchParams.category 
+  const activeCategory = resolvedSearchParams.category !== undefined
+    ? resolvedSearchParams.category
     : (category.slug || category.id);
 
   const newSearchParams = Promise.resolve({
