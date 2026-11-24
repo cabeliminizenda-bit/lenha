@@ -17,6 +17,25 @@ if (redisUrl && redisToken) {
 }
 
 export async function middleware(request: NextRequest) {
+  const userAgent = request.headers.get('user-agent') || '';
+  const pathname = request.nextUrl.pathname.toLowerCase();
+
+  // 0. Anti-Scraping & Bad Bot Protection (Anti-Fluid CPU & Database Egress)
+  // Rejects aggressive commercial crawlers on dynamic queries directly at the Edge (0ms CPU, 0 DB queries)
+  const isBadBot = /SemrushBot|AhrefsBot|DotBot|PetalBot|MJ12bot|Bytespider|DataForSeoBot/i.test(userAgent);
+  if (isBadBot) {
+    const hasDynamicQuery = request.nextUrl.searchParams.toString().length > 0;
+    const isSearchOrFilter = pathname.startsWith('/search') || hasDynamicQuery;
+    if (isSearchOrFilter) {
+      return new NextResponse('Forbidden for commercial crawler bots', { status: 403 });
+    }
+  }
+
+  // Block common automated vulnerability scans (.php, /wp-admin, xmlrpc) at Edge (0 serverless compute)
+  if (pathname.endsWith('.php') || pathname.startsWith('/wp-admin') || pathname.includes('xmlrpc')) {
+    return new NextResponse('Not Found', { status: 404 });
+  }
+
   const isPrefetch = request.headers.get('purpose') === 'prefetch' || request.headers.get('x-middleware-prefetch') === '1';
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
 

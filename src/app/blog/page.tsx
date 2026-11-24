@@ -4,8 +4,9 @@ import BlogSidebar from '@/components/blog/BlogSidebar';
 import { getRecentComments } from '@/actions/blog';
 import { getTranslations, getLocale } from 'next-intl/server';
 import Image from "next/image";
+import { getCachedBlogListing, ARTICLE_CARD_SELECT } from '@/lib/cache';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 1800;
 
 export default async function BlogIndexPage({
   searchParams,
@@ -15,22 +16,35 @@ export default async function BlogIndexPage({
   const query = searchParams.q || '';
   const t = await getTranslations('Blog');
   const locale = await getLocale();
-  
-  const articles = await prisma.article.findMany({
-    where: {
-      isPublished: true,
-      ...(query ? { title: { contains: query, mode: 'insensitive' } } : {})
-    },
-    orderBy: { createdAt: 'desc' },
-    include: { _count: { select: { comments: { where: { isApproved: true } } } } }
-  });
 
-  const recentArticles = await prisma.article.findMany({
-    where: { isPublished: true },
-    orderBy: { createdAt: 'desc' },
-    take: 5,
-    select: { id: true, title: true, slug: true }
-  });
+  let articles: any[] = [];
+  let recentArticles: any[] = [];
+
+  if (!query) {
+    // 100% cached: 0 database queries on normal blog list visits
+    const cachedData = await getCachedBlogListing();
+    articles = cachedData.articles;
+    recentArticles = cachedData.recentArticles;
+  } else {
+    // Search query with minimal projection (strictly excludes full HTML content)
+    [articles, recentArticles] = await Promise.all([
+      prisma.article.findMany({
+        where: {
+          isPublished: true,
+          title: { contains: query, mode: 'insensitive' }
+        },
+        select: ARTICLE_CARD_SELECT,
+        orderBy: { createdAt: 'desc' },
+        take: 24
+      }),
+      prisma.article.findMany({
+        where: { isPublished: true },
+        select: { id: true, title: true, slug: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5
+      })
+    ]);
+  }
 
   const recentComments = await getRecentComments(5);
 

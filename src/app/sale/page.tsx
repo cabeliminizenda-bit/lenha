@@ -2,8 +2,9 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
+import { PRODUCT_CARD_SELECT } from '@/lib/cache';
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 export default async function SaleProductsPage() {
   const t = await getTranslations('SaleProducts');
@@ -13,17 +14,7 @@ export default async function SaleProductsPage() {
       compareAtPrice: { not: null },
       isDeleted: false
     },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      price: true,
-      compareAtPrice: true,
-      images: true,
-      discountLabel: true,
-      categories: { select: { name: true, slug: true } },
-      reviews: { select: { rating: true } }
-    },
+    select: PRODUCT_CARD_SELECT,
     orderBy: { updatedAt: 'desc' },
     take: 48
   });

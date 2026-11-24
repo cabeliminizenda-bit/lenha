@@ -25,11 +25,7 @@ const inter = Inter({
 const storeName = process.env.NEXT_PUBLIC_STORE_NAME || "Lenha & Carvao Silva Dias";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settingsDb = await prisma.setting.findMany({
-    where: { key: { in: ['FAVICON_IMAGE', 'HOME_META_TITLE', 'HOME_META_DESCRIPTION', 'HEADER_LOGO_IMAGE', 'GOOGLE_SITE_VERIFICATION'] } }
-  });
-
-  const settingsMap = settingsDb.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>);
+  const settingsMap = await getCachedSettings();
   const faviconUrl = settingsMap['FAVICON_IMAGE'];
   const title = settingsMap['HOME_META_TITLE'] || `${storeName} | Climatização e Biomassa em Portugal`;
   const description = settingsMap['HOME_META_DESCRIPTION'] || "Especialistas em salamandras a pellets e lenha, recuperadores de calor, caldeiras e biomassa certificada em Portugal.";

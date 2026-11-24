@@ -29,7 +29,15 @@ export default async function TrackingPage({ searchParams }: { searchParams: Pro
           },
           orderItems: {
             include: {
-              product: true
+              product: {
+                select: {
+                  id: true,
+                  title: true,
+                  slug: true,
+                  images: true,
+                  price: true
+                }
+              }
             }
           }
         }

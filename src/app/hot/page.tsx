@@ -2,25 +2,16 @@ import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import ProductCard from '@/components/shop/ProductCard';
+import { PRODUCT_CARD_SELECT } from '@/lib/cache';
 
-export const revalidate = 300;
+export const revalidate = 1800;
 
 export default async function HotProductsPage() {
   const t = await getTranslations('HotProducts');
 
   const products = await prisma.product.findMany({
     where: { isDeleted: false },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      price: true,
-      compareAtPrice: true,
-      images: true,
-      discountLabel: true,
-      categories: { select: { name: true, slug: true } },
-      reviews: { select: { rating: true } }
-    },
+    select: PRODUCT_CARD_SELECT,
     orderBy: {
       orderItems: {
         _count: 'desc'
@@ -51,12 +42,12 @@ export default async function HotProductsPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
             {products.map((product) => (
-              <ProductCard 
-                key={product.id} 
+              <ProductCard
+                key={product.id}
                 product={{
                   ...product,
                   discountLabel: t('hot_badge')
-                } as any} 
+                } as any}
               />
             ))}
           </div>

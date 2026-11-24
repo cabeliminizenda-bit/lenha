@@ -6,6 +6,8 @@ import { getContactSettings } from '@/actions/contactSettings';
 import { SITE_URL } from '@/lib/site';
 import { getCategoryCanonicalPath } from '@/lib/categories';
 
+export const revalidate = 86400;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
   const contactSettings = await getContactSettings();

@@ -12,7 +12,7 @@ import { safeJsonLd } from '@/lib/security';
 import { SITE_URL } from '@/lib/site';
 import Image from "next/image";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -70,12 +70,22 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     where: { isPublished: true, id: { not: article.id } },
     orderBy: { createdAt: 'desc' },
     take: 2,
-    include: { _count: { select: { comments: { where: { isApproved: true } } } } }
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      image: true,
+      category: true,
+      createdAt: true,
+      excerpt: true,
+      _count: { select: { comments: { where: { isApproved: true } } } }
+    }
   });
 
-  // Calculate next post
+  // Calculate next post (minimal projection)
   const nextPost = await prisma.article.findFirst({
     where: { isPublished: true, createdAt: { gt: article.createdAt } },
+    select: { id: true, title: true, slug: true },
     orderBy: { createdAt: 'asc' }
   });
 
@@ -232,7 +242,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                         {post.title}
                       </h4>
                       <p className="text-sm text-gray-600 line-clamp-2 flex-1 mb-4">
-                        {post.excerpt || post.content.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').substring(0, 100) + '...'}
+                        {post.excerpt || post.title}
                       </p>
                       <div className="flex items-center text-xs text-gray-500 gap-4 mt-auto">
                         <span className="flex items-center gap-1">

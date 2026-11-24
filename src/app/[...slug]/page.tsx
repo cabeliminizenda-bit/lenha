@@ -10,7 +10,7 @@ import { SITE_URL } from '@/lib/site';
 import { getCategoryByPathSegments, getCategoryCanonicalPath } from '@/lib/categories';
 import { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 const isUuid = (str: string) =>
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);

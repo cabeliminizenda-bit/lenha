@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 export default async function AccountReviewsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  
+
   if (!user) {
     redirect('/login');
   }
@@ -19,14 +19,28 @@ export default async function AccountReviewsPage() {
 
   const reviews = await prisma.review.findMany({
     where: { userId: user.id },
-    include: { product: true },
+    select: {
+      id: true,
+      rating: true,
+      comment: true,
+      isApproved: true,
+      createdAt: true,
+      product: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          images: true
+        }
+      }
+    },
     orderBy: { createdAt: 'desc' }
   });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="flex gap-8">
-        
+
         {/* Sidebar */}
         <aside className="w-64 flex-shrink-0">
           <div className="bg-gray-50 rounded-lg p-6">
@@ -61,7 +75,7 @@ export default async function AccountReviewsPage() {
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="flex text-orange-600">
-                          {[1,2,3,4,5].map(i => (
+                          {[1, 2, 3, 4, 5].map(i => (
                             <span key={i} className={i <= review.rating ? '' : 'text-gray-300'}>★</span>
                           ))}
                         </div>
@@ -71,9 +85,8 @@ export default async function AccountReviewsPage() {
                       </div>
                     </div>
                     <div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        review.isApproved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                      }`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${review.isApproved ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
                         {review.isApproved ? t('approved') : t('pending_moderation')}
                       </span>
                     </div>

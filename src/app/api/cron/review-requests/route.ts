@@ -31,7 +31,14 @@ export async function GET(request: Request) {
         user: true,
         orderItems: {
           include: {
-            product: true
+            product: {
+              select: {
+                id: true,
+                title: true,
+                images: true,
+                slug: true
+              }
+            }
           }
         }
       },

@@ -212,6 +212,7 @@ export async function createCategory(formData: FormData) {
     });
     revalidatePath('/admin/categories');
     refreshCacheTag('categories');
+    refreshCacheTag('filters');
     revalidatePath('/', 'layout');
     return { success: true };
   } catch (error) {
@@ -242,6 +243,7 @@ export async function updateCategory(id: string, name: string, slug?: string, pa
     revalidatePath('/admin/categories');
     revalidatePath('/', 'layout');
     refreshCacheTag('categories');
+    refreshCacheTag('filters');
     return { success: true };
   } catch (error) {
     return { error: "Error updating." };
@@ -255,6 +257,7 @@ export async function deleteCategory(id: string) {
     revalidatePath('/admin/categories');
     revalidatePath('/', 'layout');
     refreshCacheTag('categories');
+    refreshCacheTag('filters');
     return { success: true };
   } catch (error) {
     return { error: "Error: This category may contain products." };
@@ -274,6 +277,7 @@ export async function bulkDeleteCategories(ids: string[]) {
     revalidatePath('/admin/categories');
     revalidatePath('/', 'layout');
     refreshCacheTag('categories');
+    refreshCacheTag('filters');
     return { success: true };
   } catch (error) {
     const t = await getTranslations('AdminCategories');
@@ -391,6 +395,8 @@ export async function createProduct(formData: FormData, imageUrls: string[]) {
     revalidatePath('/admin/products');
     revalidatePath('/');
     refreshCacheTag('products');
+    refreshCacheTag('homepage');
+    refreshCacheTag('filters');
     refreshCacheTag(`product-${uniqueSlug}`);
     return { success: true };
   } catch (error: any) {
@@ -486,6 +492,8 @@ export async function updateProduct(id: string, formData: FormData, imageUrls: s
     revalidatePath('/admin/products');
     revalidatePath('/');
     refreshCacheTag('products');
+    refreshCacheTag('homepage');
+    refreshCacheTag('filters');
     refreshCacheTag(`product-${finalSlug || providedSlug}`); // Try to invalidate both if they differ, though finalSlug should be used
     return { success: true };
   } catch (error: any) {
@@ -526,6 +534,8 @@ export async function deleteProduct(id: string) {
     revalidatePath('/admin/products');
     revalidatePath('/');
     refreshCacheTag('products');
+    refreshCacheTag('homepage');
+    refreshCacheTag('filters');
     refreshCacheTag(`product-${product.slug}`);
     return { success: true };
   } catch (error: any) {
