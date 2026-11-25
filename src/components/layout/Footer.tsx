@@ -41,7 +41,7 @@ type FooterProps = {
 export default function Footer({ 
   supportPhone = '+351 253 000 000', 
   supportEmail = 'info@lenhaecarvaosilvadias.com',
-  footerBgColor = '#1C1917',
+  footerBgColor = '#0B162C',
   footerTextColor = '#ffffff',
   footerHeadingColor = '#ffffff',
   footerAddress1 = 'Alto Almosquia, 2750-000 Cascais – Portugal',
@@ -67,7 +67,7 @@ export default function Footer({
 
   return (
     <footer 
-      className="font-sans pt-12 sm:pt-16 pb-28 lg:pb-12 relative border-t border-stone-800" 
+      className="font-sans pt-12 sm:pt-16 pb-28 lg:pb-12 relative border-t border-stone-800 overflow-hidden w-full max-w-full" 
       style={{ backgroundColor: footerBgColor, color: footerTextColor }}
     >
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 w-full">

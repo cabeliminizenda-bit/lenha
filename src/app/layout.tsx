@@ -161,7 +161,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     adminDashboardText: settingsMap.ADMIN_DASHBOARD_TEXT,
     topBarBgColor: settingsMap.TOP_BAR_BG_COLOR || '#ffffff',
     topBarTextColor: settingsMap.TOP_BAR_TEXT_COLOR || '#4b5563',
-    footerBgColor: settingsMap.FOOTER_BG_COLOR || '#1C1917',
+    footerBgColor: settingsMap.FOOTER_BG_COLOR || '#0B162C',
     footerTextColor: settingsMap.FOOTER_TEXT_COLOR || '#d1d5db',
     footerHeadingColor: settingsMap.FOOTER_HEADING_COLOR || '#ffffff',
     footerAddress1: settingsMap.FOOTER_ADDRESS_1 ?? 'Braga, Portugal Continental',
@@ -241,7 +241,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${inter.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased overflow-x-hidden`}
     >
       <head>
         <link rel="alternate" type="application/rss+xml" title={`${storeName} - Blog RSS`} href="/rss.xml" />
@@ -268,7 +268,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </>
         )}
       </head>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex flex-col font-sans overflow-x-hidden max-w-full w-full">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

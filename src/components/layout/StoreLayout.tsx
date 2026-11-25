@@ -99,7 +99,7 @@ export default function StoreLayout({ children, settings, userRole }: StoreLayou
   }
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col font-sans overflow-x-hidden max-w-full w-full">
       <Header 
         userRole={userRole}
         announcement={settings.announcement} 
@@ -133,7 +133,7 @@ export default function StoreLayout({ children, settings, userRole }: StoreLayou
         allCategoriesBgColor={settings.allCategoriesBgColor}
         allCategoriesTextColor={settings.allCategoriesTextColor}
       />
-      <main className="flex-grow">
+      <main className="flex-grow overflow-x-hidden max-w-full w-full">
         {children}
       </main>
       <Footer 
