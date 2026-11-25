@@ -17,10 +17,22 @@ export default function imageLoader({
 
   // 1. Cloudinary on-the-fly CDN transformation
   if (src.includes('res.cloudinary.com') && src.includes('/image/upload/')) {
+    // Quantize width to discrete buckets to collapse permutations and prevent Cloudinary credit exhaustion
+    let targetWidth = 640;
+    if (width <= 384) {
+      targetWidth = 384;
+    } else if (width <= 640) {
+      targetWidth = 640;
+    } else if (width <= 1080) {
+      targetWidth = 1080;
+    } else {
+      targetWidth = 1600;
+    }
+
     const q = quality ? `q_${quality}` : 'q_auto';
     // f_auto: deliver WebP/AVIF automatically based on browser
     // c_limit: scale down only if original is larger than requested width
-    const transform = `f_auto,${q},c_limit,w_${width}`;
+    const transform = `f_auto,${q},c_limit,w_${targetWidth}`;
 
     const uploadIndex = src.indexOf('/image/upload/');
     if (uploadIndex !== -1) {
