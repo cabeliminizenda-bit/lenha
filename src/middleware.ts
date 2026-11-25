@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
+import { SESSION_COOKIE_NAME, verifySessionToken } from '@/lib/sessionToken'
 
 // Initialize Redis and Ratelimit if env vars are present
 const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
@@ -81,29 +82,37 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Check for active Supabase session cookie (supports both single & chunked .0, .1 cookies)
-  const hasSession = request.cookies.getAll().some(c => c.name.startsWith('sb-') && c.name.includes('-auth-token'))
+  // 2. Check for native Neon session cookie or Supabase session cookie
+  const nativeCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  let nativeSession = null;
+  if (nativeCookie) {
+    nativeSession = await verifySessionToken(nativeCookie);
+  }
 
-  // Only refresh session via Supabase network call if an auth token actually exists
-  // Eliminates 100% of useless Supabase Auth egress on anonymous visitors & web crawlers
-  const response = hasSession 
+  const hasSupabaseSession = request.cookies.getAll().some(c => c.name.startsWith('sb-') && c.name.includes('-auth-token'));
+
+  // Only refresh session via Supabase network call if an auth token actually exists and no native session
+  const response = (!nativeSession && hasSupabaseSession) 
     ? await updateSession(request)
-    : NextResponse.next({ request })
+    : NextResponse.next({ request });
+
+  const hasSession = Boolean(nativeSession) || hasSupabaseSession;
+  const isAdmin = nativeSession?.role === 'ADMIN';
 
   // Custom route protection logic
-  const url = request.nextUrl.clone()
+  const url = request.nextUrl.clone();
   
   if (url.pathname.startsWith('/account')) {
     if (!hasSession) {
-      url.pathname = '/login'
-      return Response.redirect(url)
+      url.pathname = '/login';
+      return Response.redirect(url);
     }
   }
 
   if (url.pathname.startsWith('/admin') && !url.pathname.startsWith('/admin/login') && !url.pathname.startsWith('/admin/setup')) {
-    if (!hasSession) {
-      url.pathname = '/admin/login'
-      return Response.redirect(url)
+    if (!isAdmin && !hasSupabaseSession) {
+      url.pathname = '/admin/login';
+      return Response.redirect(url);
     }
   }
 

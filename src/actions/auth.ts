@@ -4,6 +4,8 @@ import { createClient } from '@/utils/supabase/server';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { verifyPassword, hashPassword } from '@/lib/password';
+import { setSessionCookie, clearSessionCookie, getSessionUser } from '@/lib/session';
 
 export async function loginUser(formData: FormData) {
   const ip = await getClientIp();
@@ -17,6 +19,20 @@ export async function loginUser(formData: FormData) {
 
   if (!email || !password) {
     return { error: 'O e-mail e a palavra-passe são obrigatórios.' };
+  }
+
+  // 1. Native Neon Authentication (Zero-Egress & Fast)
+  const dbUser = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: 'insensitive' } }
+  });
+  if (dbUser && dbUser.password && verifyPassword(password, dbUser.password)) {
+    await setSessionCookie({
+      userId: dbUser.id,
+      email: dbUser.email,
+      role: dbUser.role as any
+    });
+    revalidatePath('/', 'layout');
+    return { success: true };
   }
 
   const supabase = await createClient();
@@ -154,8 +170,11 @@ export async function registerUser(formData: FormData) {
 }
 
 export async function logoutUser() {
-  const supabase = await createClient();
-  await supabase.auth.signOut({ scope: 'global' });
+  await clearSessionCookie();
+  try {
+    const supabase = await createClient();
+    await supabase.auth.signOut({ scope: 'global' });
+  } catch {}
   revalidatePath('/', 'layout');
   return { success: true };
 }
@@ -234,87 +253,69 @@ export async function loginAdmin(formData: FormData) {
     return { error: 'O e-mail e a palavra-passe são obrigatórios.' };
   }
 
-  const supabase = await createClient();
-  let { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
+  // 1. Native Neon Authentication for Admin (Zero-Egress & Direct)
+  const dbAdmin = await prisma.user.findFirst({
+    where: {
+      email: { equals: email, mode: 'insensitive' },
+      role: 'ADMIN'
+    }
   });
 
-  // Auto-sync / recovery: If Supabase Auth fails, verify if this user is the registered ADMIN in Prisma
-  // (Common when Supabase Auth instance was reconnected or users table wasn't migrated into auth.users)
-  if (error) {
-    const dbAdmin = await prisma.user.findFirst({
-      where: {
-        email: { equals: email, mode: 'insensitive' },
-        role: 'ADMIN'
-      }
+  if (dbAdmin && dbAdmin.password && verifyPassword(password, dbAdmin.password)) {
+    await setSessionCookie({
+      userId: dbAdmin.id,
+      email: dbAdmin.email,
+      role: 'ADMIN'
+    });
+    revalidatePath('/admin', 'layout');
+    return { success: true };
+  }
+
+  // 2. Fallback to Supabase Auth if needed
+  try {
+    const supabase = await createClient();
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
-    if (dbAdmin) {
-      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-
-      if (serviceRoleKey && supabaseUrl) {
-        try {
-          const { createClient: createAdminSupabase } = await import('@supabase/supabase-js');
-          const adminSupabase = createAdminSupabase(supabaseUrl, serviceRoleKey);
-
-          // Check if this email exists in Supabase Auth
-          const { data: { users } } = await adminSupabase.auth.admin.listUsers();
-          const authUser = users?.find(u => u.email?.toLowerCase() === email);
-
-          if (!authUser) {
-            // User exists in Prisma as ADMIN but was never initialized in Supabase Auth
-            // Create user in Supabase Auth with the matching Prisma UUID and the provided password
-            const createRes = await adminSupabase.auth.admin.createUser({
-              id: dbAdmin.id,
-              email: dbAdmin.email,
-              password: password,
-              email_confirm: true,
-              user_metadata: { username: 'Admin' }
-            });
-
-            if (createRes.data?.user) {
-              const retryLogin = await supabase.auth.signInWithPassword({
-                email,
-                password,
-              });
-              data = retryLogin.data;
-              error = retryLogin.error;
-            }
-          }
-        } catch (syncErr) {
-          console.error('[loginAdmin] Auto-sync admin account error:', syncErr);
+    if (!error && data?.user) {
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { id: data.user.id },
+            { email: { equals: data.user.email || email, mode: 'insensitive' } }
+          ]
         }
+      });
+      if (user && user.role === 'ADMIN') {
+        if (!user.password) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { password: hashPassword(password) }
+          }).catch(() => {});
+        }
+        await setSessionCookie({
+          userId: user.id,
+          email: user.email,
+          role: 'ADMIN'
+        });
+        revalidatePath('/admin', 'layout');
+        return { success: true };
       }
     }
+  } catch (sbErr) {
+    console.warn('[loginAdmin] Supabase fallback error:', sbErr);
   }
 
-  if (error) {
-    return { error: 'Credenciais incorretas.' };
-  }
-
-  if (data.user) {
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { id: data.user.id },
-          { email: { equals: data.user.email || email, mode: 'insensitive' } }
-        ]
-      }
-    });
-    if (!user || user.role !== 'ADMIN') {
-      await supabase.auth.signOut({ scope: 'global' });
-      return { error: 'Acesso negado. Não tem privilégios de administrador.' };
-    }
-  }
-
-  revalidatePath('/admin', 'layout');
-  return { success: true };
+  return { error: 'Credenciais incorretas ou sem privilégios de administrador.' };
 }
 
 export async function getUserRole() {
   try {
+    const session = await getSessionUser();
+    if (session) return session.role;
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {

@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import { createClient } from '@/utils/supabase/server';
+import { requireAdmin } from '@/lib/auth';
+import { clearSessionCookie } from '@/lib/session';
 import NotificationBell from '@/components/layout/NotificationBell';
 import AdminSidebarNav from '@/components/admin/AdminSidebarNav';
 import { getTranslations } from 'next-intl/server';
@@ -16,18 +18,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect('/admin/setup');
   }
 
-  // 2. Check current session
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    redirect('/admin/login');
-  }
-
-  // 3. Verify user role
-  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-  if (!dbUser || dbUser.role !== 'ADMIN') {
-    // Optionally sign out the non-admin user
+  // 2. Verify admin session (Native Neon session or fallback to Supabase)
+  let adminUser;
+  try {
+    adminUser = await requireAdmin();
+  } catch {
     redirect('/admin/login');
   }
 
@@ -70,17 +65,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <div className="flex items-center space-x-6">
             <NotificationBell isAdmin={true} />
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-500 font-medium">{user.email}</span>
+              <span className="text-sm text-gray-500 font-medium">{adminUser.email}</span>
               <form action={async () => {
-              'use server';
-              const sb = await createClient();
-              await sb.auth.signOut({ scope: 'global' });
-              redirect('/');
-            }}>
-              <button type="submit" className="text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors font-medium">
-                {t('sign_out')}
-              </button>
-            </form>
+                'use server';
+                await clearSessionCookie();
+                try {
+                  const sb = await createClient();
+                  await sb.auth.signOut({ scope: 'global' });
+                } catch { }
+                redirect('/');
+              }}>
+                <button type="submit" className="text-sm bg-red-50 text-red-600 px-3 py-1.5 rounded-md hover:bg-red-100 transition-colors font-medium">
+                  {t('sign_out')}
+                </button>
+              </form>
             </div>
           </div>
         </header>

@@ -75,11 +75,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+import { getUserRole } from '@/actions/auth';
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const messages = await getMessages();
   const locale = await getLocale();
 
   let userRole: 'ADMIN' | 'CUSTOMER' | null = null;
+  try {
+    userRole = await getUserRole();
+  } catch {}
 
   const settingsMap = await getCachedSettings();
 

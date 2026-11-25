@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import prisma from '@/lib/prisma';
+import { getSessionUser } from '@/lib/session';
 
 /**
  * Vérifie que l'utilisateur courant est authentifié et a le rôle ADMIN.
@@ -11,22 +12,40 @@ import prisma from '@/lib/prisma';
  * @throws Error si non authentifié ou non admin
  */
 export async function requireAdmin() {
-  const supabase = await createClient();
-  const { data: { user: authUser }, error } = await supabase.auth.getUser();
-
-  if (error || !authUser) {
-    throw new Error('Unauthorized: You must be logged in.');
+  // 1. Prioritize native Neon session (0 external dependency, fast & reliable)
+  try {
+    const session = await getSessionUser();
+    if (session && session.role === 'ADMIN') {
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+      });
+      if (user && user.role === 'ADMIN') {
+        return user;
+      }
+    }
+  } catch (e) {
+    console.warn('[requireAdmin] Error reading native session:', e);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: authUser.id },
-  });
+  // 2. Fallback to Supabase Auth
+  try {
+    const supabase = await createClient();
+    const { data: { user: authUser }, error } = await supabase.auth.getUser();
 
-  if (!user || user.role !== 'ADMIN') {
-    throw new Error('Forbidden: Admin access required.');
+    if (!error && authUser) {
+      const user = await prisma.user.findUnique({
+        where: { id: authUser.id },
+      });
+
+      if (user && user.role === 'ADMIN') {
+        return user;
+      }
+    }
+  } catch (e) {
+    console.warn('[requireAdmin] Supabase fallback unavailable:', e);
   }
 
-  return user;
+  throw new Error('Forbidden: Admin access required.');
 }
 
 /**
@@ -36,20 +55,38 @@ export async function requireAdmin() {
  * @throws Error si non authentifié
  */
 export async function requireAuth() {
-  const supabase = await createClient();
-  const { data: { user: authUser }, error } = await supabase.auth.getUser();
-
-  if (error || !authUser) {
-    throw new Error('Unauthorized: You must be logged in.');
+  // 1. Prioritize native Neon session
+  try {
+    const session = await getSessionUser();
+    if (session) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.userId },
+      });
+      if (user) {
+        return user;
+      }
+    }
+  } catch (e) {
+    console.warn('[requireAuth] Error reading native session:', e);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: authUser.id },
-  });
+  // 2. Fallback to Supabase Auth
+  try {
+    const supabase = await createClient();
+    const { data: { user: authUser }, error } = await supabase.auth.getUser();
 
-  if (!user) {
-    throw new Error('Unauthorized: User not found.');
+    if (!error && authUser) {
+      const user = await prisma.user.findUnique({
+        where: { id: authUser.id },
+      });
+
+      if (user) {
+        return user;
+      }
+    }
+  } catch (e) {
+    console.warn('[requireAuth] Supabase fallback unavailable:', e);
   }
 
-  return user;
+  throw new Error('Unauthorized: You must be logged in.');
 }
