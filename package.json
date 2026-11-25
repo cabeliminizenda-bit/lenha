@@ -52,5 +52,8 @@
     "not dead",
     "not op_mini all",
     "not IE > 0"
-  ]
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }
