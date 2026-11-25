@@ -28,7 +28,7 @@ export default function LoginPage() {
       if (res.error) {
         setLoginError(res.error);
       } else {
-        router.push('/account');
+        window.location.href = (res as any).isAdmin ? '/admin' : '/account';
       }
     });
   };
@@ -45,7 +45,7 @@ export default function LoginPage() {
       } else if (res.message) {
         setRegisterSuccess(res.message);
       } else {
-        router.push('/account');
+        window.location.href = '/account';
       }
     });
   };

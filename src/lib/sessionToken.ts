@@ -1,12 +1,10 @@
 export const SESSION_COOKIE_NAME = 'lenha_session';
 export const SESSION_DURATION_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
+const UNIFIED_SESSION_SECRET = 'lenha-session-secret-key-salt-pt-cascais-2026-auth-prod';
+
 function getSecretKey(): string {
-  return (
-    process.env.SESSION_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    'lenha-session-secret-key-salt-pt-cascais'
-  );
+  return process.env.SESSION_SECRET || UNIFIED_SESSION_SECRET;
 }
 
 function base64UrlEncode(str: string): string {

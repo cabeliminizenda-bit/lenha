@@ -32,7 +32,7 @@ export async function loginUser(formData: FormData) {
       role: dbUser.role as any
     });
     revalidatePath('/', 'layout');
-    return { success: true };
+    return { success: true, isAdmin: dbUser.role === 'ADMIN' };
   }
 
   const supabase = await createClient();
@@ -64,7 +64,7 @@ export async function loginUser(formData: FormData) {
     } else if (existingUser.id !== signInData.user.id && existingUser.role !== 'ADMIN') {
       // SECURITY: Only link guest orders if the user's email has been verified/confirmed
       const isEmailConfirmed = Boolean(
-        signInData.user.email_confirmed_at || 
+        signInData.user.email_confirmed_at ||
         (signInData.user as any).confirmed_at
       );
 
@@ -161,11 +161,11 @@ export async function registerUser(formData: FormData) {
   }
 
   revalidatePath('/', 'layout');
-  
+
   if (!data.session) {
     return { success: true, message: "Registo concluído com sucesso! Por favor, verifique a sua caixa de correio para confirmar a sua conta antes de iniciar sessão." };
   }
-  
+
   return { success: true };
 }
 
@@ -174,7 +174,7 @@ export async function logoutUser() {
   try {
     const supabase = await createClient();
     await supabase.auth.signOut({ scope: 'global' });
-  } catch {}
+  } catch { }
   revalidatePath('/', 'layout');
   return { success: true };
 }
@@ -293,7 +293,7 @@ export async function loginAdmin(formData: FormData) {
           await prisma.user.update({
             where: { id: user.id },
             data: { password: hashPassword(password) }
-          }).catch(() => {});
+          }).catch(() => { });
         }
         await setSessionCookie({
           userId: user.id,
